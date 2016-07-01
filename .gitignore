@@ -14,3 +14,5 @@ sitemap.xml.gz
 **/.sass-cache
 **/.sass-cache/*
 node_modules/*
+.tmp/*
+wp-content/themes/elmuar/style.css

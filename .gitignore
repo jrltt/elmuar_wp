@@ -16,3 +16,5 @@ sitemap.xml.gz
 node_modules/*
 .tmp/*
 wp-content/themes/elmuar/style.css
+.maintenance
+033!

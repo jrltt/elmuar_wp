@@ -9,6 +9,13 @@
 
 require_once( 'inc/jrltt-functions.php' );
 
+/**
+* Thumbnail images for child theme
+*/
+if ( function_exists( 'add_image_size' ) ) {
+	add_image_size('pub-index', 381, 560, false);
+}
+
 if ( ! function_exists( 'elmuar_setup' ) ) :
 /**
  * Sets up theme defaults and registers support for various WordPress features.

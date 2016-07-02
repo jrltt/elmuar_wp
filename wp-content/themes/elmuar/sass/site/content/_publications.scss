@@ -14,3 +14,21 @@
     padding: 0 1rem 0 1rem;
   }
 }
+
+.entry--header {
+  &__title {
+    font-size: 1.2rem;
+  }
+
+  &__img-wrapper {
+    @include display-flex;
+    @include justify-content(flex-end);
+    @include flex-direction(column);
+    min-height: 20rem;
+    
+    .wp-post-image {
+      max-width: 70%;
+      height: 100%;
+    }
+  }
+}

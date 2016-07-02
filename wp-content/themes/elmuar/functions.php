@@ -7,6 +7,8 @@
  * @package Elisa_Murcia_Artengo
  */
 
+require_once( 'inc/jrltt-functions.php' );
+
 if ( ! function_exists( 'elmuar_setup' ) ) :
 /**
  * Sets up theme defaults and registers support for various WordPress features.

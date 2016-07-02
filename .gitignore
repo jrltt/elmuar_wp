@@ -18,3 +18,4 @@ node_modules/*
 wp-content/themes/elmuar/style.css
 .maintenance
 033!
+*.map

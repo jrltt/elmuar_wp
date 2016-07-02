@@ -17,6 +17,34 @@
 
 	<div class="entry-content">
 		<?php
+			$the_ID = get_the_ID();
+			// $media = get_attached_media( 'image' );
+			// print_r($media);
+			$images = get_children( 
+				array(
+					'post_parent' => $the_ID, 
+					'post_status' => 'inherit', 
+					'post_type' => 'attachment', 
+					'post_mime_type' => 'image', 
+					'order' => 'ASC', 
+					'orderby' => 'menu_order ID'
+				)
+			);
+			 		
+			if (isset($images)) {
+				
+				foreach( $images as $image ) {
+					
+					$imageID 	= $image->ID;
+					$thumb 		= wp_get_attachment_image_src($imageID, $size = 'thumb', $icon = false); 
+					$large 		= wp_get_attachment_image_src($imageID, $size = 'large', $icon = false); 
+					$title 		= $image->post_title;
+					echo '<a href="' . $large[0] . '" title="' . $title .'">';
+					echo '	<img src="' . $thumb[0] . '" border="0" alt="' . $title .'">';
+					echo '</a>';
+				} 
+			}
+
 			the_content();
 
 			wp_link_pages( array(

@@ -19,3 +19,5 @@ wp-content/themes/elmuar/style.css
 .maintenance
 033!
 *.map
+elmuar.sublime-project
+elmuar.sublime-workspace

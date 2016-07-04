@@ -21,4 +21,4 @@ wp-content/themes/elmuar/style.css
 *.map
 elmuar.sublime-project
 elmuar.sublime-workspace
-wp-content/plugins/eazy-flickity-slider/
+wp-content/plugins/eazy-flickity-slider/*

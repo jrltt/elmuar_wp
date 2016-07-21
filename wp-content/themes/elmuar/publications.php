@@ -15,10 +15,12 @@ get_header(); ?>
 		<main id="main" class="site-main" role="main">
 
 			<?php
+			$category = get_term_by('slug', 'editions-trompeloeil', 'category');
 			$args = array(
-				'post_type'		=>		'publication',
-				'order'			=> 		'DESC',
-				'orderby'		=>		'date'
+				'post_type'					=>		'publication',
+				'order'							=> 		'DESC',
+				'orderby'						=>		'date',
+				'category__not_in'	=>		$category->term_id
 			);
 			$loop = new WP_Query($args);
 			while ( $loop->have_posts() ) : $loop->the_post();

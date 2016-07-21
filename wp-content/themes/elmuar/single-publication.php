@@ -13,11 +13,23 @@ get_header(); ?>
 	<h2>hola fellas</h2>
 		<main id="main" class="site-main" role="main">
 		<?php
+
 		while ( have_posts() ) : the_post();
 
 			get_template_part( 'template-parts/content', 'publication' );
-
-			the_post_navigation();
+			
+			if (!in_category('Editions TROMPELOeIL')) :
+				$argsPostNav = array (
+					'excluded_terms' => getEdTromCatId()
+				);
+			else:
+				$argsPostNav = array (
+					'in_same_term' 	=> 		true,
+					'taxonomy' 			=>		'category'
+				);
+			endif;
+			
+			the_post_navigation($argsPostNav);
 
 
 		endwhile; // End of the loop.

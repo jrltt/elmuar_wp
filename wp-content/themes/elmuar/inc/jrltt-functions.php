@@ -15,7 +15,7 @@ function build_category_year() {
 	$object_data = get_the_date('Y');
 	$cat = get_the_category(); 
 	foreach ($cat as $key => $value) {
-		$object_data .= ' – ' . $value->name;
+		$object_data .= ($value->slug == 'editions-trompeloeil') ? '' :' – ' . $value->name;
 	}
 	return $object_data;
 }

@@ -16,6 +16,157 @@ if ( function_exists( 'add_image_size' ) ) {
 	add_image_size('pub-index', 381, 560, false);
 }
 
+/**
+ * Add custom post types
+ */
+add_action( 'init', 'cptui_register_my_cpts' );
+function cptui_register_my_cpts() {
+	$labels = array(
+		"name" => __( 'Publications', 'elmuar' ),
+		"singular_name" => __( 'Publication', 'elmuar' ),
+		"menu_name" => __( 'Publications', 'elmuar' ),
+		"all_items" => __( 'All Publications', 'elmuar' ),
+		"add_new" => __( 'Add New', 'elmuar' ),
+		"add_new_item" => __( 'Add New Publication', 'elmuar' ),
+		"edit_item" => __( 'Edit Publication', 'elmuar' ),
+		"new_item" => __( 'New Publication', 'elmuar' ),
+		"view_item" => __( 'View Publicaiton', 'elmuar' ),
+		"search_items" => __( 'Search Publication', 'elmuar' ),
+		"not_found" => __( 'No Publication found', 'elmuar' ),
+		"not_found_in_trash" => __( 'No Publication found on trash', 'elmuar' ),
+		"parent" => __( 'Parent Publication', 'elmuar' ),
+		"featured_image" => __( 'Featured image for publication', 'elmuar' ),
+		"set_featured_image" => __( 'Set featured image for this publication', 'elmuar' ),
+		"remove_featured_image" => __( 'Remove featured image for this publication', 'elmuar' ),
+		"use_featured_image" => __( 'Use as featured image for this publication', 'elmuar' ),
+		"archives" => __( 'Publications archive', 'elmuar' ),
+		"insert_into_item" => __( 'Insert into publication', 'elmuar' ),
+		"uploaded_to_this_item" => __( 'Uploaded to this pubication', 'elmuar' ),
+		"filter_items_list" => __( 'Filter Publication list', 'elmuar' ),
+		"items_list_navigation" => __( 'Publications list navigation', 'elmuar' ),
+		"items_list" => __( 'Publications list', 'elmuar' ),
+		);
+
+	$args = array(
+		"label" => __( 'Publications', 'elmuar' ),
+		"labels" => $labels,
+		"description" => "Publications",
+		"public" => true,
+		"show_ui" => true,
+		"show_in_rest" => false,
+		"rest_base" => "",
+		"has_archive" => false,
+		"show_in_menu" => true,
+		"exclude_from_search" => false,
+		"capability_type" => "post",
+		"map_meta_cap" => true,
+		"hierarchical" => false,
+		"rewrite" => array( "slug" => "publication", "with_front" => true ),
+		"query_var" => true,
+		"menu_position" => 6,"menu_icon" => "dashicons-book",		
+		"supports" => array( "title", "editor", "thumbnail", "excerpt", "custom-fields" ),		
+		"taxonomies" => array( "category" ),		
+	);
+	register_post_type( "publication", $args );
+
+	$labels = array(
+		"name" => __( 'Projects', 'elmuar' ),
+		"singular_name" => __( 'Project', 'elmuar' ),
+		"menu_name" => __( 'Projects', 'elmuar' ),
+		"all_items" => __( 'All Projects', 'elmuar' ),
+		"add_new" => __( 'Add New', 'elmuar' ),
+		"add_new_item" => __( 'Add New Project', 'elmuar' ),
+		"edit_item" => __( 'Edit Project', 'elmuar' ),
+		"new_item" => __( 'New Project', 'elmuar' ),
+		"view_item" => __( 'View Project', 'elmuar' ),
+		"search_items" => __( 'Search Project', 'elmuar' ),
+		"not_found" => __( 'No Projects found', 'elmuar' ),
+		"not_found_in_trash" => __( 'No Projects found in trash', 'elmuar' ),
+		"parent" => __( 'Parent Project', 'elmuar' ),
+		"featured_image" => __( 'Featured image for this Project', 'elmuar' ),
+		"set_featured_image" => __( 'Set featured image for this Project', 'elmuar' ),
+		"remove_featured_image" => __( 'Remove featured image for this Project', 'elmuar' ),
+		"use_featured_image" => __( 'Use as featured image for this Project', 'elmuar' ),
+		"archives" => __( 'Projects Archives', 'elmuar' ),
+		"insert_into_item" => __( 'Insert into Project', 'elmuar' ),
+		"uploaded_to_this_item" => __( 'Uploaded to this Project', 'elmuar' ),
+		"filter_items_list" => __( 'Filter Projects list', 'elmuar' ),
+		"items_list_navigation" => __( 'Projects list navigation', 'elmuar' ),
+		"items_list" => __( 'Projects list', 'elmuar' ),
+		);
+
+	$args = array(
+		"label" => __( 'Projects', 'elmuar' ),
+		"labels" => $labels,
+		"description" => "Single projects",
+		"public" => true,
+		"show_ui" => true,
+		"show_in_rest" => false,
+		"rest_base" => "",
+		"has_archive" => false,
+		"show_in_menu" => true,
+		"exclude_from_search" => false,
+		"capability_type" => "post",
+		"map_meta_cap" => true,
+		"hierarchical" => false,
+		"rewrite" => array( "slug" => "project", "with_front" => true ),
+		"query_var" => true,
+		"menu_position" => 7,"menu_icon" => "dashicons-admin-page",		
+		"supports" => array( "title", "editor", "thumbnail", "custom-fields", "page-attributes", "post-formats" ),		
+		"taxonomies" => array( "category" ),		
+	);
+	register_post_type( "project", $args );
+
+	$labels = array(
+		"name" => __( 'Comissions', 'elmuar' ),
+		"singular_name" => __( 'Comission', 'elmuar' ),
+		"menu_name" => __( 'Comissions', 'elmuar' ),
+		"all_items" => __( 'All Comissions', 'elmuar' ),
+		"add_new" => __( 'Add new', 'elmuar' ),
+		"add_new_item" => __( 'Add new Comission', 'elmuar' ),
+		"edit_item" => __( 'Edit Comission', 'elmuar' ),
+		"new_item" => __( 'New Comission', 'elmuar' ),
+		"view_item" => __( 'View Comission', 'elmuar' ),
+		"search_items" => __( 'Search Comission', 'elmuar' ),
+		"not_found" => __( 'No Comission found', 'elmuar' ),
+		"not_found_in_trash" => __( 'No Comission found in trash', 'elmuar' ),
+		"parent" => __( 'Parent Comission', 'elmuar' ),
+		"featured_image" => __( 'Featured image for this Comission', 'elmuar' ),
+		"set_featured_image" => __( 'Set featured image for this Comission', 'elmuar' ),
+		"remove_featured_image" => __( 'Remove featured image for this Comission', 'elmuar' ),
+		"use_featured_image" => __( 'User as featured imaged for Comission', 'elmuar' ),
+		"archives" => __( 'Comission archives', 'elmuar' ),
+		"insert_into_item" => __( 'Insert into Comission', 'elmuar' ),
+		"uploaded_to_this_item" => __( 'Uploaded to this Comission', 'elmuar' ),
+		"filter_items_list" => __( 'Filter Comission list', 'elmuar' ),
+		"items_list_navigation" => __( 'Comission list navigation', 'elmuar' ),
+		"items_list" => __( 'Comission list', 'elmuar' ),
+		);
+
+	$args = array(
+		"label" => __( 'Comissions', 'elmuar' ),
+		"labels" => $labels,
+		"description" => "",
+		"public" => true,
+		"show_ui" => true,
+		"show_in_rest" => false,
+		"rest_base" => "",
+		"has_archive" => false,
+		"show_in_menu" => true,
+		"exclude_from_search" => false,
+		"capability_type" => "post",
+		"map_meta_cap" => true,
+		"hierarchical" => false,
+		"rewrite" => array( "slug" => "comission", "with_front" => true ),
+		"query_var" => true,
+		"menu_position" => 8,"menu_icon" => "dashicons-admin-page",		
+		"supports" => array( "title", "editor", "thumbnail", "custom-fields" ),				
+	);
+	register_post_type( "comission", $args );
+
+// End of cptui_register_my_cpts()
+}
+
 if ( ! function_exists( 'elmuar_setup' ) ) :
 /**
  * Sets up theme defaults and registers support for various WordPress features.

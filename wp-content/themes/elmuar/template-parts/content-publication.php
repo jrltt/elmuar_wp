@@ -8,43 +8,20 @@
  */
 
 ?>
-
+	<?php 
+	/*
+	 * temporal approach, better solution, with custom fields get the shortcode
+	 * and print the slider or similar.
+	 */
+	?>
+	<div style="display:block;-webkit-box-flex: 0;-ms-flex: 0 0 100%;flex: 0 0 100%;"><?php echo do_shortcode('[eazy-flickity-slider eazy_flickity_slider="41" width="100%" height="798px"]'); ?></div>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-	<h1>publication oh yeah</h1>
 		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 	</header><!-- .entry-header -->
 
 	<div class="entry-content">
 		<?php
-			$the_ID = get_the_ID();
-			// $media = get_attached_media( 'image' );
-			// print_r($media);
-			$images = get_children( 
-				array(
-					'post_parent' => $the_ID, 
-					'post_status' => 'inherit', 
-					'post_type' => 'attachment', 
-					'post_mime_type' => 'image', 
-					'order' => 'ASC', 
-					'orderby' => 'menu_order ID'
-				)
-			);
-			 		
-			if (isset($images)) {
-				
-				foreach( $images as $image ) {
-					
-					$imageID 	= $image->ID;
-					$thumb 		= wp_get_attachment_image_src($imageID, $size = 'thumb', $icon = false); 
-					$large 		= wp_get_attachment_image_src($imageID, $size = 'large', $icon = false); 
-					$title 		= $image->post_title;
-					echo '<a href="' . $large[0] . '" title="' . $title .'">';
-					echo '	<img src="' . $thumb[0] . '" border="0" alt="' . $title .'">';
-					echo '</a>';
-				} 
-			}
-
 			the_content();
 
 			wp_link_pages( array(

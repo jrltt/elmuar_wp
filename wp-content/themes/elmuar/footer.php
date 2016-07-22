@@ -15,9 +15,15 @@
 
 	<footer id="colophon" class="site-footer" role="contentinfo">
 		<div class="site-info">
-			<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'elmuar' ) ); ?>"><?php printf( esc_html__( 'Proudly powered by %s', 'elmuar' ), 'WordPress' ); ?></a>
-			<span class="sep"> | </span>
-			<?php printf( esc_html__( 'Theme: %1$s by %2$s.', 'elmuar' ), 'elmuar', '<a href="http://jrltt.net" rel="designer">jrltt</a>' ); ?>
+			<?php echo date(Y); ?>
+			<span class="sep"> – </span>
+			<?php bloginfo('name'); ?>
+			<span class="sep"> – </span>
+			&copy; All Rights Reserverd
+			<span class="sep"> – </span>
+			<a href="/info/contact">Contact</a>
+			<span class="sep"> – </span>
+			<?php printf( esc_html__( 'Website by %1$s.', 'elmuar' ), '<a href="http://jrltt.net" rel="designer">jrltt</a>' ); ?>
 		</div><!-- .site-info -->
 	</footer><!-- #colophon -->
 </div><!-- #page -->

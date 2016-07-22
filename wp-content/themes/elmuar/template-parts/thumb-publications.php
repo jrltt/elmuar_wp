@@ -11,7 +11,7 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-		<a href="<?php echo get_permalink(); ?>">
+		<a class="entry--header__link" href="<?php echo get_permalink(); ?>">
 			<div class="entry--header__img-wrapper">
 				<?php if( has_post_thumbnail() ): ?>
 					<?php the_post_thumbnail('pub-index'); ?>

@@ -11,13 +11,31 @@
 
   .type-publication {
     flex: 0 0 33.3333%;
-    padding: 0 1rem 0 1rem;
+    padding: 0 3.46154rem 6.92308rem;
   }
 }
 
 .entry--header {
+  &__link {
+    text-decoration: none;
+
+    &:hover {
+      .entry--header {
+        &__title,
+        &__meta {
+          @include transition(ease-in-out .35s);
+          color: lighten(black,10%);
+        }
+      }
+    }
+  }
+
   &__title {
     font-size: 1.2rem;
+  }
+
+  &__meta {
+    color: $color__link-visited;
   }
 
   &__img-wrapper {

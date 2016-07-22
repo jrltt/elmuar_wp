@@ -11,7 +11,8 @@
  * created date of category
  * @return String 
  */
-function build_category_year() {
+function build_category_year() 
+{
 	$object_data = get_the_date('Y');
 	$cat = get_the_category(); 
 	foreach ($cat as $key => $value) {
@@ -20,7 +21,8 @@ function build_category_year() {
 	return $object_data;
 }
 
-function getEdTromCatId () {
+function getEdTromCatId () 
+{
 	$catEdTromp = get_term_by('slug', 'editions-trompeloeil', 'category');
 	// $args = array(
 	// 	'category'         => $catEdTromp->term_id,
@@ -33,4 +35,15 @@ function getEdTromCatId () {
 	// 	array_push($edTrompIds, $value->ID);
 	// }
 	return $catEdTromp->term_id;
+}
+
+function defaultImages () 
+{
+	$images = array();
+	for ($i=0; $i < 4 ; $i++) { 
+		$image = get_template_directory_uri() . '/images/defaultImage'. $i .'.png';
+		array_push($images, $image);
+	}
+	$imageHtml = '<img src="' . $images[rand(0,count($images)-1)] .'" alt="ELMUAR Default image">';
+	return $imageHtml;
 }

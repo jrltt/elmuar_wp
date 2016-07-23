@@ -16,9 +16,9 @@ get_header(); ?>
 
 			<?php
 				 $args = array(
-					'parent' => get_the_ID(),
-					'post_type' => 'page',
-					'post_status' => 'publish'
+					'parent' 				=> get_the_ID(),
+					'post_type' 		=> 'page',
+					'post_status' 	=> 'publish'
 				); 
 				$pages = get_pages($args);
 				foreach ($pages as  $key => $value) {

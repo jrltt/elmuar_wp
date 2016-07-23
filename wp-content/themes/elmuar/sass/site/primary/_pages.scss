@@ -1,0 +1,8 @@
+.page-template-default {
+  .site-main {
+    .type-page {
+      @include flex(1);
+      padding: 0;
+    }
+  }
+}

@@ -13,9 +13,9 @@
 	<header class="entry-header">
 		<a class="entry--header__link" href="<?php echo get_permalink(); ?>">
 			<div class="entry--header__img-wrapper">
-				<?php if( has_post_thumbnail() ): ?>
-					<?php the_post_thumbnail('pub-index'); ?>
-				<?php endif; ?>
+				<?php if( has_post_thumbnail() ) {
+					the_post_thumbnail('pub-index');
+				} ?>
 			</div>
 			<?php the_title( '<h1 class="entry-title entry--header__title">', '</h1>' ); ?>
 			<div class="entry--header__meta">

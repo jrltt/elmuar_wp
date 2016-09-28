@@ -1,12 +1,56 @@
 .site-header {
   width: 100%;
-  text-align: center;
-  // @include display-flex;
-  // @include justify-content(space-between);
-  // @include align-items(center);
-  .main-navigation {
-    float: none;
-    width: 360px;
-    margin: 0 auto;
+  height: 3.4rem;
+  position: fixed;
+  z-index: 101;
+}
+
+.site-branding {
+  padding-left: $padding__size;
+  padding-right: $padding__size;
+  @include display-flex;
+  @include justify-content(space-between);
+  @include align-items(baseline);
+
+  .header--menu {
+    width: 42px;
+    height: 42px;
+  }
+
+  .header--menu__symbol {
+    position: relative;
+    z-index: 500;
+    width: 42px;
+    height: 42px;
+    display: block;
+    font-family: 'helvetica neue', helvetica, arial, sans-serif;
+    font-size: 2em;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+    @include transition(all 200ms ease-in);
+  }
+}
+
+.site-title {
+  margin: 0;
+}
+
+.site--header__link {
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.header--leng {
+  &__list {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    font-size: 0.8rem;
+    display: inline;
+    list-style: none;
   }
 }

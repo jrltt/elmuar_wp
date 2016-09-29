@@ -7,8 +7,8 @@
   z-index: 100;
   margin: 0 0 0 -320px;
   background-color: lighten(grey,45%); // margin: 0 0 0 -220px;
+  overflow-y: auto;
   @include transition(all 200ms ease-in);
-
   
   .menu {
     list-style: none;
@@ -17,8 +17,9 @@
     padding-right: 1rem;
 
     li {
-      margin-bottom: 2rem;
+      margin-bottom: 1.3rem;
       list-style: none;
+
     }
 
     .sub-menu {
@@ -27,6 +28,10 @@
 
       li {
         margin-bottom: 1rem;
+
+        &:first-child {
+          margin-top: 1.3rem;
+        }
 
         a {
           font-size: 1rem;

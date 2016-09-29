@@ -6,15 +6,27 @@
 }
 
 .site-branding {
-  padding-left: $padding__size;
-  padding-right: $padding__size;
-  @include display-flex;
-  @include justify-content(space-between);
-  @include align-items(baseline);
+  margin-top: .5rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+
+  @include media(">tablet") {
+    padding-left: $padding__size;
+    padding-right: $padding__size;
+    @include display-flex;
+    @include justify-content(space-between);
+    @include align-items(baseline);
+  }
 
   .header--menu {
     width: 42px;
     height: 42px;
+    float: left;
+    clear: left;
+
+    @include media(">tablet") {
+      float: none;
+    }
   }
 
   .header--menu__symbol {
@@ -26,20 +38,28 @@
     font-family: 'helvetica neue', helvetica, arial, sans-serif;
     font-size: 2em;
     font-weight: 700;
-    color: #000;
+    line-height: normal;
+    color: #656464;;
     margin: 0;
     @include transition(all 200ms ease-in);
+
+    &.active {
+      color: #969494;
+    }
   }
 }
 
 .site-title {
   margin: 0;
+  @include media("<tablet") {
+    padding-top: 5px;
+  }
 }
 
 .site--header__link {
-  font-size: 1.25rem;
   text-transform: uppercase;
   text-decoration: none;
+  font-size: 1.25rem; 
 }
 
 .header--leng {

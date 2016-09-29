@@ -10,6 +10,7 @@
     &-post {
       flex: 0 0 33.3333%;
       padding: 0 3.46154rem 6.92308rem;
+      transition: all 200ms ease;
     }
   }
 }
@@ -29,8 +30,11 @@
 
 .site-content {
   margin-top: 6rem;
+}
+.site-content,
+.site-footer {
   @include transition(all 200ms ease-in);
-
+  
   &.cbp-spmenu-push-toright {
     margin-left: 320px;
   }
@@ -42,9 +46,10 @@
   width: 100%;
   height: 100%;
   position: fixed;
-  @include transition(all 190ms ease-in);
+  @include transition(all 190ms ease);
 
   &.active {
     display: block;
+    z-index: 99;
   }
 }

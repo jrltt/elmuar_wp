@@ -11,7 +11,7 @@
 
 ?>
 
-	</div><!-- #content -->
+	
 
 	<footer id="colophon" class="site-footer" role="contentinfo">
 		<div class="site-info">
@@ -26,6 +26,7 @@
 			<?php printf( esc_html__( 'Website by %1$s.', 'elmuar' ), '<a href="http://jrltt.net" rel="designer">jrltt</a>' ); ?>
 		</div><!-- .site-info -->
 	</footer><!-- #colophon -->
+	</div><!-- #content -->
 </div><!-- #page -->
 
 <?php wp_footer(); ?>

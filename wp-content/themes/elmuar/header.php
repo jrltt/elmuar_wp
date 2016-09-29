@@ -28,9 +28,7 @@
 	<header id="masthead" class="site-header" role="banner">
 		<div class="site-branding">
 			<div class="header--menu">
-    		<p id="showLeftPush" class="header--menu__symbol">
-      	  &amp;
-    		</p>
+    		<p id="showLeftPush" class="header--menu__symbol">&amp;</p>
 			</div>
 			<div class="header--title">
 				<?php
@@ -56,7 +54,6 @@
 		</div><!-- .site-branding -->
 	</header><!-- #masthead -->
 		<nav id="cbp-spmenu-s1" class="main-navigation--custom" role="navigation">
-			<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false"><?phpesc_html_e( 'Primary Menu', 'elmuar' ); ?></button>
 			<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_id' => 'primary-menu' ) ); ?>
 		</nav><!-- #site-navigation -->
 	<div id="layer" class="site-layer"></div>

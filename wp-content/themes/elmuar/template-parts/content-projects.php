@@ -18,15 +18,16 @@
 		<?php
 			// the_content();
 			/**
+			 * http://mobiledetect.net/ switch between mobile, tablet or pc
 			 * https://codex.wordpress.org/Function_Reference/get_post_gallery_images
 			 */
 			if( ! has_shortcode( $post->post_content, 'gallery' ) )
  				return $content;
  			$gallery = get_post_gallery_images( $post );
-			$image_list = '<ul>';
+			$image_list = '<ul id="carousel">';
 			// Loop through each image in each gallery
 			foreach( $gallery as $image_url ) {
-				$image_list .= '<li>' . '<img width="40" src="' . $image_url . '">' . '</li>';
+				$image_list .= '<li class="carousel-cell">' . '<img src="' . $image_url . '">' . '</li>';
 			}
 			$image_list .= '</ul>';
 			// Append our image list to the content of our post

@@ -21,10 +21,20 @@
 			 * http://mobiledetect.net/ switch between mobile, tablet or pc
 			 * https://codex.wordpress.org/Function_Reference/get_post_gallery_images
 			 */
+			
+			$detect = new Mobile_Detect;
+			if ($detect->isMobile() && !$detect->isTablet()) {
+    		echo '<h1>HOLA MOBILE</h1>';
+    		$tmp = 'class="carousel" data-flickity';
+			} else {
+				echo '<h1>NOPEEEEE</h1>';
+				$tmp = 'class="other"';
+			}
+
 			if( ! has_shortcode( $post->post_content, 'gallery' ) )
  				return $content;
  			$gallery = get_post_gallery_images( $post );
-			$image_list = '<ul id="carousel">';
+			$image_list = '<ul '.$tmp.'>';
 			// Loop through each image in each gallery
 			foreach( $gallery as $image_url ) {
 				$image_list .= '<li class="carousel-cell">' . '<img src="' . $image_url . '">' . '</li>';

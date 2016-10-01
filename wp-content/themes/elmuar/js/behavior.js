@@ -1,3 +1,5 @@
+'use strict';
+
 console.log('hello bro!', screen);
 
 // window.addEventListener("resize", function(){
@@ -15,3 +17,4 @@ console.log('hello bro!', screen);
 // 		});
 //     }
 // }, true);
+//# sourceMappingURL=wp-content/themes/elmuar/js/behavior.js.map

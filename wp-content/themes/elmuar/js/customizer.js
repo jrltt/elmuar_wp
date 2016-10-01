@@ -42,4 +42,3 @@
 		});
 	});
 })(jQuery);
-//# sourceMappingURL=wp-content/themes/elmuar/js/customizer.js.map

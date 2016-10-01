@@ -19,7 +19,7 @@ gulp.task('styles', () => {
       includePaths: ['.']
     }).on('error', $.sass.logError))
     .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
-    .pipe($.sourcemaps.write(themeFolder + 'sass/'))
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(themeFolder))
     .pipe(reload({stream: true}));
 });
@@ -29,8 +29,8 @@ gulp.task('scripts', () => {
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.babel())
-    .pipe($.sourcemaps.write(themeFolder + 'js/'))
-    .pipe(gulp.dest(themeFolder + 'js/'))
+    .pipe($.sourcemaps.write())
+    .pipe(gulp.dest('.tmp/scripts'))
     .pipe(reload({stream: true}));
 });
 

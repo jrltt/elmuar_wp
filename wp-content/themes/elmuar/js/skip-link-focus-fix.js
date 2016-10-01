@@ -7,6 +7,7 @@
  *
  * Learn more: https://git.io/vWdr2
  */
+
 (function () {
 	var isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1,
 	    isOpera = navigator.userAgent.toLowerCase().indexOf('opera') > -1,
@@ -33,4 +34,3 @@
 		}, false);
 	}
 })();
-//# sourceMappingURL=wp-content/themes/elmuar/js/skip-link-focus-fix.js.map

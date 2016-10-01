@@ -6,6 +6,7 @@
  * @since 1.0 
  */
 
+
 /**
  * Build a string with the category name and the 
  * created date of category
@@ -46,4 +47,41 @@ function defaultImages ()
 	}
 	$imageHtml = '<img src="' . $images[rand(0,count($images)-1)] .'" alt="ELMUAR Default image">';
 	return $imageHtml;
+}
+
+function has_post_gallery()
+{
+	global $post;
+	if( ! has_shortcode( $post->post_content, 'gallery' ) )
+		return false;
+	$gallery = get_post_gallery_images( $post );
+	return (count($gallery) >= 0);
+}
+
+function build_gallery($size = 'default')
+{
+	$gallery = get_post_gallery_images( $post );
+	$image_list = '<div class="carousel" data-flickity>';
+	foreach( $gallery as $image_url ) {
+		$image_list .= '<div class="carousel-cell">' . '<img src="' . $image_url . '">' . '</div>';
+	}
+	$image_list .= '</div>';
+	$content .= $image_list;
+	print_r($content);
+}
+
+function jrltt_posted_on_simple()
+{
+		$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
+	if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) {
+		$time_string = '<time class="entry-date published" datetime="%1$s">%2$s</time><time class="updated" datetime="%3$s">%4$s</time>';
+	}
+
+	$time_string = sprintf( $time_string,
+		esc_attr( get_the_date( 'c' ) ),
+		esc_html( get_the_date() ),
+		esc_attr( get_the_modified_date( 'c' ) ),
+		esc_html( get_the_modified_date() )
+	);
+	echo '<span class="posted-on">' . $time_string . '</span>';
 }

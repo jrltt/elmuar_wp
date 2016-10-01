@@ -10,9 +10,6 @@
  */
 
 ?>
-
-	
-
 	<footer id="colophon" class="site-footer" role="contentinfo">
 		<div class="site-info">
 			<?php echo date(Y); ?>
@@ -30,33 +27,33 @@
 </div><!-- #page -->
 
 <?php wp_footer(); ?>
-<script>
-			var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),
-				layer = document.getElementById( 'layer' ),
-				showLeftPush = document.getElementById( 'showLeftPush' ),
-				body = document.getElementById( 'content' );
+	<script>
+		var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),
+			layer = document.getElementById( 'layer' ),
+			showLeftPush = document.getElementById( 'showLeftPush' ),
+			body = document.getElementById( 'content' );
 
-			showLeftPush.onclick = function() {
-				classie.toggle( this, 'active' );
-				classie.toggle( layer, 'active' );
-				classie.toggle( body, 'cbp-spmenu-push-toright' );
-				classie.toggle( menuLeft, 'cbp-spmenu-open' );
-				disableOther( 'showLeftPush' );
-			};
+		showLeftPush.onclick = function() {
+			classie.toggle( this, 'active' );
+			classie.toggle( layer, 'active' );
+			classie.toggle( body, 'cbp-spmenu-push-toright' );
+			classie.toggle( menuLeft, 'cbp-spmenu-open' );
+			disableOther( 'showLeftPush' );
+		};
 
-			layer.onclick = function() {
-				classie.toggle( this, 'active' );
-				classie.toggle( body, 'cbp-spmenu-push-toright' );
-				classie.toggle( menuLeft, 'cbp-spmenu-open' );
-				disableOther( 'showLeftPush' );
-			};
+		layer.onclick = function() {
+			classie.toggle( this, 'active' );
+			classie.toggle( body, 'cbp-spmenu-push-toright' );
+			classie.toggle( menuLeft, 'cbp-spmenu-open' );
+			disableOther( 'showLeftPush' );
+		};
 
-			function disableOther( button ) {
-				if( button !== 'showLeftPush' ) {
-					classie.toggle( showLeftPush, 'disabled' );
-				}
-
+		function disableOther( button ) {
+			if( button !== 'showLeftPush' ) {
+				classie.toggle( showLeftPush, 'disabled' );
 			}
-		</script>
+
+		}
+	</script>
 </body>
 </html>

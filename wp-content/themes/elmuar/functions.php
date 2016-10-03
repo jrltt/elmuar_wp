@@ -276,6 +276,8 @@ add_action( 'widgets_init', 'elmuar_widgets_init' );
 function elmuar_scripts() {
 	wp_enqueue_style( 'elmuar-style', get_stylesheet_uri() );
 
+	wp_enqueue_script( 'classie', get_template_directory_uri() . '/js/classie.js', array(), '20151215', true );
+	
 	wp_enqueue_script( 'elmuar-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
 
 	wp_enqueue_script( 'elmuar-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );

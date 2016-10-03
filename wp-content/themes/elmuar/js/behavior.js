@@ -1,4 +1,6 @@
-console.log('hello bro!', screen);
+'use strict';
+
+console.log('hello bro!!1');
 
 // window.addEventListener("resize", function(){
 //     // fire when above 1203
@@ -15,3 +17,4 @@ console.log('hello bro!', screen);
 // 		});
 //     }
 // }, true);
+//

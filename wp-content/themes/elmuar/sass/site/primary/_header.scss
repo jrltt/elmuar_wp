@@ -1,12 +1,76 @@
 .site-header {
   width: 100%;
-  text-align: center;
-  // @include display-flex;
-  // @include justify-content(space-between);
-  // @include align-items(center);
-  .main-navigation {
-    float: none;
-    width: 360px;
-    margin: 0 auto;
+  height: 3.4rem;
+  position: fixed;
+  z-index: 101;
+}
+
+.site-branding {
+  margin-top: .5rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+
+  @include media(">tablet") {
+    padding-left: $padding__size;
+    padding-right: $padding__size;
+    @include display-flex;
+    @include justify-content(space-between);
+    @include align-items(baseline);
+  }
+
+  .header--menu {
+    width: 42px;
+    height: 42px;
+    float: left;
+    clear: left;
+
+    @include media(">tablet") {
+      float: none;
+    }
+  }
+
+  .header--menu__symbol {
+    position: relative;
+    z-index: 500;
+    width: 42px;
+    height: 42px;
+    display: block;
+    font-family: 'helvetica neue', helvetica, arial, sans-serif;
+    font-size: 2em;
+    font-weight: 700;
+    line-height: normal;
+    color: #656464;;
+    margin: 0;
+    @include transition(all 200ms ease-in);
+
+    &.active {
+      color: #969494;
+    }
+  }
+}
+
+.site-title {
+  margin: 0;
+  @include media("<tablet") {
+    padding-top: 5px;
+  }
+}
+
+.site--header__link {
+  text-transform: uppercase;
+  text-decoration: none;
+  font-size: 1.25rem; 
+}
+
+.header--leng {
+  &__list {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    font-size: 0.8rem;
+    display: inline;
+    list-style: none;
   }
 }

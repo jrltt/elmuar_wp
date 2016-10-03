@@ -1,0 +1,22 @@
+.tailor-toggles {
+  .tailor-toggle__title {
+    display: inline;
+    border-bottom: 1px solid grey;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    padding: 0;
+    margin-bottom: .5rem;
+    text-transform: uppercase;
+  }
+
+  .tailor-toggle {
+    margin-bottom: 1rem;
+
+    &__body {
+      margin-top: .5rem;
+      padding: 0;
+      border: 0;
+    }
+  }
+}

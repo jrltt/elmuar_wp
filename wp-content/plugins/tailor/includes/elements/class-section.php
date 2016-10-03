@@ -69,6 +69,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 	        $color_control_types = array(
 		        'color',
 		        'link_color',
+		        'link_color_hover',
 		        'heading_color',
 		        'background_color',
 		        'border_color',
@@ -89,6 +90,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 		        'background_repeat',
 		        'background_position',
 		        'background_size',
+		        'background_attachment',
 	        );
 	        $attribute_control_arguments = array(
 		        'margin'                =>  array(
@@ -99,8 +101,80 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
                         ),
                     ),
 		        ),
+		        'background_repeat'     =>  array(
+			        'control'               =>  array(
+				        'dependencies'          =>  array(
+					        'background_image'      => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  '',
+					        ),
+					        'parallax'              => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  1,
+					        ),
+				        ),
+			        ),
+		        ),
+		        'background_position'   =>  array(
+			        'control'               =>  array(
+				        'dependencies'          =>  array(
+					        'background_image'      => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  '',
+					        ),
+					        'parallax'              => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  1,
+					        ),
+				        ),
+			        ),
+		        ),
+		        'background_size'       =>  array(
+			        'control'               =>  array(
+				        'dependencies'          =>  array(
+					        'background_image'      => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  '',
+					        ),
+					        'parallax'              => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  1,
+					        ),
+				        ),
+			        ),
+		        ),
+		        'background_attachment' =>  array(
+			        'control'               =>  array(
+				        'dependencies'          =>  array(
+					        'background_image'      => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  '',
+					        ),
+					        'parallax'              => array(
+						        'condition'             =>  'not',
+						        'value'                 =>  1,
+					        ),
+				        ),
+			        ),
+		        ),
 	        );
-	        tailor_control_presets( $this, $attribute_control_types, $attribute_control_arguments, $priority );
+	        $priority = tailor_control_presets( $this, $attribute_control_types, $attribute_control_arguments, $priority );
+
+	        $this->add_setting( 'parallax', array(
+		        'sanitize_callback'     =>  'tailor_sanitize_number',
+	        ) );
+	        $this->add_control( 'parallax', array(
+		        'label'                 =>  __( 'Enable parallax?', 'tailor' ),
+		        'type'                  =>  'switch',
+		        'priority'              =>  85,
+		        'section'               =>  'attributes',
+		        'dependencies'          =>  array(
+			        'background_image'      => array(
+				        'condition'             =>  'not',
+				        'value'                 =>  '',
+			        ),
+		        ),
+	        ) );
         }
 
 	    /**
@@ -115,14 +189,13 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 		    $css_rules = array();
 		    $excluded_control_types = array();
 
-		    $css_rules = tailor_css_presets( $css_rules, $atts, $excluded_control_types );
-
 		    if ( ! empty( $atts['max_width'] ) ) {
 			    $css_rules[] = array(
 				    'selectors'         =>  array( '.tailor-section__content' ),
 				    'declarations'      =>  array(
 					    'max-width'         =>  esc_attr( $atts['max_width'] ),
 				    ),
+				    'setting'           =>  'max_width',
 			    );
 		    }
 
@@ -132,9 +205,55 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 				    'declarations'      =>  array(
 					    'min-height'        =>  esc_attr( $atts['min_height'] ),
 				    ),
+				    'setting'           =>  'min_height',
 			    );
 		    }
 
+		    if ( ! empty( $atts['background_image'] ) && 1 == $atts['parallax'] ) {
+
+			    $excluded_control_types[] = 'background_image';
+			    $background_image_url = wp_get_attachment_image_url( $atts['background_image'], 'full' );
+
+			    if ( ! empty( $atts['background_color'] ) ) {
+
+				    // If an RGBA background color is used, "tint" the background image
+				    // @see: https://css-tricks.com/tinted-images-multiple-backgrounds/
+				    if ( false !== strpos( $atts['background_color'], 'rgba' ) ) {
+					    $css_rules[] = array(
+						    'selectors'    => array( '.tailor-section__background' ),
+						    'declarations' => array(
+							    'background' => esc_attr(
+								    "linear-gradient( {$atts['background_color']}, {$atts['background_color']} ), 
+								url({$background_image_url}) center center / cover no-repeat"
+							    ),
+						    ),
+					    );
+				    }
+				    else {
+
+					    // Image displayed over color
+					    $css_rules[] = array(
+						    'selectors'    => array( '.tailor-section__background' ),
+						    'declarations' => array(
+							    'background' => esc_attr(
+								    "{$atts['background_color']} url({$background_image_url}) center center / cover no-repeat"
+							    ),
+						    ),
+					    );
+				    }
+			    }
+			    else {
+				    $css_rules[] = array(
+					    'selectors'         =>  array( '.tailor-section__background' ),
+					    'declarations'      =>  array(
+						    'background'        =>  "url('{$background_image_url}') center center / cover no-repeat",
+					    ),
+				    );
+			    }
+		    }
+
+		    $css_rules = tailor_css_presets( $css_rules, $atts, $excluded_control_types );
+		    
 		    return $css_rules;
 	    }
     }

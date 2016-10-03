@@ -36,9 +36,7 @@ if ( class_exists( 'Tailor_Control' ) && ! class_exists( 'Tailor_Editor_Control'
 	    protected function add_actions() {
 
 		    parent::add_actions();
-
-		    add_action( 'tailor_sidebar_footer', 'wp_print_media_templates' );
-		    add_action( 'tailor_sidebar_footer', 'wp_underscore_playlist_templates' );
+		    
 		    add_filter( 'tailor_editor_styles', array( $this, 'add_editor_styles' ) );
 	    }
 
@@ -91,9 +89,9 @@ if ( class_exists( 'Tailor_Control' ) && ! class_exists( 'Tailor_Editor_Control'
             $editor_settings = array(
                 'textarea_rows'     =>  30,
                 'tinymce'           =>  array(
-                    'toolbar1'          =>  'bold,italic,bullist,numlist,blockquote,hr,wp_adv,tailoricon', //fullscreen,strikethrough,alignleft,aligncenter,alignright,alignjustify
-                    'toolbar2'          =>  'link,unlink,alignleft,aligncenter,alignright,alignjustify,outdent,indent', // wp_more
-                    'toolbar3'          =>  'formatselect,styleselect,forecolor,underline,strikethrough,undo,redo,pastetext,removeformat',
+                    'toolbar1'          =>  'bold,italic,bullist,numlist,blockquote,hr,wp_adv,tailoricon',
+                    'toolbar2'          =>  'link,unlink,alignleft,aligncenter,alignright,alignjustify,outdent,indent',
+                    'toolbar3'          =>  'formatselect,styleselect,charmap,forecolor,underline,strikethrough,undo,redo,pastetext,removeformat',
                 ),
             );
 

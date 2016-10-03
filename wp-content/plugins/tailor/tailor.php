@@ -4,9 +4,9 @@
  * Plugin Name: Tailor
  * Plugin URI: http://www.gettailor.com
  * Description: Build beautiful page layouts quickly and easily using your favourite theme.
- * Version: 1.3.3
+ * Version: 1.5.6
  * Author: Andrew Worsfold
- * Author URI:  http://wwww.andrewworsfold.com
+ * Author URI:  http://www.andrewworsfold.com
  * Text Domain: tailor
  *
  * @package Tailor
@@ -145,15 +145,14 @@ if ( ! class_exists( 'Tailor' ) ) {
             register_activation_hook( __FILE__, array( __CLASS__, 'activate' ) );
             register_deactivation_hook( __FILE__, array( __CLASS__, 'deactivate' ) );
 
-            add_action( 'after_setup_theme', array( $this, 'init' ) );
+            add_action( 'plugins_loaded', array( $this, 'init' ) );
 	        add_action( 'admin_init', array( $this, 'admin_init' ) );
 
-            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 99 );
+            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
+            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ), 99 );
 
 	        add_action( 'wp_enqueue_scripts', array( $this, 'register_script_dependencies' ) );
-            add_action( 'admin_enqueue_scripts', array( $this, 'register_script_dependencies' ) );
-            add_action( 'tailor_enqueue_scripts', array( $this, 'register_script_dependencies' ) );
+            add_action( 'tailor_enqueue_sidebar_scripts', array( $this, 'register_script_dependencies' ) );
 
 	        add_action( 'wp_ajax_tailor_save', array( $this, 'save' ) );
 	        add_filter( 'heartbeat_received', array( $this, 'lock_post' ), 10, 2 );
@@ -169,71 +168,56 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     * @return array $classes
 	     */
 	    public function body_class( $classes ) {
-		    $classes[] = 'tailor-ui'; // no-js
+		    $classes[] = 'tailor-ui';
 		    return $classes;
 	    }
 
         /**
-         * Initializes the plugin on the front end.
+         * Initializes the plugin.
          *
          * @since 1.0.0
          */
         public function init() {
-
-            load_plugin_textdomain( 'tailor', false, $this->plugin_dir() . 'languages/' );
+	        
+            load_plugin_textdomain( 'tailor', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 	        add_filter( 'body_class', array( $this, 'body_class' ) );
 
-	        $plugins_includes_dir = $this->plugin_dir() . 'includes/';
-
-	        require_once $plugins_includes_dir . 'class-custom-css.php';
-	        require_once $plugins_includes_dir . 'class-custom-js.php';
-	        require_once $plugins_includes_dir . 'class-icons.php';
-	        require_once $plugins_includes_dir . 'class-tinymce.php';
-
 	        $this->load_directory( 'shortcodes' );
 	        $this->load_directory( 'helpers' );
+	        $this->load_files( array(
+		        'class-compatibility',
+		        'class-custom-css',
+		        'class-custom-js',
+		        'class-icons',
+		        'class-revisions',
+		        'api/class-api',
+	        ) );
 
-	        if ( ! is_user_logged_in() && $this->is_tailoring() ) {
-		        auth_redirect();
-	        }
-	        
 	        if ( is_admin() ) {
-
-		        $admin_includes_dir = $plugins_includes_dir . 'admin/';
-
-		        require_once $admin_includes_dir . 'class-admin.php';
-		        require_once $admin_includes_dir . 'class-settings.php';
-
-		        require_once $admin_includes_dir . 'helpers/helpers-general.php';
-		        if ( version_compare( $GLOBALS['wp_version'], '4.3', '<' ) ) {
-			        require_once $admin_includes_dir . 'helpers/helpers-compatibility.php';
-		        }
-	        }
-
-	        if ( is_customize_preview() ) {
-		        $this->load_directory( 'customizer' );
-	        }
-	        else {
-		        require_once $plugins_includes_dir . 'customizer/customizer-settings.php';
+		        $this->load_files( array(
+			        'admin/class-admin',
+			        'admin/class-settings',
+			        'admin/helpers/helpers-general',
+		        ) );
 	        }
 
 	        $this->load_directory( 'controls' );
 
-	        require_once $plugins_includes_dir . 'settings/class-setting.php';
-	        require_once $plugins_includes_dir . 'settings/class-section.php';
-	        require_once $plugins_includes_dir . 'settings/class-panel.php';
-	        require_once $plugins_includes_dir . 'settings/class-manager.php';
-
-	        require_once $plugins_includes_dir . 'class-elements.php';
-	        require_once $plugins_includes_dir . 'class-panels.php';
-	        require_once $plugins_includes_dir . 'class-templates.php';
-	        require_once $plugins_includes_dir . 'class-sidebar.php';
-	        require_once $plugins_includes_dir . 'class-canvas.php';
-	        require_once $plugins_includes_dir . 'class-revisions.php';
-
+	        $this->load_files( array(
+		        'abstract-manager',
+		        'class-panels',
+		        'class-models',
+		        'class-elements',
+		        'class-templates',
+		        'class-sidebar',
+		        'class-canvas',
+		        'class-tinymce',
+		        'class-customizer',
+	        ) );
+	        
 	        /**
-	         * Fires after the Tailor plugin is initialized.
+	         * Fires after all files have been loaded.
 	         *
 	         * @since 1.0.0
 	         *
@@ -250,40 +234,37 @@ if ( ! class_exists( 'Tailor' ) ) {
          * @global $editor_styles
          */
         public function admin_init() {
-
-            global $editor_styles;
-
-	        if ( isset( $editor_styles ) ) {
-		        update_option( '_tailor_editor_styles', $editor_styles );
-	        }
-
-	        $extension = SCRIPT_DEBUG ? '.css' : '.min.css';
-
-	        $editor_styles[] = $this->plugin_url() . 'assets/css/frontend' . $extension;
-	        $editor_styles[] = $this->plugin_url() . 'assets/css/tinymce' . $extension;
-        }
-
-        /**
-         * Enqueues frontend styles.
-         *
-         * @since 1.0.0
-         */
-        public function enqueue_styles() {
-	        if ( apply_filters( 'tailor_enable_enqueue_stylesheets', true ) ) {
-
-		        $extension = SCRIPT_DEBUG ? '.css' : '.min.css';
-
-		        wp_enqueue_style(
-			        'tailor-styles',
-			        $this->plugin_url() . 'assets/css/frontend' . $extension,
-			        array(),
-			        $this->version()
-		        );
-	        }
+	        $this->apply_editor_styles();
         }
 
 	    /**
-	     * Registers required script dependencies.
+	     * Applies custom Tailor styles to the editor.
+	     *
+	     * @since 1.4.0
+	     * @access protected
+	     */
+	    protected function apply_editor_styles() {
+		    global $editor_styles;
+		    if ( isset( $editor_styles ) ) {
+			    update_option( '_tailor_editor_styles', $editor_styles );
+		    }
+
+		    /**
+		     * Allow developers to prevent Tailor editor styles from being added.
+		     *
+		     * @since 1.4.0
+		     *
+		     * @param bool
+		     */
+		    if ( apply_filters( 'tailor_enable_editor_styles', true ) ) {
+			    $extension = SCRIPT_DEBUG ? '.css' : '.min.css';
+			    $editor_styles[] = $this->plugin_url() . 'assets/css/frontend' . $extension;
+			    $editor_styles[] = $this->plugin_url() . 'assets/css/tinymce' . $extension;
+		    }
+	    }
+
+	    /**
+	     * Registers script dependencies.
 	     *
 	     * @since 1.0.0
 	     */
@@ -297,13 +278,15 @@ if ( ! class_exists( 'Tailor' ) ) {
 			    true
 		    );
 
-		    wp_register_script(
-			    'images-loaded',
-			    $this->plugin_url() . 'assets/js/dist/vendor/imagesloaded.min.js',
-			    array(),
-			    $this->version(),
-			    true
-		    );
+		    if ( 'registered' != wp_script_is( 'imagesloaded' ) ) {
+			    wp_register_script(
+				    'imagesloaded',
+				    $this->plugin_url() . 'assets/js/dist/vendor/imagesloaded.min.js',
+				    array(),
+				    $this->version(),
+				    true
+			    );
+		    }
 
 		    wp_register_script(
 			    'sortable',
@@ -321,13 +304,13 @@ if ( ! class_exists( 'Tailor' ) ) {
 			    true
 		    );
 
-            wp_register_script(
-                'shuffle',
-                $this->plugin_url() . 'assets/js/dist/vendor/shuffle.min.js',
-                array( 'jquery', 'modernizr', 'images-loaded' ),
-                $this->version(),
-                true
-            );
+		    wp_register_script(
+			    'shuffle',
+			    $this->plugin_url() . 'assets/js/dist/vendor/shuffle.min.js',
+			    array( 'jquery', 'modernizr', 'imagesloaded' ),
+			    $this->version(),
+			    true
+		    );
 
 		    wp_register_script(
 			    'magnific-popup',
@@ -337,37 +320,66 @@ if ( ! class_exists( 'Tailor' ) ) {
 			    true
 		    );
 
-		    $google_maps_api_key = trim( tailor_get_setting( 'google_maps_api_key', '' ) );
-		    if ( ! empty( $google_maps_api_key ) ) {
-			    $google_maps_api_key = "?key={$google_maps_api_key}";
-		    }
-
-		    wp_register_script(
-			    'google-maps-api',
-			    "https://maps.googleapis.com/maps/api/js$google_maps_api_key",
-			    array()
-		    );
-
-		    $extension = SCRIPT_DEBUG ? '.js' : '.min.js';
-
 		    wp_register_script(
 			    'backbone-marionette',
-			    $this->plugin_url() . 'assets/js/dist/vendor/backbone.marionette' . $extension,
+			    $this->plugin_url() . 'assets/js/dist/vendor/backbone.marionette' . ( SCRIPT_DEBUG ? '.js' : '.min.js' ),
 			    array( 'backbone', 'jquery' ),
 			    $this->version(),
 			    true
 		    );
+
+		    // Google Maps script
+		    $google_maps_api_key = trim( tailor_get_setting( 'google_maps_api_key', '' ) );
+		    if ( ! empty( $google_maps_api_key ) ) {
+			    wp_register_script(
+				    'google-maps-api',
+				    "https://maps.googleapis.com/maps/api/js?key={$google_maps_api_key}",
+				    array()
+			    );
+		    }
 	    }
+
+        /**
+         * Enqueues frontend styles.
+         *
+         * @since 1.0.0
+         */
+        public function enqueue_frontend_styles() {
+
+	        /**
+	         * Allow developers to prevent Tailor frontend styles from being enqueued.
+	         *
+	         * @since 1.4.0
+	         *
+	         * @param bool
+	         */
+	        if ( is_singular() && apply_filters( 'tailor_enable_frontend_styles', true ) ) {
+		        wp_enqueue_style(
+			        'tailor-styles',
+			        $this->plugin_url() . 'assets/css/frontend' . ( SCRIPT_DEBUG ? '.css' : '.min.css' ),
+			        array(),
+			        $this->version()
+		        );
+	        }
+        }
 
 	    /**
 	     * Enqueues frontend scripts.
 	     *
 	     * @since 1.0.0
 	     */
-	    public function enqueue_scripts() {
+	    public function enqueue_frontend_scripts() {
 
-		    if ( apply_filters( 'tailor_enable_enqueue_scripts', true ) ) {
+		    /**
+		     * Allow developers to prevent Tailor frontend scripts from being enqueued.
+		     *
+		     * @since 1.4.0
+		     *
+		     * @param bool
+		     */
+		    if ( apply_filters( 'tailor_enable_frontend_scripts', true ) ) {
 
+				// Enqueue script dependencies
 			    wp_enqueue_script( 'slick-slider' );
 			    wp_enqueue_script( 'shuffle' );
 			    wp_enqueue_script( 'magnific-popup' );
@@ -377,12 +389,10 @@ if ( ! class_exists( 'Tailor' ) ) {
 				    return;
 			    }
 
-			    $extension = SCRIPT_DEBUG ? '.js' : '.min.js';
-
 			    wp_enqueue_script(
 				    'tailor-frontend',
-				    $this->plugin_url() . 'assets/js/dist/frontend' . $extension,
-				    array( 'jquery', 'underscore' ),
+				    $this->plugin_url() . 'assets/js/dist/frontend' . ( SCRIPT_DEBUG ? '.js' : '.min.js' ),
+				    array( 'jquery', 'underscore', 'imagesloaded' ),
 				    $this->version()
 			    );
 		    }
@@ -398,11 +408,9 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     * @return array $response
 	     */
 	    public function lock_post( $response, $data ) {
-
-		    if ( $data['tailor_post_id'] && $post = get_post( $data['tailor_post_id'] ) ) {
+		    if ( isset( $data['tailor_post_id'] ) && $post = get_post( $data['tailor_post_id'] ) ) {
 			    $response['current_lock'] = wp_set_post_lock( $post->ID );
 		    }
-
 		    return $response;
 	    }
 
@@ -444,17 +452,6 @@ if ( ! class_exists( 'Tailor' ) ) {
 		    $new_lock = ( time() - apply_filters( 'wp_check_post_lock_window', 150 ) + 5 ) . ':' . $active_lock[1];
 
 		    $response = update_post_meta( $post_id, '_edit_lock', $new_lock, implode( ':', $active_lock ) );
-
-		    /**
-		     * Filters the response data for a successful tailor_unlock_post AJAX request.
-		     *
-		     * This filter does not apply if there was a nonce or authentication failure.
-		     *
-		     * @since 1.0.0
-		     *
-		     * @param string $post_id
-		     */
-		    $response = apply_filters( 'tailor_unlock_post_response', $response );
 
 		    wp_send_json_success( $response );
 	    }
@@ -512,6 +509,7 @@ if ( ! class_exists( 'Tailor' ) ) {
          * Activates the plugin.
          *
          * @since 1.0.0
+         * @static
          */
         static function activate() {
 
@@ -560,6 +558,7 @@ if ( ! class_exists( 'Tailor' ) ) {
 	         */
 	        do_action( 'tailor_deactivated' );
 
+	        // Remove the stored editor styles
 	        delete_option( '_tailor_editor_styles' );
         }
 
@@ -646,12 +645,29 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     * @return bool
 	     */
 	    public function check_user_role() {
+
+		    if ( ! is_user_logged_in() ) {
+			    auth_redirect();
+		    }
 		    
+		    // Check that the user can manage option and/or edit the post type
 		    $user = wp_get_current_user();
-		    $allowable_roles = array_keys( tailor_get_setting( 'roles', array() ) );
-		    
-		    // A user is allowable if they can manage options or have one of the specifically approved roles
-		    $allowable = current_user_can( 'manage_options' ) || (  count( array_intersect( $allowable_roles, (array) $user->roles ) ) > 0 );
+		    $post_id = get_the_ID();
+		    $post_type_object = get_post_type_object( get_post_type( $post_id ) );
+		    if ( empty( $post_type_object ) ) {
+			    return false;
+		    }
+
+		    $edit_post = $post_type_object->cap->edit_post;
+		    if ( ! isset( $edit_post ) ) {
+			    return false;
+		    }
+
+		    $allowable = current_user_can( 'manage_options' ) || current_user_can( $edit_post, $post_id );
+
+		    // Check that the user doesn't have a restricted role type
+		    $restricted_roles = array_keys( tailor_get_setting( 'restricted_roles', array() ) );
+		    $allowable = $allowable && ( count( array_intersect( $restricted_roles, (array) $user->roles ) ) == 0 );
 
 		    /**
 		     * Filter the result of the user role check.
@@ -681,6 +697,10 @@ if ( ! class_exists( 'Tailor' ) ) {
 	        }
 
 	        if ( ! $post ) {
+		        return false;
+	        }
+
+	        if ( 'trash' == get_post_status( $post_id ) ) {
 		        return false;
 	        }
 
@@ -723,7 +743,7 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     * @param int $post_id ID of the post to check for editing
 	     * @return integer False: not locked or locked by current user. Int: user ID of user with lock.
 	     */
-	    function check_post_lock( $post_id ) {
+	    public function check_post_lock( $post_id ) {
 
 		    if ( ! $post = get_post( $post_id ) ) {
 			    return false;
@@ -750,6 +770,7 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     * Returns the current post object, where possible.
 	     *
 	     * @since 1.0.0
+	     * @access protected
 	     *
 	     * @param string $post_id
 	     * @return array|bool|null|WP_Post
@@ -806,9 +827,7 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     * @return string
 	     */
 	    public function get_edit_link( $post_id = '', $post_type = '' ) {
-
 		    $edit_label = sprintf( __( 'Tailor this %s', 'tailor' ), ucfirst( $post_type ) );
-
 		    return '<a href="' . $this->get_edit_url( $post_id ) . '">' . $edit_label . '</a>';
 	    }
 
@@ -868,6 +887,8 @@ if ( ! class_exists( 'Tailor' ) ) {
          * Loads all PHP files in a given directory.
          *
          * @since 1.0.0
+         *
+         * @param string $directory_name
          */
         public function load_directory( $directory_name ) {
             $path = trailingslashit( $this->plugin_dir() . 'includes/' . $directory_name );

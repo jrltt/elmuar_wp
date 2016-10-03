@@ -37,14 +37,14 @@ if ( ! class_exists( 'Tailor_Setting' ) ) {
          */
         public $id;
 
-        /**
-         * Setting type.
-         *
-         * @since 1.0.0
-         * @var string
-         */
-        public $type = 'post_meta';
-
+	    /**
+	     * Setting type.
+	     *
+	     * @since 1.0.0
+	     * @var string
+	     */
+	    public $type = 'post_meta';
+	    
         /**
          * Default value for the setting.
          *
@@ -61,6 +61,15 @@ if ( ! class_exists( 'Tailor_Setting' ) ) {
          * @var string
          */
         protected $capability = '';
+
+	    /**
+	     * Method to use to update the DOM when the setting is updated.
+	     *
+	     * @since 1.5.0
+	     * @access protected
+	     * @var array
+	     */
+	    protected $refresh = array();
 
         /**
          * Theme feature support required to edit this setting.
@@ -88,7 +97,7 @@ if ( ! class_exists( 'Tailor_Setting' ) ) {
          * @var callback
          */
         protected $sanitize_js_callback = '';
-
+	    
         /**
          * Constructor.
          *
@@ -140,12 +149,17 @@ if ( ! class_exists( 'Tailor_Setting' ) ) {
 	     * Returns the parameters that will be passed to the client JavaScript via JSON.
 	     *
 	     * @since 1.0.0
+	     *
 	     * @return array The array to be exported to the client as JSON.
 	     */
 	    public function to_json() {
-		    $array = wp_array_slice_assoc( (array) $this, array( 'id', 'default' ) );
-		    $array['value'] = $this->js_value();
-		    return $array;
+		    $setting = array();
+		    $setting['id'] = $this->id;
+		    $setting['value'] =  $this->js_value();
+		    $setting['default'] = $this->default;
+		    $setting['refresh'] = $this->refresh;
+		    
+		    return $setting;
 	    }
 
 	    /**
@@ -156,15 +170,15 @@ if ( ! class_exists( 'Tailor_Setting' ) ) {
 	     * @return bool
 	     */
 	    public function save() {
-
-		    $value = $this->post_value( $this->default );
-
+		    
 		    if ( ! $this->check_capabilities() ) {
 			    return false;
 		    }
 
+		    $value = $this->post_value( $this->default );
+		    
 		    /**
-		     * Fires when the Tailor_Setting::save() method is called.
+		     * Fires before Tailor_Setting::save() method is called.
 		     *
 		     * @since 1.0.0
 		     *
@@ -313,32 +327,6 @@ if ( ! class_exists( 'Tailor_Setting' ) ) {
 		    }
 
 		    return $value;
-	    }
-
-	    /**
-	     * Reverts to a previous value of the setting when a post revision is restored.
-	     *
-	     * This only applies for post meta settings.
-	     *
-	     * @since 1.0.0
-	     *
-	     * @param string $post_id
-	     * @param string $revision_id
-	     */
-	    public function restore( $post_id, $revision_id ) {
-
-		    if ( 'post_meta' !== $this->type ) {
-			    return;
-		    }
-
-		    $restore_value = get_metadata( 'post', $revision_id, $this->id, true );
-
-		    if ( ! empty( $restore_value ) ) {
-			    update_post_meta( $post_id, $this->id, $restore_value );
-		    }
-		    else {
-			    delete_post_meta( $post_id, $this->id );
-		    }
 	    }
     }
 }

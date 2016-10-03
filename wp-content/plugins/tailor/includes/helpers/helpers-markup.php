@@ -25,7 +25,6 @@ if ( ! function_exists( 'tailor_filter_allowed_html' ) ) {
 			return $allowed;
 		}
 
-
 		if ( 'post' == $context ) {
 			$allowed['div']['data-slides'] = true;
 			$allowed['div']['data-autoplay'] = true;
@@ -64,7 +63,8 @@ if ( ! function_exists( 'tailor_partial' ) ) {
 		 */
 		$theme_partial_dir = apply_filters( 'tailor_theme_partial_dir', $theme_partial_dir );
 		$theme_partial_dir = trailingslashit( $theme_partial_dir );
-
+		$partial = '';
+		
 		if ( $name ) {
 			$partial = locate_template( array( "{$slug}-{$name}.php", trailingslashit( $theme_partial_dir ) . "{$slug}-{$name}.php" ) );
 
@@ -72,9 +72,9 @@ if ( ! function_exists( 'tailor_partial' ) ) {
 				$partial = tailor_locate_partial( "{$slug}-{$name}.php" );
 			}
 		}
-		else {
+		if ( ! $partial ) {
 			$partial = locate_template( array( "{$slug}.php", trailingslashit( $theme_partial_dir ) . "{$slug}.php" ) );
-
+			
 			if ( ! $partial ) {
 				$partial = tailor_locate_partial( "{$slug}.php" );
 			}
@@ -94,7 +94,7 @@ if ( ! function_exists( 'tailor_partial' ) ) {
 		if ( $partial ) {
 
 			/**
-			 * Executes before the partial is loaded.
+			 * Fires before a template partial is loaded.
 			 *
 			 * @since 1.0.0
 			 *
@@ -152,20 +152,6 @@ if ( ! function_exists( 'tailor_locate_partial' ) ) {
 	}
 }
 
-if ( ! function_exists( 'tailor_css' ) ) {
-
-    /**
-     * Returns a singleton instance of the custom CSS manager.
-     *
-     * @since 1.0.0.
-     *
-     * @return Tailor_Custom_CSS
-     */
-    function tailor_css() {
-        return Tailor_Custom_CSS::get_instance();
-    }
-}
-
 if ( ! function_exists( 'tailor_clean_content' ) ) {
 
 	/**
@@ -213,10 +199,22 @@ if ( ! function_exists( 'tailor_do_shakespeare' ) ) {
 		);
 
 		if ( array_key_exists( $quote_index, $quotes ) ) {
-			return $quotes[ $quote_index ];
+			$quote = $quotes[ $quote_index ];
+		}
+		else {
+			$quote = $quotes[0];
 		}
 
-		return $quotes[0];
+		/**
+		 * Filter the quote.
+		 *
+		 * @since 1.5.5
+		 *
+		 * @param string $quote
+		 */
+		$quote = apply_filters( 'tailor_do_shakespeare', $quote );
+
+		return $quote;
 	}
 }
 
@@ -285,25 +283,35 @@ if ( ! function_exists( 'tailor_screen_reader_text' ) ) {
 	}
 }
 
-// Hook onto 'oembed_dataparse' and get 2 parameters
-add_filter( 'oembed_dataparse','responsive_wrap_oembed_dataparse',10,2);
+if ( ! function_exists( 'tailor_responsive_wrap_oembed_dataparse' ) ) {
 
-function responsive_wrap_oembed_dataparse( $html, $data ) {
+	/**
+	 * Wraps oEmbeds in a responsive container.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param $html
+	 * @param $data
+	 *
+	 * @return mixed|string
+	 */
+	function tailor_responsive_wrap_oembed_dataparse( $html, $data ) {
 
-	if ( empty( $data->type ) || ! is_object( $data ) || 'video' != $data->type ) {
-		return $html;
+		if ( empty( $data->type ) || ! is_object( $data ) || 'video' != $data->type ) {
+			return $html;
+		}
+
+		$aspect_ratio = $data->width / $data->height;
+		$class_name = 'tailor-responsive-embed';
+
+		if ( abs( $aspect_ratio - ( 4 / 3 ) ) < abs( $aspect_ratio - ( 16 / 9 ) ) ) {
+			$class_name .= ' tailor-responsive-embed-4by3';
+		}
+
+		$html = preg_replace( '/(width|height)="\d*"\s/', "", $html );
+
+		return "<div class=\"{$class_name}\">{$html}</div>";
 	}
 
-	$aspect_ratio = $data->width / $data->height;
-	$class_name = 'tailor-responsive-embed';
-
-	if ( abs( $aspect_ratio - ( 4 / 3 ) ) < abs( $aspect_ratio - ( 16 / 9 ) ) ) {
-		$class_name .= ' tailor-responsive-embed-4by3';
-	}
-
-	$html = preg_replace( '/(width|height)="\d*"\s/', "", $html );
-
-	return '<div class="' . $class_name . '">' . $html . '</div>';
-
-	return "<div class=\"{$class_name}\">{$html}</div>";
+	add_filter( 'oembed_dataparse','tailor_responsive_wrap_oembed_dataparse', 10, 2 );
 }

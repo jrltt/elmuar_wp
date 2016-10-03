@@ -40,7 +40,7 @@ $preview-background-color: #191e23 !default;
 		background-color: $preview-background-color;
 
 		@include transition-property( margin );
-		@include transition-duration( 0.2s );
+		@include transition-duration( $global-transition-duration );
 
 		&__panel {
 			display: none;
@@ -133,7 +133,7 @@ $preview-background-color: #191e23 !default;
 				left: 0;
 				width: 300px;
 				height: 45px;
-				border-top: 1px solid #ddd;
+				border-top: 1px $sidebar-border-style $sidebar-border-color;
 				display: none;
 			}
 		}
@@ -144,7 +144,7 @@ $preview-background-color: #191e23 !default;
 				background: url( ../img/spinner.gif ) no-repeat center center;
 				-webkit-background-size: 20px 20px;
 				background-size: 20px 20px;
-				background-color: #f1f1f1;
+				background-color: $tailor-background-color;
 
 				> * {
 					opacity: 0;
@@ -159,6 +159,18 @@ $preview-background-color: #191e23 !default;
 					> * {
 						opacity: 1;
 					}
+				}
+			}
+
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min-resolution: 120dpi) {
+
+				&__viewport {
+					background: url( ../img/spinner-2x.gif ) no-repeat center center;
+					-webkit-background-size: 20px 20px;
+					background-size: 20px 20px;
+					background-color: $tailor-background-color;
 				}
 			}
 		}
@@ -220,7 +232,38 @@ $preview-background-color: #191e23 !default;
 			pointer-events: all;
 		}
 	}
+
+	&.is-saving :not( .media-frame ) .spinner {
+		visibility: visible;
+	}
+
+	:not( .media-frame ) .spinner {
+		display: inline-block;
+		background: url( ../img/spinner.gif ) no-repeat;
+		-webkit-background-size: 20px 20px;
+		background-size: 20px 20px;
+		vertical-align: middle;
+		opacity: .7;
+		filter: alpha(opacity=70);
+		width: 20px;
+		height: 20px;
+		visibility: hidden;
+	}
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min-resolution: 120dpi) {
+
+		:not( .media-frame ) .spinner {
+			background: url( ../img/spinner-2x.gif ) no-repeat;
+			-webkit-background-size: 20px 20px;
+			background-size: 20px 20px;
+			width: 20px;
+			height: 20px;
+		}
+	}
 }
+
 
 
 //

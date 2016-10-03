@@ -109,6 +109,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
             'max_width'             =>  array(
                 'setting'               =>  array(
                     'sanitize_callback'     =>  'tailor_sanitize_text',
+                    'refresh'               =>  array(
+	                    'method'                =>  'js',
+                    ),
                 ),
                 'control'               =>  array(
                     'label'                 =>  __( 'Maximum width', 'tailor' ),
@@ -119,6 +122,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
             'min_height'            =>  array(
                 'setting'               =>  array(
                     'sanitize_callback'     =>  'tailor_sanitize_text',
+                    'refresh'               =>  array(
+	                    'method'                =>  'js',
+                    ),
                 ),
                 'control'               =>  array(
                     'label'                 =>  __( 'Minimum height', 'tailor' ),
@@ -160,6 +166,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'min_item_height'       =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Minimum item height', 'tailor' ),
@@ -389,6 +398,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
             'horizontal_alignment'  =>  array(
                 'setting'               =>  array(
                     'sanitize_callback'     =>  'tailor_sanitize_text',
+                    'refresh'               =>  array(
+	                    'method'                =>  'js',
+                    ),
                 ),
                 'control'               =>  array(
                     'label'                 =>  __( 'Horizontal alignment', 'tailor' ),
@@ -404,14 +416,17 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'vertical_alignment'    =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Vertical alignment', 'tailor' ),
 					'type'                  =>  'button-group',
 					'choices'               =>  array(
-						'flex-start'            =>  '<i class="tailor-icon tailor-align-top"></i>', //__( 'Top', 'tailor' ),
-						'center'                =>  '<i class="tailor-icon tailor-align-middle"></i>', //__( 'Middle', 'tailor' ),
-						'flex-end'              =>  '<i class="tailor-icon tailor-align-bottom"></i>', //__( 'Bottom', 'tailor' ),
+						'top'                   =>  '<i class="tailor-icon tailor-align-top"></i>',
+						'middle'                =>  '<i class="tailor-icon tailor-align-middle"></i>',
+						'bottom'                =>  '<i class="tailor-icon tailor-align-bottom"></i>',
 					),
 					'section'               =>  'general',
 				),
@@ -423,10 +438,6 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 				'control'               =>  array(
 					'label'                 =>  __( 'Stretch-to-fit image', 'tailor' ),
 					'type'                  =>  'switch',
-					//'type'                  =>  'checkbox',
-					//'choices'               =>  array(
-					//	'1'                     =>  __( 'Stretch image to fit container?', 'tailor' ),
-					//),
 					'section'               =>  'general',
 				),
 			),
@@ -564,6 +575,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'color'                 =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Text color', 'tailor' ),
@@ -574,6 +588,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'color_hover'           =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Text hover color', 'tailor' ),
@@ -584,6 +601,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'link_color'            =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Link color', 'tailor' ),
@@ -591,9 +611,31 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 					'section'               =>  'colors',
 				),
 			),
+			'link_color_hover'      =>  array(
+				'setting'               =>  array(
+					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
+				),
+				'control'               =>  array(
+					'label'                 =>  __( 'Link hover color', 'tailor' ),
+					'type'                  =>  'colorpicker',
+					'dependencies'          =>  array(
+						'link_color'            => array(
+							'condition'             =>  'not',
+							'value'                 =>  '',
+						),
+					),
+					'section'               =>  'colors',
+				),
+			),
 			'heading_color'         =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Heading color', 'tailor' ),
@@ -604,6 +646,15 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'background_color'      =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+						'dependencies'          =>  array(
+							'background_image'      => array(
+								'condition'             =>  'equals',
+								'value'                 =>  '',
+							),
+						),
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Background color', 'tailor' ),
@@ -615,6 +666,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'background_color_hover'=>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Background hover color', 'tailor' ),
@@ -626,6 +680,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'border_color'          =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Border color', 'tailor' ),
@@ -636,6 +693,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'border_color_hover'    =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Border hover color', 'tailor' ),
@@ -656,6 +716,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'graphic_color'         =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Graphic color', 'tailor' ),
@@ -666,6 +729,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'graphic_color_hover'   =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_color',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Graphic hover color', 'tailor' ),
@@ -699,6 +765,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'class'                 =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Class name', 'tailor' ),
@@ -709,6 +778,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'padding'               =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Padding', 'tailor' ),
@@ -725,6 +797,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'margin'                =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Margin', 'tailor' ),
@@ -741,6 +816,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'border_style'          =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Border style', 'tailor' ),
@@ -763,6 +841,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'border_width'          =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Border width', 'tailor' ),
@@ -785,6 +866,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'border_radius'         =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Border radius', 'tailor' ),
@@ -807,6 +891,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'shadow'                =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Shadow ', 'tailor' ),
@@ -834,7 +921,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'background_repeat'     =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
-					'default'               =>  'no-repeat',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Background repeat', 'tailor' ),
@@ -857,7 +946,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'background_position'   =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
-					'default'               =>  'center center',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Background position', 'tailor' ),
@@ -885,7 +976,9 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 			'background_size'       =>  array(
 				'setting'               =>  array(
 					'sanitize_callback'     =>  'tailor_sanitize_text',
-					'default'               =>  'auto',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
 				),
 				'control'               =>  array(
 					'label'                 =>  __( 'Background size', 'tailor' ),
@@ -894,6 +987,29 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 						'auto'                  =>  __( 'Auto', 'tailor' ),
 						'cover'                 =>  __( 'Cover', 'tailor' ),
 						'contain'               =>  __( 'Contain', 'tailor' ),
+					),
+					'dependencies'          =>  array(
+						'background_image'      =>  array(
+							'condition'             =>  'not',
+							'value'                 =>  '',
+						),
+					),
+					'section'               =>  'attributes',
+				),
+			),
+			'background_attachment' =>  array(
+				'setting'               =>  array(
+					'sanitize_callback'     =>  'tailor_sanitize_text',
+					'refresh'               =>  array(
+						'method'                =>  'js',
+					),
+				),
+				'control'               =>  array(
+					'label'                 =>  __( 'Background attachment', 'tailor' ),
+					'type'                  =>  'select',
+					'choices'               =>  array(
+						'scroll'                =>  __( 'Scroll', 'tailor' ),
+						'fixed'                 =>  __( 'Fixed', 'tailor' ),
 					),
 					'dependencies'          =>  array(
 						'background_image'      =>  array(
@@ -918,7 +1034,6 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
 
 		foreach ( $control_ids as $control_id ) {
 			if ( array_key_exists( $control_id, $control_definitions ) ) {
-
                 if ( array_key_exists( $control_id, $control_arguments ) ) {
                     if ( array_key_exists( 'control', $control_arguments[ $control_id ] ) ) {
                         $control_definitions[ $control_id ]['control'] = array_merge(
@@ -934,10 +1049,64 @@ if ( ! function_exists( 'tailor_control_presets' ) ) {
                     }
                 }
 
-                $control_definitions[ $control_id ]['control']['priority'] = $priority += 10;
+				$setting_args = $control_definitions[ $control_id ]['setting'];
 
-				$element->add_setting( $control_id, $control_definitions[ $control_id ]['setting'] );
-				$element->add_control( $control_id, $control_definitions[ $control_id ]['control'] );
+				/**
+				 * Filter the setting arguments.
+				 *
+				 * @since 1.4.0
+				 *
+				 * @param array $setting_args
+				 * @param Tailor_Element $element
+				 */
+				$setting_args= apply_filters( 'tailor_setting_args_' . $element->tag, $setting_args, $element );
+
+				/**
+				 * Filter the setting arguments.
+				 *
+				 * @since 1.4.0
+				 *
+				 * @param array $setting_args
+				 * @param Tailor_Element $element
+				 */
+				$setting_args = apply_filters( 'tailor_setting_args_' . $element->tag . '_' . $control_id, $setting_args, $element );
+
+                $control_definitions[ $control_id ]['control']['priority'] = $priority += 10;
+				$control_args = $control_definitions[ $control_id ]['control'];
+
+				/**
+				 * Filter the control arguments by control type.
+				 *
+				 * @since 1.5.6
+				 *
+				 * @param array $control_args
+				 * @param Tailor_Element $element
+				 */
+				$control_args = apply_filters( 'tailor_control_args_' . $control_args['type'], $control_args, $element );
+				
+				/**
+				 * Filter the control arguments by element tag.
+				 *
+				 * @since 1.4.0
+				 *
+				 * @param array $control_args
+				 * @param Tailor_Element $element
+				 */
+				$control_args = apply_filters( 'tailor_control_args_' . $element->tag, $control_args, $element );
+
+				/**
+				 * Filter the control arguments by element tag and control ID.
+				 *
+				 * @since 1.4.0
+				 *
+				 * @param array $control_args
+				 * @param Tailor_Element $element
+				 */
+				$control_args = apply_filters( 'tailor_control_args_' . $element->tag . '_' . $control_id, $control_args, $element );
+
+				// Register the element setting and control
+				$element->add_setting( $control_id, $setting_args );
+				$element->add_control( $control_id, $control_args );
 			}
 		}
 
@@ -954,173 +1123,178 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 	 *
 	 * @param array $css_rules
 	 * @param array $atts
-	 * @param array $excluded_control_types
+	 * @param array $excluded_settings
 	 * @return array $css_rules
 	 */
-	function tailor_css_presets( $css_rules = array(), $atts = array(), $excluded_control_types = array() ) {
+	function tailor_css_presets( $css_rules = array(), $atts = array(), $excluded_settings = array() ) {
 
-		if ( array_key_exists( 'vertical_alignment', $atts ) && ! empty( $atts['vertical_alignment'] ) && ! in_array( 'vertical_alignment', $excluded_control_types ) ) {
-			$css_rules[] = array(
-				'selectors'         =>  array(),
-				'declarations'      =>  array(
-					'align-items'       =>  esc_attr( $atts['vertical_alignment'] ),
-				),
-			);
-			$css_rules[] = array(
-				'selectors'         =>  array(),
-				'declarations'      =>  array(
-					'justify-content'   =>  esc_attr( $atts['vertical_alignment'] ),
-				),
-			);
+		// Remove values for excluded settings
+		if ( ! empty( $excluded_settings ) ) {
+			$atts = array_diff_key( $atts, array_flip( $excluded_settings ) );
 		}
 
-		if ( array_key_exists( 'item_spacing', $atts ) && ! empty( $atts['item_spacing'] ) && ! in_array( 'item_spacing', $excluded_control_types ) ) {
+		if ( ! empty( $atts['item_spacing'] ) ) {
 			$value = preg_replace( "/[^0-9\.]/", "", $atts['item_spacing'] );
 			$unit = str_replace( $value, '', $atts['item_spacing'] );
 
 			if ( is_numeric( $value ) ) {
 				if ( 'carousel' == $atts['layout'] ) {
 					$css_rules[] = array(
-						'selectors'         =>  array( ".tailor-{$atts['layout'] }__item" ),
-						'declarations'      =>  array(
-							'padding-left'      =>  esc_attr( ( $value / 2 ) . $unit ),
-							'padding-right'     =>  esc_attr( ( $value / 2 ) . $unit ),
+						'setting'               =>  'item_spacing',
+						'selectors'             =>  array( ".tailor-{$atts['layout'] }__item" ),
+						'declarations'          =>  array(
+							'padding-left'          =>  esc_attr( ( $value / 2 ) . $unit ),
+							'padding-right'         =>  esc_attr( ( $value / 2 ) . $unit ),
 						),
 					);
 				}
 				else if ( 'grid' == $atts['layout'] ) {
 					$css_rules[] = array(
-						'selectors'         =>  array( ".tailor-{$atts['layout'] }__item" ),
-						'declarations'      =>  array(
-							'padding'           =>  esc_attr( ( $value / 2 ) . $unit ),
+						'setting'               =>  'item_spacing',
+						'selectors'             =>  array( ".tailor-{$atts['layout'] }__item" ),
+						'declarations'          =>  array(
+							'padding'               =>  esc_attr( ( $value / 2 ) . $unit ),
 						),
 					);
 				}
 				else {
 					$css_rules[] = array(
-						'selectors'         =>  array( '.entry:not(:last-child)', '.tailor-attachment:not(:last-child)' ),
-						'declarations'      =>  array(
-							'margin-bottom'     =>  esc_attr( $value . $unit ),
+						'setting'               =>  'item_spacing',
+						'selectors'             =>  array( '.entry:not(:last-child)', '.tailor-attachment:not(:last-child)' ),
+						'declarations'          =>  array(
+							'margin-bottom'         =>  esc_attr( $value . $unit ),
 						),
 					);
 				}
 			}
 		}
 
-		if ( array_key_exists( 'color', $atts ) && ! empty( $atts['color'] ) && ! in_array( 'color', $excluded_control_types ) ) {
+		if ( ! empty( $atts['color'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array(),
-				'declarations'      =>  array(
-					'color'             =>  esc_attr( $atts['color'] ),
+				'setting'               =>  'color',
+				'selectors'             =>  array(),
+				'declarations'          =>  array(
+					'color'                 =>  esc_attr( $atts['color'] ),
 				),
 			);
 		}
 
-		if ( array_key_exists( 'link_color', $atts ) && ! empty( $atts['link_color'] ) && ! in_array( 'link_color', $excluded_control_types ) ) {
-
+		if ( ! empty( $atts['link_color'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array( 'a' ),
-				'declarations'      =>  array(
-					'color'             =>  esc_attr( $atts['link_color'] ),
+				'setting'               =>  'link_color',
+				'selectors'             =>  array( 'a' ),
+				'declarations'          =>  array(
+					'color'                 =>  esc_attr( $atts['link_color'] ),
 				),
 			);
 
+			if ( ! empty( $atts['link_color_hover'] ) ) {
+				$css_rules[] = array(
+					'setting'               =>  'link_color_hover',
+					'selectors'             =>  array( 'a:hover' ),
+					'declarations'          =>  array(
+						'color'                 =>  esc_attr( $atts['link_color_hover'] ),
+					),
+				);
+			}
+		}
+		
+		if ( ! empty( $atts['heading_color'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array( 'a:hover' ),
-				'declarations'      =>  array(
-					'color'             =>  esc_attr( tailor_adjust_color_brightness( $atts['link_color'], -0.05 ) ),
+				'setting'               =>  'heading_color',
+				'selectors'             =>  array( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ),
+				'declarations'          =>  array(
+					'color'                 =>  esc_attr( $atts['heading_color'] ),
 				),
 			);
 		}
 
-		if ( array_key_exists( 'heading_color', $atts ) && ! empty( $atts['heading_color'] ) && ! in_array( 'heading_color', $excluded_control_types ) ) {
+		if ( ! empty( $atts['border_color'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ),
-				'declarations'      =>  array(
-					'color'             =>  esc_attr( $atts['heading_color'] ),
+				'setting'               =>  'border_color',
+				'selectors'             =>  array(),
+				'declarations'          =>  array(
+					'border-color'          =>  esc_attr( $atts['border_color'] ),
 				),
 			);
 		}
 
-		if ( array_key_exists( 'border_color', $atts ) && ! empty( $atts['border_color'] ) && ! in_array( 'border_color', $excluded_control_types ) ) {
+		if ( ! empty( $atts['navigation_color'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array(),
-				'declarations'      =>  array(
-					'border-color'      =>  esc_attr( $atts['border_color'] ),
+				'setting'               =>  'navigation_color',
+				'selectors'             =>  array( '.slick-active button:before' ),
+				'declarations'          =>  array(
+					'background-color'      =>  esc_attr( $atts['navigation_color'] ),
+				),
+			);
+
+			$css_rules[] = array(
+				'setting'               =>  'navigation_color',
+				'selectors'             =>  array( '.slick-arrow:not( .slick-disabled )' ),
+				'declarations'          =>  array(
+					'color'                 =>  esc_attr( $atts['navigation_color'] ),
 				),
 			);
 		}
 
-		if ( array_key_exists( 'navigation_color', $atts ) && ! empty( $atts['navigation_color'] ) && ! in_array( 'navigation_color', $excluded_control_types ) ) {
-			$css_rules[] = array(
-				'selectors'                 =>  array( '.slick-active button:before' ),
-				'declarations'              =>  array(
-					'background-color'          =>  esc_attr( $atts['navigation_color'] ),
-				),
-			);
-
-			$css_rules[] = array(
-				'selectors'                 =>  array( '.slick-arrow:not( .slick-disabled )' ),
-				'declarations'              =>  array(
-					'color'                     =>  esc_attr( $atts['navigation_color'] ),
-				),
-			);
-		}
-
-		if ( array_key_exists( 'padding', $atts ) && ! empty( $atts['padding'] ) && ! in_array( 'padding', $excluded_control_types ) ) {
+		if ( ! empty( $atts['padding'] ) ) {
 			$padding = explode( '-', $atts['padding'] );
 			$positions = ( 2 == count( $padding ) ) ? array( 'top', 'bottom' ) : array( 'top', 'right', 'bottom', 'left' );
 			$padding_values = array_combine( $positions, $padding );
 			foreach ( $padding_values as $position => $padding_value ) {
 				if ( ! empty( $padding_value ) ) {
 					$css_rules[] = array(
-						'selectors'                 =>  array(),
-						'declarations'              =>  array(
-							"padding-{$position}"       =>  esc_attr( $padding_value ),
+						'setting'               =>  'padding',
+						'selectors'             =>  array(),
+						'declarations'          =>  array(
+							"padding-{$position}"   =>  esc_attr( $padding_value ),
 						),
 					);
 				}
 			}
 		}
 
-		if ( array_key_exists( 'margin', $atts ) && ! empty( $atts['margin'] ) && ! in_array( 'margin', $excluded_control_types ) ) {
+		if ( ! empty( $atts['margin'] ) ) {
 			$margin = explode( '-', $atts['margin'] );
 			$positions = ( 2 == count( $margin ) ) ? array( 'top', 'bottom' ) : array( 'top', 'right', 'bottom', 'left' );
 			$margin_values = array_combine( $positions, $margin );
+
 			foreach ( $margin_values as $position => $margin_value ) {
 				if ( ! empty( $margin_value ) ) {
 					$css_rules[] = array(
-						'selectors'                 =>  array(),
-						'declarations'              =>  array(
-							"margin-{$position}"        =>  esc_attr( $margin_value ),
+						'setting'               =>  'margin',
+						'selectors'             =>  array(),
+						'declarations'          =>  array(
+							"margin-{$position}"    =>  esc_attr( $margin_value ),
 						),
 					);
 				}
 			}
 		}
 
-		if ( array_key_exists( 'border_style', $atts ) && ! empty( $atts['border_style'] ) && ! in_array( 'border_style', $excluded_control_types ) ) {
-
+		if ( ! empty( $atts['border_style'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array(),
-				'declarations'      =>  array(
-					'border-style'      =>  esc_attr( $atts['border_style'] ),
+				'setting'               =>  'border_style',
+				'selectors'             =>  array(),
+				'declarations'          =>  array(
+					'border-style'          =>  esc_attr( $atts['border_style'] ),
 				),
 			);
 
 			if ( 'none' !== $atts['border_style'] ) {
-
-				if ( array_key_exists( 'border_width', $atts ) && ! empty( $atts['border_width'] ) && ! in_array( 'border_width', $excluded_control_types ) ) {
+				
+				if ( ! empty( $atts['border_width'] ) ) {
 					$border = explode( '-', $atts['border_width'] );
 					$positions = array( 'top', 'right', 'bottom', 'left' );
 					$borders = array_combine( $positions, $border );
 
 					if ( count( array_unique( $borders ) ) === 1 && end( $borders ) == '0' ) {
 						$css_rules[] = array(
-							'selectors'                 =>  array(),
-							'declarations'              =>  array(
-								'border'                    =>  'none',
-								'box-shadow'                =>  'none',
+							'setting'               =>  'border_width',
+							'selectors'             =>  array(),
+							'declarations'          =>  array(
+								'border'                =>  'none',
+								'box-shadow'            =>  'none',
 							),
 						);
 
@@ -1129,8 +1303,9 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 						foreach ( $borders as $position => $border_width ) {
 							if ( ! empty( $border_width ) ) {
 								$css_rules[] = array(
-									'selectors'                 =>  array(),
-									'declarations'              =>  array(
+									'setting'               =>  'border_width',
+									'selectors'             =>  array(),
+									'declarations'          =>  array(
 										"border-{$position}-width"  =>  esc_attr( $border_width ),
 									),
 								);
@@ -1139,40 +1314,42 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 					}
 				}
 
-				if ( array_key_exists( 'border_radius', $atts ) && ! empty( $atts['border_radius'] ) && ! in_array( 'border_radius', $excluded_control_types ) ) {
+				if ( ! empty( $atts['border_radius'] ) ) {
 					$css_rules[] = array(
-						'selectors'         =>  array(),
-						'declarations'      =>  array(
-							'border-radius'     =>  esc_attr( $atts['border_radius'] ),
+						'setting'               =>  'border_radius',
+						'selectors'             =>  array(),
+						'declarations'          =>  array(
+							'border-radius'         =>  esc_attr( $atts['border_radius'] ),
 						),
 					);
 				}
 
-				if ( array_key_exists( 'shadow', $atts ) && ! empty( $atts['shadow'] ) && ! in_array( 'shadow', $excluded_control_types ) ) {
+				if ( ! empty( $atts['shadow'] ) ) {
 					$css_rules[] = array(
-						'selectors'         =>  array(),
-						'declarations'      =>  array(
-							'box-shadow'        =>  '0 2px 6px rgba(0, 0, 0, 0.1)',
+						'setting'               =>  'shadow',
+						'selectors'             =>  array(),
+						'declarations'          =>  array(
+							'box-shadow'            =>  '0 2px 6px rgba(0, 0, 0, 0.1)',
 						),
 					);
 				}
 			}
 		}
 
-		if ( array_key_exists( 'background_image', $atts ) && is_numeric( $atts['background_image'] ) && ! in_array( 'background_image', $excluded_control_types ) ) {
-
+		if ( ! empty( $atts['background_image'] ) && is_numeric( $atts['background_image'] ) ) {
 			$background_image_info = wp_get_attachment_image_src( trim( $atts['background_image'] ), 'full' );
 			$background_image_src = $background_image_info[0];
 
-			if ( array_key_exists( 'background_color', $atts ) && ! empty( $atts['background_color'] ) && ! in_array( 'background_color', $excluded_control_types ) ) {
+			if ( ! empty( $atts['background_color'] ) ) {
 				if ( false !== strpos( $atts['background_color'], 'rgba' ) ) {
 
-					// this allows you to "tint" your background image with a transparent color
-					// see: https://css-tricks.com/tinted-images-multiple-backgrounds/
+					// Tint the background image with a transparent color
+					// @see: https://css-tricks.com/tinted-images-multiple-backgrounds/
 					$css_rules[] = array(
-						'selectors'    => array(),
-						'declarations' => array(
-							'background' => esc_attr(
+						'setting'               =>  'background_image',
+						'selectors'             =>  array(),
+						'declarations'          =>  array(
+							'background'        =>  esc_attr(
 								"linear-gradient( {$atts['background_color']}, {$atts['background_color']} ), 
 								url({$background_image_src}) center center no-repeat"
 							),
@@ -1181,11 +1358,12 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 				}
 				else {
 
-					// otherwise we assume it's going to be a transparent image over a solid background color
+					// Possibly semi-transparent image over color
 					$css_rules[] = array(
-						'selectors'    => array(),
-						'declarations' => array(
-							'background' => esc_attr(
+						'setting'               =>  'background_image',
+						'selectors'             =>  array(),
+						'declarations'          =>  array(
+							'background'            =>  esc_attr(
 								"{$atts['background_color']} url({$background_image_src}) center center no-repeat"
 							),
 						),
@@ -1194,52 +1372,66 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 			}
 			else {
 				$css_rules[] = array(
-					'selectors'         =>  array(),
-					'declarations'      =>  array(
-						'background'        =>  "url('{$background_image_src}') center center no-repeat",
+					'setting'               =>  'background_image',
+					'selectors'             =>  array(),
+					'declarations'          =>  array(
+						'background'            =>  "url('{$background_image_src}') center center no-repeat",
 					),
 				);
 			}
 
-			if ( array_key_exists( 'background_repeat', $atts ) && ! in_array( 'background_repeat', $excluded_control_types ) ) {
+			if ( ! empty( $atts['background_repeat'] ) ) {
 				$css_rules[] = array(
-					'selectors'         =>  array(),
-					'declarations'      =>  array(
-						'background-repeat' =>  esc_attr( $atts['background_repeat'] ),
+					'setting'               =>  'background_repeat',
+					'selectors'             =>  array(),
+					'declarations'          =>  array(
+						'background-repeat'     =>  esc_attr( $atts['background_repeat'] ),
 					),
 				);
 			}
 
-			if ( array_key_exists( 'background_position', $atts ) && ! in_array( 'background_position', $excluded_control_types ) ) {
+			if ( ! empty( $atts['background_position'] ) ) {
 				$css_rules[] = array(
-					'selectors'         =>  array(),
-					'declarations'      =>  array(
+					'setting'               =>  'background_position',
+					'selectors'             =>  array(),
+					'declarations'          =>  array(
 						'background-position'   =>  esc_attr( $atts['background_position'] ),
 					),
 				);
 			}
 
-			if ( array_key_exists( 'background_size', $atts ) && ! in_array( 'background_size', $excluded_control_types ) ) {
+			if ( ! empty( $atts['background_size'] ) ) {
 				$css_rules[] = array(
-					'selectors'         =>  array(),
-					'declarations'      =>  array(
-						'background-size'   =>  esc_attr( $atts['background_size'] ),
+					'setting'               =>  'background_size',
+					'selectors'             =>  array(),
+					'declarations'          =>  array(
+						'background-size'       =>  esc_attr( $atts['background_size'] ),
+					),
+				);
+			}
+
+			if ( ! empty( $atts['background_attachment'] ) ) {
+				$css_rules[] = array(
+					'setting'               =>  'background_attachment',
+					'selectors'             =>  array(),
+					'declarations'          =>  array(
+						'background-attachment'     =>  esc_attr( $atts['background_attachment'] ),
 					),
 				);
 			}
 		}
 
-		else if ( array_key_exists( 'background_color', $atts ) && ! empty( $atts['background_color'] ) && ! in_array( 'background_color', $excluded_control_types ) ) {
+		else if ( ! empty( $atts['background_color'] ) ) {
 			$css_rules[] = array(
-				'selectors'         =>  array(),
-				'declarations'      =>  array(
-					'background-color'  =>  esc_attr( $atts['background_color'] ),
+				'setting'               =>  'background_color',
+				'selectors'             =>  array(),
+				'declarations'          =>  array(
+					'background-color'      =>  esc_attr( $atts['background_color'] ),
 				),
 			);
 		}
 
-		if ( array_key_exists( 'hidden', $atts ) && ! empty( $atts['hidden'] ) && ! in_array( 'hidden', $excluded_control_types ) ) {
-
+		if ( ! empty( $atts['hidden'] ) ) {
 			$preview_sizes = array_keys( tailor_get_registered_media_queries() );
 			$hidden_screen_sizes = explode( ',', $atts['hidden'] );
 
@@ -1247,10 +1439,11 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 				foreach ( (array) $hidden_screen_sizes as $hidden_screen_size ) {
 					if ( in_array( $hidden_screen_size, $preview_sizes ) ) {
 						$css_rules[] = array(
-							'media'                     =>  $hidden_screen_size,
-							'selectors'                 =>  array(),
-							'declarations'              =>  array(
-								'display'                   =>  'none!important',
+							'setting'               =>  'hidden',
+							'media'                 =>  $hidden_screen_size,
+							'selectors'             =>  array(),
+							'declarations'          =>  array(
+								'display'           =>  'none!important',
 							),
 						);
 					}
@@ -1258,16 +1451,18 @@ if ( ! function_exists( 'tailor_css_presets' ) ) {
 			}
 			else {
 				$css_rules[] = array(
-					'selectors'                 =>  array(),
-					'declarations'              =>  array(
-						'display'                   =>  'none',
+					'setting'               =>  'hidden',
+					'selectors'             =>  array(),
+					'declarations'          =>  array(
+						'display'               =>  'none',
 					),
 				);
 				$css_rules[] = array(
-					'selectors'                 =>  array( '#canvas &' ),
-					'declarations'              =>  array(
-						'display'                   =>  'block',
-						'background'          =>  'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVQYV2NkIAKckTrzn5GQOpAik2cmjHgVwhSBDMOpEFkRToXoirAqxKYIQyEuRSgK8SmCKySkCKyQGEUghQD+Nia8BIDCEQAAAABJRU5ErkJggg==)',
+					'setting'               =>  'hidden',
+					'selectors'             =>  array( '#canvas &' ),
+					'declarations'          =>  array(
+						'display'               =>  'block',
+						'background'            =>  'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVQYV2NkIAKckTrzn5GQOpAik2cmjHgVwhSBDMOpEFkRToXoirAqxKYIQyEuRSgK8SmCKySkCKyQGEUghQD+Nia8BIDCEQAAAABJRU5ErkJggg==)',
 					),
 				);
 			}

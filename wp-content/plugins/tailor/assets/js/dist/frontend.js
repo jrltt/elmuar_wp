@@ -135,7 +135,98 @@ $.fn.tailorCarousel = function( options, callbacks ) {
         }
     } );
 };
+
 },{}],2:[function(require,module,exports){
+var $ = window.jQuery;
+
+window.Tailor = window.Tailor || {};
+
+// Include polyfills
+require( '../shared/utility/polyfills/classlist' );
+require( '../shared/utility/polyfills/raf' );
+require( '../shared/utility/polyfills/transitions' );
+
+// Include shared components
+require( '../shared/components/ui/tabs' );
+require( '../shared/components/ui/toggles' );
+require( '../shared/components/ui/map' );
+require( '../shared/components/ui/lightbox' );
+require( '../shared/components/ui/slideshow' );
+require( '../shared/components/ui/parallax' );
+
+// Include frontend-only components
+require( './components/ui/carousel' );
+
+window.Tailor.initElements = function() {
+
+	// Parallax sections
+	$( '.tailor-section[data-ratio]' ).each( function() {
+		var $el = $( this );
+		$el.tailorParallax( { ratio: $el.data( 'ratio' ) } );
+	} );
+
+	// Tabs
+	$( '.tailor-tabs' ).tailorTabs();
+
+	// Toggles
+	$( '.tailor-toggles' ).tailorToggles();
+
+	// Google Maps
+	$( '.tailor-map' ).tailorGoogleMap();
+
+	// Carousels
+	$( '.tailor-carousel' ).each( function() {
+		var $el = $( this );
+		var $data = $el.data();
+
+		$el.tailorCarousel( {
+			slidesToShow : $data.slides || 1,
+			fade : ( $data.fade && 1 == $data.slides ),
+			infinite : this.classList.contains( 'tailor-posts' ) || this.classList.contains( 'tailor-gallery' )
+		} );
+	} );
+
+	// Masonry layouts
+	$( '.tailor-grid--masonry' ).each( function() {
+		var $el = $( this );
+
+		$el.imagesLoaded( function() {
+			$el.shuffle( {
+				itemSelector: '.tailor-grid__item'
+			} );
+		} );
+	} );
+
+	// Slideshows
+	$( '.tailor-slideshow--gallery' ).each( function() {
+		var $el = $( this );
+		var $data = $el.data() || {};
+		var options = {
+			autoplay : $data.autoplay || false,
+			arrows : $data.arrows || false,
+			draggable : true
+		};
+
+		if ( '1' == $data.thumbnails ) {
+			options.customPaging = function( slider, i ) {
+				var thumb = $( slider.$slides[ i ] ).data( 'thumb' );
+				return '<img class="slick-thumbnail" src="' + thumb + '">';
+			};
+			options.dots = true;
+		}
+
+		$el.tailorSlideshow( options );
+	} );
+
+	// Lightboxes
+	$( '.is-lightbox-gallery' ).tailorLightbox();
+};
+
+// Initialize elements when the document is ready
+$( document ).ready( function() {
+	window.Tailor.initElements();
+} );
+},{"../shared/components/ui/lightbox":3,"../shared/components/ui/map":4,"../shared/components/ui/parallax":5,"../shared/components/ui/slideshow":6,"../shared/components/ui/tabs":7,"../shared/components/ui/toggles":8,"../shared/utility/polyfills/classlist":9,"../shared/utility/polyfills/raf":10,"../shared/utility/polyfills/transitions":11,"./components/ui/carousel":1}],3:[function(require,module,exports){
 /**
  * Tailor.Objects.Lightbox
  *
@@ -272,7 +363,8 @@ $.fn.tailorLightbox = function( options, callbacks ) {
         }
     } );
 };
-},{}],3:[function(require,module,exports){
+
+},{}],4:[function(require,module,exports){
 /**
  * Tailor.Objects.Map
  *
@@ -596,7 +688,277 @@ $.fn.tailorGoogleMap = function( options, callbacks ) {
 };
 
 module.exports = Map;
-},{}],4:[function(require,module,exports){
+
+},{}],5:[function(require,module,exports){
+/**
+ * Tailor.Objects.Parallax
+ *
+ * A parallax module.
+ *
+ * @class
+ */
+var $ = window.jQuery,
+	Parallax;
+
+/**
+ * De-bounces events using requestAnimationFrame
+ *
+ * @param callback
+ * @constructor
+ */
+function DeBouncer( callback ) {
+	this.callback = callback;
+	this.ticking = false;
+}
+
+DeBouncer.prototype = {
+
+	/**
+	 * dispatches the event to the supplied callback
+	 * @private
+	 */
+	update : function () {
+		this.callback && this.callback();
+		this.ticking = false;
+	},
+
+	/**
+	 * ensures events don't get stacked
+	 * @private
+	 */
+	requestTick : function () {
+		if ( ! this.ticking ) {
+			requestAnimationFrame( this.rafCallback || ( this.rafCallback = this.update.bind( this ) ) );
+			this.ticking = true;
+		}
+	},
+
+	/**
+	 * Attach this as the event listeners
+	 */
+	handleEvent : function () {
+		this.requestTick();
+	}
+};
+
+var id = 0;
+
+/**
+ * Translates an element on scroll to create a parallax effect.
+ *
+ * @param el
+ * @param options
+ * @constructor
+ */
+Parallax = function( el, options ) {
+	this.id = 'tailor.parallax.' + id ++;
+	this.options = $.extend( this.defaults, options );
+	this.el = el.querySelector( this.options.selector );
+	if ( ! this.el ) {
+		return;
+	}
+
+	this.$el = $( el );
+	this.$win = $( window );
+	this.container = {
+		el: el
+	};
+
+	this.initialize();
+};
+
+Parallax.prototype = {
+
+	defaults : {
+		ratio : 0.25,
+		selector : '.tailor-section__background'
+	},
+
+	/**
+	 * Initializes the Parallax element.
+	 */
+	initialize : function() {
+
+		this.onResizeCallback = $.proxy( this.onResize, this );
+		this.onScrollCallback = $.proxy( this.onScroll, this );
+
+		this.addEventListeners();
+		this.onResize();
+	},
+
+
+	/**
+	 * Adds the required event listeners
+	 */
+	addEventListeners : function() {
+		this.$win
+			.on( 'resize.' + this.id, this.onResizeCallback )
+			.on( 'scroll.' + this.id, this.onScrollCallback );
+
+		this.$el
+
+			// Fires before the element template is refreshed
+			.on( 'before:element:refresh', $.proxy( this.maybeDestroy, this ) )
+
+			// Fires before the element is destroyed
+			.on( 'before:element:destroy', $.proxy( this.maybeDestroy, this ) )
+
+			/**
+			 * Child event listeners
+			 */
+
+			// Fires before and after a child element is added
+			.on( 'element:child:ready', this.onResizeCallback )
+
+			// Fires after a child element is added
+			.on( 'element:child:add', this.onResizeCallback )
+
+			// Fires after a child element is removed
+			.on( 'element:child:remove', this.onResizeCallback )
+
+			// Fires before and after a child element is refreshed
+			.on( 'element:child:refresh', this.onResizeCallback )
+
+			// Fires before and after the position of an item is changed
+			.on( 'element:change:order', this.onResizeCallback )
+
+			// Fires before and after a child element is destroyed
+			.on( 'element:child:destroy', this.onResizeCallback )
+	},
+
+	/**
+	 * Removes all registered event listeners.
+	 *
+	 * @since 1.4.0
+	 */
+	removeEventListeners: function() {
+		this.$win
+			.off( 'resize.' + this.id, this.onResizeCallback )
+			.off( 'scroll.' + this.id, this.onScrollCallback );
+
+		this.$el.off();
+	},
+
+	/**
+	 * Perform checks and do parallax when the window is resized.
+	 *
+	 * @since 1.4.0
+	 */
+	onResize : function() {
+		this.setup();
+		this.doParallax();
+	},
+
+	onScroll : function() {
+		requestAnimationFrame( this.doParallax.bind( this ) );
+	},
+
+	/**
+	 * Get and set attributes w
+	 */
+	setup : function() {
+
+		// Store window height
+		this.windowHeight = Math.max( document.documentElement.clientHeight, window.innerHeight || 0 );
+
+		// Store container attributes
+		var containerRect = this.container.el.getBoundingClientRect();
+		var containerHeight = this.container.el.offsetHeight;
+		var containerTop = containerRect.top + window.pageYOffset;
+
+		this.container.top = containerTop;
+		this.container.height = containerHeight;
+		this.container.bottom = containerTop + containerHeight;
+
+		// Adjust the element height
+		this.el.style.top = '0px';
+		this.el.style.height = Math.round( ( containerHeight + ( containerHeight * this.options.ratio ) ) ) + 'px';
+	},
+
+	/**
+	 * Returns true if the parallax element is visible in the viewport.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @returns {boolean}
+	 */
+	inViewport : function() {
+		var winTop = window.pageYOffset;
+		var winBottom = winTop + this.windowHeight;
+		var containerBottom = this.container.top + this.container.height;
+
+		return (
+			this.container.top < winBottom &&   // Top of element is above the bottom of the window
+			winTop < containerBottom            // Bottom of element is below top of the window
+		);
+	},
+
+	/**
+	 * Translate the element relative to its container to achieve the parallax effect.
+	 * 
+	 * @since 1.4.0
+	 */
+	doParallax : function() {
+
+		// Do nothing if the parent is not in view
+		if ( ! this.inViewport() ) {
+			return;
+		}
+
+		var amountScrolled = 1 - (
+				( this.container.bottom - window.pageYOffset  ) /
+				( this.container.height + this.windowHeight )
+			);
+
+		var translateY = Math.round( ( amountScrolled * this.container.height * this.options.ratio ) * 100 ) / 100;
+
+		this.el.style[ Modernizr.prefixed( 'transform' ) ] = 'translate3d( 0px, -' + translateY + 'px, 0px )';
+	},
+
+	/**
+	 * Destroys the parallax instance if the event target is the parallax element.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param e
+	 */
+	maybeDestroy : function( e ) {
+		if ( e.target == this.container.el ) {
+			this.destroy();
+		}
+	},
+
+	/**
+	 * Destroys the parallax instance.
+	 *
+	 * @since 1.4.0
+	 */
+	destroy: function() {
+		this.removeEventListeners();
+	}
+};
+
+/**
+ * Parallax jQuery plugin.
+ *
+ * @since 1.4.0
+ *
+ * @param options
+ * @param callbacks
+ * @returns {*}
+ */
+$.fn.tailorParallax = function( options, callbacks ) {
+	return this.each( function() {
+		var instance = $.data( this, 'tailorParallax' );
+		if ( ! instance ) {
+			$.data( this, 'tailorParallax', new Parallax( this, options, callbacks ) );
+		}
+	} );
+};
+
+module.exports = Parallax;
+
+},{}],6:[function(require,module,exports){
 /**
  * Tailor.Objects.Slideshow
  *
@@ -821,7 +1183,8 @@ $.fn.tailorSlideshow = function( options, callbacks ) {
         }
     } );
 };
-},{}],5:[function(require,module,exports){
+
+},{}],7:[function(require,module,exports){
 /**
  * Tailor.Objects.Tabs
  *
@@ -1112,7 +1475,8 @@ $.fn.tailorTabs = function( options, callbacks ) {
 };
 
 module.exports = Tabs;
-},{}],6:[function(require,module,exports){
+
+},{}],8:[function(require,module,exports){
 /**
  * Tailor.Objects.Toggles
  *
@@ -1358,90 +1722,185 @@ $.fn.tailorToggles = function( options, callbacks ) {
 };
 
 module.exports = Toggles;
-},{}],7:[function(require,module,exports){
-( function( $ ) {
+
+},{}],9:[function(require,module,exports){
+/**
+ * classList Polyfill
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
+ */
+( function() {
+
+	if ( 'undefined' === typeof window.Element || 'classList' in document.documentElement ) {
+		return;
+	}
+
+	var prototype = Array.prototype,
+		push = prototype.push,
+		splice = prototype.splice,
+		join = prototype.join;
+
+	function DOMTokenList( el ) {
+		this.el = el;
+		var classes = el.className.replace( /^\s+|\s+$/g, '' ).split( /\s+/ );
+		for ( var i = 0; i < classes.length; i++ ) {
+			push.call( this, classes[ i ] );
+		}
+	}
+
+	DOMTokenList.prototype = {
+
+		add: function( token ) {
+			if ( this.contains( token ) ) {
+				return;
+			}
+			push.call( this, token );
+			this.el.className = this.toString();
+		},
+
+		contains: function( token ) {
+			return this.el.className.indexOf( token ) != -1;
+		},
+
+		item: function( index ) {
+			return this[ index ] || null;
+		},
+
+		remove: function( token ) {
+			if ( ! this.contains( token ) ) {
+				return;
+			}
+			for ( var i = 0; i < this.length; i++ ) {
+				if ( this[ i ] == token ) {
+					break;
+				}
+			}
+			splice.call( this, i, 1 );
+			this.el.className = this.toString();
+		},
+
+		toString: function() {
+			return join.call( this, ' ' );
+		},
+
+		toggle: function( token ) {
+			if ( ! this.contains( token ) ) {
+				this.add( token );
+			}
+			else {
+				this.remove( token );
+			}
+			return this.contains( token );
+		}
+	};
+
+	window.DOMTokenList = DOMTokenList;
+
+	function defineElementGetter( obj, prop, getter ) {
+		if ( Object.defineProperty ) {
+			Object.defineProperty( obj, prop, {
+				get : getter
+			} );
+		}
+		else {
+			obj.__defineGetter__( prop, getter );
+		}
+	}
+
+	defineElementGetter( Element.prototype, 'classList', function() {
+		return new DOMTokenList( this );
+	} );
+
+} )();
+
+},{}],10:[function(require,module,exports){
+/**
+ * requestAnimationFrame polyfill.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+ */
+( function( window ) {
+
+	'use strict';
+
+	var lastTime = 0,
+		vendors = [ 'ms', 'moz', 'webkit', 'o' ];
+
+	for ( var x = 0; x < vendors.length && ! window.requestAnimationFrame; ++x ) {
+		window.requestAnimationFrame = window[ vendors[ x ] + 'RequestAnimationFrame' ];
+		window.cancelAnimationFrame = window[ vendors[ x ] + 'CancelAnimationFrame' ] || window[ vendors[ x ] + 'CancelRequestAnimationFrame' ];
+	}
+
+	if ( ! window.requestAnimationFrame ) {
+		window.requestAnimationFrame = function( callback, el ) {
+			var currTime = new Date().getTime();
+			var timeToCall = Math.max( 0, 16 - ( currTime - lastTime ) );
+			var id = window.setTimeout( function() {
+					callback( currTime + timeToCall );
+				},
+				timeToCall );
+			lastTime = currTime + timeToCall;
+			return id;
+		};
+	}
+
+	if ( ! window.cancelAnimationFrame ) {
+		window.cancelAnimationFrame = function( id ) {
+			clearTimeout( id );
+		};
+	}
+
+} ) ( window );
+
+},{}],11:[function(require,module,exports){
+/**
+ * Makes animation and transition support status and end names available as global variables.
+ */
+( function( window ) {
 
     'use strict';
 
-    require( './components/tabs' );
-    require( './components/toggles' );
-    require( './components/map' );
-    require( './components/lightbox' );
-    require( './components/slideshow' );
-    require( './components/frontend/carousel' );
+    var el = document.createElement( 'fakeelement' );
 
-    $( document ).ready( function() {
+    function getAnimationEvent(){
+        var t,
+            animations = {
+                'animation' : 'animationend',
+                'OAnimation' : 'oAnimationEnd',
+                'MozAnimation' : 'animationend',
+                'WebkitAnimation' : 'webkitAnimationEnd'
+            };
 
-	    /**
-	     * Tabs.
-	     */
-	    $( '.tailor-tabs' ).tailorTabs();
+        for ( t in animations ) {
+            if ( animations.hasOwnProperty( t ) && 'undefined' !== typeof el.style[ t ] ) {
+                return animations[ t ];
+            }
+        }
 
-	    /**
-	     * Toggles.
-	     */
-	    $( '.tailor-toggles' ).tailorToggles();
+        return false;
+    }
 
-	    /**
-	     * Maps.
-	     */
-	    $( '.tailor-map' ).tailorGoogleMap();
+    function getTransitionEvent(){
+        var t,
+            transitions = {
+                'transition' : 'transitionend',
+                'OTransition' : 'oTransitionEnd',
+                'MozTransition' : 'transitionend',
+                'WebkitTransition' : 'webkitTransitionEnd'
+            };
 
-	    /**
-	     * Carousels.
-	     */
-	    $( '.tailor-carousel' ).each( function() {
-		    var $el = $( this );
-		    var $data = $el.data();
+        for ( t in transitions ) {
+            if ( transitions.hasOwnProperty( t ) && 'undefined' !== typeof el.style[ t ] ) {
+                return transitions[ t ];
+            }
+        }
 
-		    $el.tailorCarousel( {
-			    slidesToShow : $data.slides || 1,
-			    fade : ( $data.fade && 1 == $data.slides ),
-			    infinite : this.classList.contains( 'tailor-posts' ) || this.classList.contains( 'tailor-gallery' )
-		    } );
-	    } );
+        return false;
+    }
 
-	    /**
-	     * Masonry layouts.
-	     */
-	    $( '.tailor-grid--masonry' ).each( function() {
-		    var $el = $( this );
+    window.animationEndName = getAnimationEvent();
+    window.transitionEndName = getTransitionEvent();
 
-		    $el.imagesLoaded( function() {
-			    $el.shuffle( {
-				    itemSelector: '.tailor-grid__item'
-			    } );
-		    } );
-	    } );
+} ) ( window );
 
-	    /**
-	     * Slideshow galleries.
-	     */
-	    $( '.tailor-slideshow--gallery' ).each( function() {
-		    var $el = $( this );
-		    var $data = $el.data() || {};
-		    var options = {
-			    autoplay : $data.autoplay || false,
-			    arrows : $data.arrows || false,
-			    draggable : true
-		    };
-
-		    if ( '1' == $data.thumbnails ) {
-			    options.customPaging = function( slider, i ) {
-				    var thumb = $( slider.$slides[ i ] ).data( 'thumb' );
-				    return '<img class="slick-thumbnail" src="' + thumb + '">';
-			    };
-			    options.dots = true;
-		    }
-
-		    $el.tailorSlideshow( options );
-	    } );
-
-	    /**
-	     * Lightbox galleries.
-	     */
-	    $( '.is-lightbox-gallery' ).tailorLightbox();
-
-    } );
-} ) ( jQuery );
-},{"./components/frontend/carousel":1,"./components/lightbox":2,"./components/map":3,"./components/slideshow":4,"./components/tabs":5,"./components/toggles":6}]},{},[7]);
+},{}]},{},[2]);

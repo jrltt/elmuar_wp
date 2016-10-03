@@ -101,6 +101,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_List_Item_Eleme
 	        $color_control_types = array(
 		        'color',
 		        'link_color',
+		        'link_color_hover',
 		        'heading_color',
 		        'background_color',
 		        'border_color',
@@ -166,6 +167,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_List_Item_Eleme
 		        'background_repeat',
 		        'background_position',
 		        'background_size',
+		        'background_attachment',
 	        );
 	        $attribute_control_arguments = array(
 		        'margin'                =>  array(
@@ -205,7 +207,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_List_Item_Eleme
 
 			    if ( ! empty( $atts['graphic_color_hover'] ) ) {
 				    $css_rules[] = array(
-					    'selectors'         =>  array( ':hover .tailor-list__graphic' ),
+					    'selectors'         =>  array( '.tailor-list__graphic:hover' ),
 					    'declarations'      =>  array(
 						    'color'             =>  esc_attr( $atts['graphic_color_hover'] ),
 					    ),
@@ -223,7 +225,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_List_Item_Eleme
 
 			    if ( ! empty( $atts['graphic_background_color_hover'] ) ) {
 				    $css_rules[] = array(
-					    'selectors'         =>  array( ':hover .tailor-list__graphic' ),
+					    'selectors'         =>  array( '.tailor-list__graphic:hover' ),
 					    'declarations'      =>  array(
 						    'background-color'  =>  esc_attr( $atts['graphic_background_color_hover'] ),
 					    ),

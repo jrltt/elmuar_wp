@@ -18,7 +18,7 @@ if ( ! function_exists( 'tailor_admin_bar_edit_link' ) ) {
 	 * @param WP_Admin_Bar $wp_admin_bar
 	 */
 	function tailor_admin_bar_edit_link( $wp_admin_bar ) {
-		
+
 		if ( tailor()->is_canvas() ) {
 			return;
 		}
@@ -43,10 +43,13 @@ if ( ! function_exists( 'tailor_admin_bar_edit_link' ) ) {
 		}
 
 		if ( tailor()->check_user_role() && tailor()->check_post( $post ) ) {
+
+			$post_type_object = get_post_type_object( get_post_type( $post ) );
+
 			$wp_admin_bar->add_node( array(
 				'id'            =>  'edit-with-tailor',
 				'meta'          =>  array(),
-				'title'         =>  sprintf( __( 'Tailor this %s', 'tailor' ), ucfirst( $post->post_type ) ),
+				'title'         =>  sprintf( __( 'Tailor this %s', 'tailor' ), $post_type_object->labels->singular_name ),
 				'href'          =>  tailor()->get_edit_url( $post->ID ),
 			) );
 		}
@@ -69,7 +72,8 @@ if ( ! function_exists( 'tailor_inline_edit_link' ) ) {
 	function tailor_inline_edit_link( $actions, $page_object ) {
 		$post = $page_object;
 		if ( tailor()->check_user_role() && tailor()->check_post( $post ) ) {
-			$actions['tailor'] = tailor()->get_edit_link( $post->ID, $post->post_type );
+			$post_type_object = get_post_type_object( get_post_type( $post ) );
+			$actions['tailor'] = tailor()->get_edit_link( $post->ID, $post_type_object->labels->singular_name );
 		}
 
 		return $actions;
@@ -79,24 +83,51 @@ if ( ! function_exists( 'tailor_inline_edit_link' ) ) {
 	add_filter( 'post_row_actions', 'tailor_inline_edit_link', 10, 2 );
 }
 
-if ( ! function_exists( 'tailor_frontend_edit_link' ) ) {
+if ( ! function_exists( 'tailor_content_editor_link' ) ) {
 
-	/**
-	 * Adds an edit link in the front end when the user is logged in.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param $links
-	 * @return string
-	 */
-	function tailor_frontend_edit_link( $links ) {
-		$post = get_post();
-		if ( ! tailor()->is_canvas() && tailor()->check_user_role() && tailor()->check_post( $post ) ) {
-			$links .= ' ' . tailor()->get_edit_link( $post->ID, $post->post_type );
+    /**
+     * Adds an edit link above content editor, next to the 'Add Media' button
+     *
+     * @since 1.5.4
+     */
+    function tailor_content_editor_link() {
+
+		if ( tailor()->is_canvas() || tailor()->is_tailoring() ) {
+			return;
 		}
 
-		return $links;
+		// Only add the Admin Bar link when editing a post or page
+		if ( is_admin() ) {
+
+			$screen = get_current_screen();
+			if ( 'post' !== $screen->base ) {
+				return;
+			}
+		}
+
+		// Do not display link on archive pages
+		else if ( ! is_singular() ) {
+			return;
+		}
+
+		$post = get_post();
+		if ( ! $post || 'auto-draft' == get_post_status( $post->ID ) ) {
+			return;
+		}
+
+		if ( tailor()->check_user_role() && tailor()->check_post( $post ) ) {
+
+			$post_type_object = get_post_type_object( get_post_type( $post ) );
+
+			$link = array(
+				'href'  => tailor()->get_edit_url( $post->ID ),
+				'id'    => 'edit-with-tailor',
+				'title' => sprintf( __( 'Tailor this %s', 'tailor' ), $post_type_object->labels->singular_name ),
+			);
+
+			echo vsprintf( '<a href="%s" id="%s" class="button">%s</a>', $link );
+		}
 	}
 
-	//add_filter( 'edit_post_link', 'tailor_frontend_edit_link' );
+	add_action( 'media_buttons', 'tailor_content_editor_link', 99 );
 }

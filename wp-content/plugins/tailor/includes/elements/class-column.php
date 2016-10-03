@@ -59,6 +59,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Column_Element'
 		    $color_control_types = array(
 			    'color',
 			    'link_color',
+			    'link_color_hover',
 			    'heading_color',
 			    'background_color',
 			    'border_color',
@@ -79,6 +80,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Column_Element'
 			    'background_repeat',
 			    'background_position',
 			    'background_size',
+			    'background_attachment',
 		    );
 		    $attribute_control_arguments = array(
 			    'padding'               =>  array(

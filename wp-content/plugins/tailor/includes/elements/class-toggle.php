@@ -61,6 +61,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Toggle_Element'
 		    $color_control_types = array(
 			    'color',
 			    'link_color',
+			    'link_color_hover',
 			    'heading_color',
 			    'background_color',
 			    'border_color',
@@ -101,6 +102,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Toggle_Element'
 			    'background_repeat',
 			    'background_position',
 			    'background_size',
+			    'background_attachment',
 		    );
 		    $attribute_control_arguments = array();
 		    tailor_control_presets( $this, $attribute_control_types, $attribute_control_arguments, $priority );

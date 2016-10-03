@@ -44,25 +44,21 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
          */
         protected function add_actions() {
 
+	        /**
+	         * Fires before the canvas is initialized.
+	         *
+	         * @since 1.3.4
+	         */
+	        do_action( 'tailor_canvas_init' );
+	        
             add_action( 'wp_head', array( $this, 'canvas_head' ) );
-	        add_filter( 'the_content', array( $this, 'canvas_content' ), 99999 );
+	        add_filter( 'the_content', array( $this, 'canvas_content' ), -1 );
 	        add_action( 'wp_footer', array( $this, 'canvas_footer' ) );
 	        
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 99999 );
+            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	        
-            add_action( 'tailor_canvas_footer', array( $this, 'print_templates' ), 99999 );
-	        
-	        // Address potential plugin conflicts
-	        if ( defined( 'JETPACK__VERSION' ) ) {
-		        remove_filter( 'the_content', 'sharing_display', 19 );
-		        remove_filter( 'the_excerpt', 'sharing_display', 19 );
-		        add_filter( 'sharing_show', '__return_false', 999 );
-	        }
-
-	        if ( function_exists( 'wpseo_frontend_head_init' ) ) {
-		        remove_action( 'template_redirect', 'wpseo_frontend_head_init', 999 );
-	        }
+            add_action( 'tailor_canvas_footer', array( $this, 'print_templates' ) );
         }
 
 	    /**
@@ -89,10 +85,6 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 	     * @return string
 	     */
 	    public function canvas_content( $content ) {
-
-		    if ( did_action( 'tailor_canvas_content' ) ) {
-			    return $content;
-		    }
 
 		    $content =  '<div id="canvas"></div>' .
 		                '<div class="tools" id="tools">' .
@@ -140,29 +132,27 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
          * @since 1.0.0
          */
         public function enqueue_styles() {
-
-	        if ( did_action( 'tailor_enqueue_canvas_styles' ) ) {
-		        return;
-	        }
-
-	        if ( apply_filters( 'tailor_enqueue_canvas_stylesheets', true ) ) {
-
+	        
+	        if ( apply_filters( 'tailor_enable_canvas_styles', true ) && ! did_action( 'tailor_enqueue_canvas_styles' ) ) {
+		        $handle = 'tailor-canvas-styles';
 		        $min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
 		        wp_enqueue_style(
-			        'tailor-canvas-styles',
+			        $handle,
 			        tailor()->plugin_url() . "assets/css/canvas{$min}.css",
 			        array(),
 			        tailor()->version()
 		        );
-	        }
 
-	        /**
-	         * Fires after canvas styles have been enqueued.
-	         *
-	         * @since 1.0.0
-	         */
-	        do_action( 'tailor_enqueue_canvas_styles' );
+		        /**
+		         * Fires after canvas styles have been enqueued.
+		         *
+		         * @since 1.4.0
+		         *
+		         * @param string $handle
+		         */
+		        do_action( 'tailor_enqueue_canvas_styles', $handle );
+	        }
         }
 
         /**
@@ -176,11 +166,11 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 		        return;
 	        }
 
+	        $handle = 'tailor-canvas';
 	        $extension = SCRIPT_DEBUG ? '.js' : '.min.js';
-	        $canvas_script_name = 'tailor-canvas';
 
 	        wp_enqueue_script(
-		        $canvas_script_name,
+		        $handle,
 		        tailor()->plugin_url() . 'assets/js/dist/canvas' . $extension,
 		        array( 'backbone-marionette', 'sortable', 'slick-slider' ),
 		        tailor()->version(),
@@ -193,9 +183,9 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 		        $allowed_urls[] = home_url( '/', 'https' );
 	        }
 
-	        wp_localize_script( $canvas_script_name, 'ajaxurl', esc_url_raw( admin_url( 'admin-ajax.php', 'relative' ) ) );
+	        wp_localize_script( $handle, 'ajaxurl', esc_url_raw( admin_url( 'admin-ajax.php', 'relative' ) ) );
 
-	        wp_localize_script( $canvas_script_name, '_urls', array(
+	        wp_localize_script( $handle, '_urls', array(
 		        'ajax'              =>  esc_url_raw( admin_url( 'admin-ajax.php', 'relative' ) ),
 		        'home'              =>  esc_url_raw( home_url( '/' ) ),
 		        'edit'              =>  esc_url_raw( get_edit_post_link() ),
@@ -204,31 +194,20 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 		        'isCrossDomain'     =>  $is_cross_domain,
 	        ) );
 
-	        wp_localize_script( $canvas_script_name, '_l10n', array(
-		        'edit'              =>  __( 'Edit', 'tailor' ),
-		        'delete'            =>  __( 'Delete', 'tailor' ),
-		        'preview'           =>  __( 'Preview', 'tailor' ),
-		        'save'              =>  __( 'Save', 'tailor' ),
-		        'initialized'       =>  __( 'Initialized', 'tailor' ),
-		        'added'             =>  __( 'Added', 'tailor' ),
-		        'deleted'           =>  __( 'Deleted', 'tailor' ),
-		        'edited'            =>  __( 'Edited', 'tailor' ),
-		        'copied'            =>  __( 'Copied', 'tailor' ),
-		        'moved'             =>  __( 'Moved', 'tailor' ),
-		        'resized'           =>  __( 'Resized', 'tailor' ),
-		        'reordered'         =>  __( 'Reordered', 'tailor' ),
-		        'template'          =>  __( 'Template', 'tailor' ),
+	        wp_localize_script( $handle, '_strings', array(
+		        'edit_element'      => __( 'Shift-click to edit this element', 'tailor' )
 	        ) );
-
-	        wp_localize_script( $canvas_script_name, '_nonces', $this->create_nonces() );
-	        wp_localize_script( $canvas_script_name, '_media_queries', tailor_get_registered_media_queries( true ) );
+	        wp_localize_script( $handle, '_nonces', $this->create_nonces() );
+	        wp_localize_script( $handle, '_media_queries', tailor_get_registered_media_queries( true ) );
 
 	        /**
 	         * Fires after canvas scripts have been enqueued.
 	         *
-	         * @since 1.0.0
+	         * @since 1.4.0
+	         *
+	         * @param string $handle
 	         */
-	        do_action( 'tailor_canvas_enqueue_scripts' );
+	        do_action( 'tailor_canvas_enqueue_scripts', $handle );
         }
 
 	    /**
@@ -257,16 +236,6 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 		    }
 
 		    $nonces = $this->create_nonces();
-
-		    /**
-		     * Filter nonces for a tailor_refresh_nonces AJAX request.
-		     *
-		     * @since 1.0.0
-		     *
-		     * @param array $nonces
-		     * @param Tailor_Sidebar $manager
-		     */
-		    $nonces = apply_filters( 'tailor_refresh_nonce', $nonces, $this );
 
 		    wp_send_json_success( $nonces );
 	    }

@@ -4,6 +4,10 @@
   justify-content: flex-start;
   margin: -1rem 0 -1rem;
 
+  .blog & {
+    flex-flow: column wrap;
+  }
+
   .type {
     &-publication,
     &-page {
@@ -28,14 +32,27 @@
 }
 
 .site-content {
-  margin-top: 6rem;
+  margin-top: 6.5rem;
 }
+
 .site-content,
 .site-footer {
   @include transition(all 200ms ease-in);
   
   &.cbp-spmenu-push-toright {
     margin-left: 320px;
+
+    @include media('screen', '<tablet') {
+      width: 100%;
+    }
+  }
+}
+
+.site-main {
+  .entry-content {
+    p {
+      margin-top: 0;
+    }
   }
 }
 

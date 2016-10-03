@@ -17,6 +17,8 @@
 				build_gallery('full');
 			} else if ( has_post_thumbnail() ) {
 				the_post_thumbnail('full',array('class' => 'img-responsive'));
+			} else {
+				echo_first_image($post->ID);
 			}
 
 			// if ( is_single() ) {

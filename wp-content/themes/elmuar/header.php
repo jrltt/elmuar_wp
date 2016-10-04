@@ -54,7 +54,7 @@
 		</div><!-- .site-branding -->
 	</header><!-- #masthead -->
 		<nav id="cbp-spmenu-s1" class="main-navigation--custom" role="navigation">
-			<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_id' => 'primary-menu' ) ); ?>
+			<?php custom_navigation_menu(); ?>
 		</nav><!-- #site-navigation -->
 	<div id="layer" class="site-layer"></div>
 	<div id="content" class="site-content">

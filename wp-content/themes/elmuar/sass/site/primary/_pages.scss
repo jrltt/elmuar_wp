@@ -1,8 +1,9 @@
 .site-main {
+  max-width: 85rem;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
-  margin: -1rem 0 -1rem;
+  margin: -1rem auto;
 
   .blog & {
     flex-flow: column wrap;
@@ -12,7 +13,7 @@
     &-publication {
     // &-page,
     // &-post {
-      flex: 0 0 33.3333%;
+      flex: 0 0 50%;
       padding: 0 3.46154rem 6.92308rem;
       transition: all 200ms ease;
     }

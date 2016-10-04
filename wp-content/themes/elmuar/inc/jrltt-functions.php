@@ -105,3 +105,46 @@ function echo_first_image( $postID ) {
 		}
 	}
 }
+
+function custom_navigation_menu() 
+{
+	
+		$args = array(
+			'sort_order' => 'asc',
+			'sort_column' => 'menu_order',
+			'post_type' => 'page',
+			'post_status' => 'publish'
+		); 
+		$pages = get_pages($args);
+		$html = '<ul id="primary-menu" class="menu">';
+		foreach ($pages as $key => $value) {
+			$html .= '<li class="menu-item"><a href="'. $value->guid . '" class="">'.$value->post_title; 
+			if (is_page_template('projects.php')) {
+				if ($value->ID == 10 && $value->post_title == 'Projets') {
+					$html .= get_projects_by_title();
+				}
+			}
+			$html .= '</a></li>';
+		}
+		$html .= '</ul>';
+	echo $html;
+}
+
+function get_projects_by_title() {
+	$args = array(
+		'post_type'					=>	 	'project',
+		'order'							=> 		'DESC',
+		'orderby'						=>		'date',
+		'posts_per_page'		=>		-1
+	);
+	$loop = new WP_Query($args);
+	$html = '<ul class="sub-menu">';
+	while ( $loop->have_posts() ) : $loop->the_post();
+		$html .= '<li class="menu-item menu-item-type-post_type post-'. get_the_ID() .'">';
+		$html .= '<a href="#post-'. get_the_ID() .'">'. get_the_title() .'</a>';
+		$html .= '</li>';
+	endwhile;
+	wp_reset_postdata();
+	$html .= '</ul>';
+	return $html;
+}

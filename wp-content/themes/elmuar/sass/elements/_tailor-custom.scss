@@ -17,6 +17,10 @@
       margin-top: .5rem;
       padding: 0;
       border: 0;
+
+      &.show--text {
+        display: block;
+      }
     }
   }
 }

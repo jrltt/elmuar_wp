@@ -16,7 +16,7 @@
 			if ( has_post_gallery() ) {
 				build_gallery('full');
 			} else if ( has_post_thumbnail() ) {
-				the_post_thumbnail('full',array('class' => 'img-responsive'));
+				the_post_thumbnail('full', array('class' => 'img-responsive'));
 			} else {
 				echo_first_image($post->ID);
 			}
@@ -31,7 +31,7 @@
 
 	<div class="entry-content">
 		<?php
-			the_excerpt();
+			echo get_field('custom_content', $post->ID);
 
 			wp_link_pages( array(
 				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),

@@ -102,14 +102,15 @@ http://flickity.metafizzy.co
 /* ---- page dots ---- */
 
 .flickity-page-dots {
-  position: absolute;
+  display: none;
+  /*position: absolute;
   width: 100%;
   bottom: -25px;
   padding: 0;
   margin: 0;
   list-style: none;
   text-align: center;
-  line-height: 1;
+  line-height: 1;*/
 }
 
 .flickity-rtl .flickity-page-dots { direction: rtl; }
@@ -127,4 +128,43 @@ http://flickity.metafizzy.co
 
 .flickity-page-dots .dot.is-selected {
   opacity: 1;
+}
+
+/* smaller, dark, rounded square */
+.flickity-prev-next-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: none;
+}
+.flickity-prev-next-button:hover {
+  background: transparent;
+  box-shadow: none;
+}
+/* arrow color */
+.flickity-prev-next-button .arrow {
+  fill: black;
+}
+.flickity-prev-next-button.no-svg {
+  color: black;
+}
+/* position outside */
+.flickity-prev-next-button.previous {
+  left: -40px;
+
+  @include media('screen', '<tablet') {
+    left: -25px;
+  }
+}
+.flickity-prev-next-button.next {
+  right: -40px;
+
+  @include media('screen', '<tablet') {
+    right: -25px;
+  }
+}
+/* hide disabled button */
+.flickity-prev-next-button:disabled {
+  display: none;
 }

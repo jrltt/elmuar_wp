@@ -42,3 +42,9 @@ if (classie.hasClass(body, 'page-template-parcour')) {
     classie.toggleClass(toggles.children[i].children[1], 'show--text');
   }
 }
+// var elem = document.querySelector('.carousel');
+// var flkty = new Flickity( elem, {
+//   // options
+//   cellAlign: 'left',
+//   contain: true
+// });

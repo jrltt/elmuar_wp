@@ -339,3 +339,38 @@ textarea {
     }
   }
 }
+
+/* override wpcf7 */
+span.wpcf7-not-valid-tip {
+  color: $color__text-input-error;
+  font-size: .8rem;
+  margin-top: -15px;
+  transition: .2s color ease-out;
+}
+
+div.wpcf7 img.ajax-loader {
+  margin-left: 1rem;
+}
+
+div.wpcf7-response-output {
+  padding: .5rem 1rem;
+  margin: 0;
+}
+
+div.wpcf7-validation-errors,
+div.wpcf7-mail-sent-ng,
+div.wpcf7-mail-sent-ok {
+  border: none;
+}
+
+div.wpcf7-validation-errors {
+  background-color: lighten(#f7e700, 46%);
+}
+
+div.wpcf7-mail-sent-ng {
+  background-color: lighten($color__text-input-error, 30%);
+}
+
+div.wpcf7-mail-sent-ok {
+  background-color: #aace9a;
+}

@@ -10,12 +10,16 @@
   }
 
   .type {
-    &-publication {
-    // &-page,
+    &-publication,
+    &-comission {
     // &-post {
       flex: 0 0 50%;
       padding: 0 3.46154rem 6.92308rem;
       transition: all 200ms ease;
+
+      img {
+        max-height: 500px;
+      }
     }
   }
 }

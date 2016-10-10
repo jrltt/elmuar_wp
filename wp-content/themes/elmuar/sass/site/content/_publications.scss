@@ -22,10 +22,10 @@
   }
 
   &__img-wrapper {
-    @include display-flex;
-    @include justify-content(flex-end);
-    @include flex-direction(column);
-    min-height: 20rem;
+    // display: flex;
+    // @include justify-content(flex-end);
+    // @include flex-direction(column);
+    max-height: 500px;
     
     .wp-post-image {
       max-width: 70%;

@@ -11,17 +11,20 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-		<a class="entry--header__link" href="<?php echo get_permalink(); ?>">
-			<div class="entry--header__img-wrapper">
-				<?php if( has_post_thumbnail() ) {
-					the_post_thumbnail('pub-index');
-				} ?>
-			</div>
-			<?php the_title( '<h1 class="entry-title entry--header__title">', '</h1>' ); ?>
-			<div class="entry--header__meta">
-				<?php echo build_category_year(); ?>
-			</div>
-		</a>
+		<div class="entry--header__img-wrapper">
+			<?php 
+			if ( has_post_gallery() ) {
+				build_gallery('full');
+			} else if ( has_post_thumbnail() ) {
+				the_post_thumbnail('full', array('class' => 'img-responsive'));
+			} else {
+				echo_first_image($post->ID);
+			} ?>
+		</div>
+		<?php the_title( '<h1 class="entry-title entry--header__title">', '</h1>' ); ?>
+		<div class="entry--header__meta">
+			<?php echo build_category_year(); ?>
+		</div>
 	</header><!-- .entry-header -->
 
 	<footer class="entry-footer">

@@ -25,7 +25,7 @@
 	</footer><!-- #colophon -->
 	</div><!-- #content -->
 </div><!-- #page -->
-
+<script src="https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js"></script>
 <?php wp_footer(); ?>
 	<script>
 		var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),
@@ -55,5 +55,6 @@
 
 		}
 	</script>
+
 </body>
 </html>

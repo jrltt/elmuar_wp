@@ -61,13 +61,22 @@ function has_post_gallery()
 function build_gallery($size = 'default')
 {
 	$gallery = get_post_gallery_images( $post );
-	$image_list = '<div class="carousel" data-flickity>';
+	?>
+	<div class="carousel" data-flickity='{ "imagesLoaded": true }'>
+	<?php
+	// $image_list = '<div class="carousel" data-flickity='.$tmp.'>';
 	foreach( $gallery as $image_url ) {
-		$image_list .= '<div class="carousel-cell">' . '<img src="' . $image_url . '">' . '</div>';
+		// $image_list .= '<div class="carousel-cell">' . '<img src="' . $image_url . '">' . '</div>';
+		?>
+			<div class="carousel-cell"><img src="<?php echo $image_url; ?>" alt="nope"></div>
+		<?php
 	}
-	$image_list .= '</div>';
-	$content .= $image_list;
-	print_r($content);
+	// $image_list .= '</div>';
+	// $content .= $image_list;
+	?>
+	</div>
+	<?php
+	// print_r($content);
 }
 
 function jrltt_posted_on_simple()
@@ -99,9 +108,9 @@ function echo_first_image( $postID ) {
 	$attachments = get_children( $args );
 	if ( $attachments ) {
 		foreach ( $attachments as $attachment ) {
-			$image_attributes = wp_get_attachment_image_src( $attachment->ID, 'thumbnail' )  ? wp_get_attachment_image_src( $attachment->ID, 'thumbnail' ) : wp_get_attachment_image_src( $attachment->ID, 'full' );
 
-			echo '<img src="' . wp_get_attachment_thumb_url( $attachment->ID ) . '" class="current">';
+			$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
+			echo '<img src="' . $image[0] . '" class="current">';
 		}
 	}
 }

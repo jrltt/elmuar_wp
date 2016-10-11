@@ -25,7 +25,10 @@
     // display: flex;
     // @include justify-content(flex-end);
     // @include flex-direction(column);
-    max-height: 500px;
+    height: auto;
+    @include media('screen','>tablet') {
+      max-height: 500px;
+    }
     
     .wp-post-image {
       max-width: 70%;

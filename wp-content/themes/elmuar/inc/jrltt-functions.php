@@ -62,13 +62,13 @@ function build_gallery($size = 'default')
 {
 	$gallery = get_post_gallery_images( $post );
 	?>
-	<div class="carousel" data-flickity='{ "imagesLoaded": true }'>
+	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": true }'>
 	<?php
 	// $image_list = '<div class="carousel" data-flickity='.$tmp.'>';
 	foreach( $gallery as $image_url ) {
 		// $image_list .= '<div class="carousel-cell">' . '<img src="' . $image_url . '">' . '</div>';
 		?>
-			<div class="carousel-cell"><img src="<?php echo $image_url; ?>" alt="nope"></div>
+			<div class="gallery-cell"><img class="box" data-flickity-lazyload="<?php echo $image_url; ?>" alt="nope"></div>
 		<?php
 	}
 	// $image_list .= '</div>';

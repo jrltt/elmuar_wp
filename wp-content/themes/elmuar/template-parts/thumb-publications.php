@@ -21,12 +21,18 @@
 				echo_first_image($post->ID);
 			} ?>
 		</div>
-		<?php the_title( '<h1 class="entry-title entry--header__title">', '</h1>' ); ?>
-		<div class="entry--header__meta">
+	</header><!-- .entry-header -->
+	<div class="entry--content">
+		<div class="entry--content__text">
+			<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
+		</div>
+		<div class="entry--content__custom">
+			<?php echo get_field('custom_content', $post->ID); ?>
+		</div>
+		<div class="entry--content__meta">
 			<?php echo build_category_year(); ?>
 		</div>
-	</header><!-- .entry-header -->
-
+	</div>
 	<footer class="entry-footer">
 		<?php
 			edit_post_link(

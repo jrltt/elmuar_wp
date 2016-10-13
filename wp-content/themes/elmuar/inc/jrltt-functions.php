@@ -60,15 +60,22 @@ function has_post_gallery()
 
 function build_gallery($size = 'default')
 {
-	$gallery = get_post_gallery_images( $post );
+	// $gallery = get_post_gallery_images( $post );
+	$gallery = get_attached_media( 'image' );
 	?>
 	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": true }'>
-	<?php
-	// $image_list = '<div class="carousel" data-flickity='.$tmp.'>';
-	foreach( $gallery as $image_url ) {
-		// $image_list .= '<div class="carousel-cell">' . '<img src="' . $image_url . '">' . '</div>';
-		?>
-			<div class="gallery-cell"><img class="box" data-flickity-lazyload="<?php echo $image_url; ?>" alt="nope"></div>
+	<?php foreach( $gallery as $key => $value ) { ?>
+			<div class="gallery-cell">
+				<img class="box" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="nope">
+				<div class="gallery-cell--metadata">
+					<?php if ($value->post_title) : ?>
+					<h4 class="gallery-cell--metadata__title"><?php echo $value->post_title ?></h4>
+					<?php endif; ?>
+					<?php if ($value->post_excerpt) : ?>
+					<p class="gallery-cell--metadata__excerpt"><?php echo $value->post_excerpt; ?></p>
+					<?php endif; ?>
+				</div>
+			</div>
 		<?php
 	}
 	// $image_list .= '</div>';

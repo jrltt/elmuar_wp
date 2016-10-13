@@ -149,13 +149,43 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
 
 .gallery-cell {
   width: 100%;
-  min-height: 500px;
+  min-height: 385px;
   margin-right: 10px;
   background: #8C8;
   /* flex-box */
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
+
+  @include media('screen', '>tablet') {
+    min-height: 500px;
+  }
+  
+}
+.gallery-cell--metadata {
+  position: absolute;
+  left: 0;
+  bottom: 10px;
+
+  &__title,
+  &__excerpt {
+    padding: 0.2rem 1rem 0.2rem 1.55rem;
+    background-color: white;
+    float: left;
+    clear: both;
+
+    @include media('screen', '>tablet') {
+      padding: 0.2rem 1rem;
+    }
+  }
+
+  &__title {
+    margin-bottom: .5rem;
+  }
+  
+  &__excerpt {
+    margin-top: .5rem;
+  }
 }
 
 .box.flickity-lazyloaded,

@@ -22,54 +22,6 @@ if ( function_exists( 'add_image_size' ) ) {
 add_action( 'init', 'cptui_register_my_cpts' );
 function cptui_register_my_cpts() {
 	$labels = array(
-		"name" => __( 'Publications', 'elmuar' ),
-		"singular_name" => __( 'Publication', 'elmuar' ),
-		"menu_name" => __( 'Publications', 'elmuar' ),
-		"all_items" => __( 'All Publications', 'elmuar' ),
-		"add_new" => __( 'Add New', 'elmuar' ),
-		"add_new_item" => __( 'Add New Publication', 'elmuar' ),
-		"edit_item" => __( 'Edit Publication', 'elmuar' ),
-		"new_item" => __( 'New Publication', 'elmuar' ),
-		"view_item" => __( 'View Publicaiton', 'elmuar' ),
-		"search_items" => __( 'Search Publication', 'elmuar' ),
-		"not_found" => __( 'No Publication found', 'elmuar' ),
-		"not_found_in_trash" => __( 'No Publication found on trash', 'elmuar' ),
-		"parent" => __( 'Parent Publication', 'elmuar' ),
-		"featured_image" => __( 'Featured image for publication', 'elmuar' ),
-		"set_featured_image" => __( 'Set featured image for this publication', 'elmuar' ),
-		"remove_featured_image" => __( 'Remove featured image for this publication', 'elmuar' ),
-		"use_featured_image" => __( 'Use as featured image for this publication', 'elmuar' ),
-		"archives" => __( 'Publications archive', 'elmuar' ),
-		"insert_into_item" => __( 'Insert into publication', 'elmuar' ),
-		"uploaded_to_this_item" => __( 'Uploaded to this pubication', 'elmuar' ),
-		"filter_items_list" => __( 'Filter Publication list', 'elmuar' ),
-		"items_list_navigation" => __( 'Publications list navigation', 'elmuar' ),
-		"items_list" => __( 'Publications list', 'elmuar' ),
-		);
-
-	$args = array(
-		"label" => __( 'Publications', 'elmuar' ),
-		"labels" => $labels,
-		"description" => "Publications",
-		"public" => true,
-		"show_ui" => true,
-		"show_in_rest" => false,
-		"rest_base" => "",
-		"has_archive" => false,
-		"show_in_menu" => true,
-		"exclude_from_search" => false,
-		"capability_type" => "post",
-		"map_meta_cap" => true,
-		"hierarchical" => false,
-		"rewrite" => array( "slug" => "publication", "with_front" => true ),
-		"query_var" => true,
-		"menu_position" => 6,"menu_icon" => "dashicons-book",		
-		"supports" => array( "title", "editor", "thumbnail", "excerpt", "custom-fields" ),		
-		"taxonomies" => array( "category" ),		
-	);
-	register_post_type( "publication", $args );
-
-	$labels = array(
 		"name" => __( 'Projects', 'elmuar' ),
 		"singular_name" => __( 'Project', 'elmuar' ),
 		"menu_name" => __( 'Projects', 'elmuar' ),
@@ -111,11 +63,106 @@ function cptui_register_my_cpts() {
 		"hierarchical" => false,
 		"rewrite" => array( "slug" => "project", "with_front" => true ),
 		"query_var" => true,
-		"menu_position" => 7,"menu_icon" => "dashicons-admin-page",		
+		"menu_position" => 6,"menu_icon" => "dashicons-admin-page",		
 		"supports" => array( "title", "editor", "thumbnail", "custom-fields", "page-attributes", "post-formats" ),		
 		"taxonomies" => array( "category" ),		
 	);
 	register_post_type( "project", $args );
+
+	$labels = array(
+		"name" => __( 'Publications', 'elmuar' ),
+		"singular_name" => __( 'Publication', 'elmuar' ),
+		"menu_name" => __( 'Publications', 'elmuar' ),
+		"all_items" => __( 'All Publications', 'elmuar' ),
+		"add_new" => __( 'Add New', 'elmuar' ),
+		"add_new_item" => __( 'Add New Publication', 'elmuar' ),
+		"edit_item" => __( 'Edit Publication', 'elmuar' ),
+		"new_item" => __( 'New Publication', 'elmuar' ),
+		"view_item" => __( 'View Publicaiton', 'elmuar' ),
+		"search_items" => __( 'Search Publication', 'elmuar' ),
+		"not_found" => __( 'No Publication found', 'elmuar' ),
+		"not_found_in_trash" => __( 'No Publication found on trash', 'elmuar' ),
+		"parent" => __( 'Parent Publication', 'elmuar' ),
+		"featured_image" => __( 'Featured image for publication', 'elmuar' ),
+		"set_featured_image" => __( 'Set featured image for this publication', 'elmuar' ),
+		"remove_featured_image" => __( 'Remove featured image for this publication', 'elmuar' ),
+		"use_featured_image" => __( 'Use as featured image for this publication', 'elmuar' ),
+		"archives" => __( 'Publications archive', 'elmuar' ),
+		"insert_into_item" => __( 'Insert into publication', 'elmuar' ),
+		"uploaded_to_this_item" => __( 'Uploaded to this pubication', 'elmuar' ),
+		"filter_items_list" => __( 'Filter Publication list', 'elmuar' ),
+		"items_list_navigation" => __( 'Publications list navigation', 'elmuar' ),
+		"items_list" => __( 'Publications list', 'elmuar' ),
+		);
+
+	$args = array(
+		"label" => __( 'Publications', 'elmuar' ),
+		"labels" => $labels,
+		"description" => "Publications",
+		"public" => true,
+		"show_ui" => true,
+		"show_in_rest" => false,
+		"rest_base" => "",
+		"has_archive" => false,
+		"show_in_menu" => true,
+		"exclude_from_search" => false,
+		"capability_type" => "post",
+		"map_meta_cap" => true,
+		"hierarchical" => false,
+		"rewrite" => array( "slug" => "publication", "with_front" => true ),
+		"query_var" => true,
+		"menu_position" => 7,"menu_icon" => "dashicons-book",		
+		"supports" => array( "title", "editor", "thumbnail", "excerpt", "custom-fields" ),		
+		"taxonomies" => array( "category" ),		
+	);
+	register_post_type( "publication", $args );
+
+	$labels = array(
+		"name" => __( 'Ed Trompeloeil', 'elmuar' ),
+		"singular_name" => __( 'Ed Trompeloeil', 'elmuar' ),
+		"menu_name" => __( 'Ed Trompeloeil', 'elmuar' ),
+		"all_items" => __( 'All Ed Trompeloeil', 'elmuar' ),
+		"add_new" => __( 'Add new', 'elmuar' ),
+		"add_new_item" => __( 'Add new Ed Trompeloeil', 'elmuar' ),
+		"edit_item" => __( 'Edit Ed Trompeloeil', 'elmuar' ),
+		"new_item" => __( 'New Ed Trompeloeil', 'elmuar' ),
+		"view_item" => __( 'View Ed Trompeloeil', 'elmuar' ),
+		"search_items" => __( 'Search Ed Trompeloeil', 'elmuar' ),
+		"not_found" => __( 'No Ed Trompeloeil found', 'elmuar' ),
+		"not_found_in_trash" => __( 'No Ed Trompeloeil found in trash', 'elmuar' ),
+		"parent" => __( 'Parent Ed Trompeloeil', 'elmuar' ),
+		"featured_image" => __( 'Featured image for this Ed Trompeloeil', 'elmuar' ),
+		"set_featured_image" => __( 'Set featured image for this Ed Trompeloeil', 'elmuar' ),
+		"remove_featured_image" => __( 'Remove featured image for this Ed Trompeloeil', 'elmuar' ),
+		"use_featured_image" => __( 'User as featured imaged for Ed Trompeloeil', 'elmuar' ),
+		"archives" => __( 'Ed Trompeloeil archives', 'elmuar' ),
+		"insert_into_item" => __( 'Insert into Ed Trompeloeil', 'elmuar' ),
+		"uploaded_to_this_item" => __( 'Uploaded to this Ed Trompeloeil', 'elmuar' ),
+		"filter_items_list" => __( 'Filter Ed Trompeloeil list', 'elmuar' ),
+		"items_list_navigation" => __( 'Ed Trompeloeil list navigation', 'elmuar' ),
+		"items_list" => __( 'Ed Trompeloeil list', 'elmuar' ),
+		);
+
+	$args = array(
+		"label" => __( 'Ed Trompeloeil', 'elmuar' ),
+		"labels" => $labels,
+		"description" => "",
+		"public" => true,
+		"show_ui" => true,
+		"show_in_rest" => false,
+		"rest_base" => "",
+		"has_archive" => false,
+		"show_in_menu" => true,
+		"exclude_from_search" => false,
+		"capability_type" => "post",
+		"map_meta_cap" => true,
+		"hierarchical" => false,
+		"rewrite" => array( "slug" => "editions-trompeloeil", "with_front" => true ),
+		"query_var" => true,
+		"menu_position" => 8, "menu_icon" => "dashicons-admin-page",		
+		"supports" => array( "title", "editor", "thumbnail", "custom-fields" ),				
+	);
+	register_post_type( "edtromp", $args );
 
 	$labels = array(
 		"name" => __( 'Comissions', 'elmuar' ),
@@ -164,6 +211,52 @@ function cptui_register_my_cpts() {
 	);
 	register_post_type( "comission", $args );
 
+	$labels = array(
+		"name" => __( 'Decalage', 'elmuar' ),
+		"singular_name" => __( 'Decalage', 'elmuar' ),
+		"menu_name" => __( 'Decalage', 'elmuar' ),
+		"all_items" => __( 'All Decalage', 'elmuar' ),
+		"add_new" => __( 'Add new', 'elmuar' ),
+		"add_new_item" => __( 'Add new Decalage', 'elmuar' ),
+		"edit_item" => __( 'Edit Decalage', 'elmuar' ),
+		"new_item" => __( 'New Decalage', 'elmuar' ),
+		"view_item" => __( 'View Decalage', 'elmuar' ),
+		"search_items" => __( 'Search Decalage', 'elmuar' ),
+		"not_found" => __( 'No Decalage found', 'elmuar' ),
+		"not_found_in_trash" => __( 'No Decalage found in trash', 'elmuar' ),
+		"parent" => __( 'Parent Decalage', 'elmuar' ),
+		"featured_image" => __( 'Featured image for this Decalage', 'elmuar' ),
+		"set_featured_image" => __( 'Set featured image for this Decalage', 'elmuar' ),
+		"remove_featured_image" => __( 'Remove featured image for this Decalage', 'elmuar' ),
+		"use_featured_image" => __( 'User as featured imaged for Decalage', 'elmuar' ),
+		"archives" => __( 'Decalage archives', 'elmuar' ),
+		"insert_into_item" => __( 'Insert into Decalage', 'elmuar' ),
+		"uploaded_to_this_item" => __( 'Uploaded to this Decalage', 'elmuar' ),
+		"filter_items_list" => __( 'Filter Decalage list', 'elmuar' ),
+		"items_list_navigation" => __( 'Decalage list navigation', 'elmuar' ),
+		"items_list" => __( 'Decalage list', 'elmuar' ),
+		);
+
+	$args = array(
+		"label" => __( 'Decalage', 'elmuar' ),
+		"labels" => $labels,
+		"description" => "",
+		"public" => true,
+		"show_ui" => true,
+		"show_in_rest" => false,
+		"rest_base" => "",
+		"has_archive" => false,
+		"show_in_menu" => true,
+		"exclude_from_search" => false,
+		"capability_type" => "post",
+		"map_meta_cap" => true,
+		"hierarchical" => false,
+		"rewrite" => array( "slug" => "decalage", "with_front" => true ),
+		"query_var" => true,
+		"menu_position" => 8, "menu_icon" => "dashicons-admin-page",		
+		"supports" => array( "title", "editor", "thumbnail", "custom-fields" ),				
+	);
+	register_post_type( "decalage", $args );
 // End of cptui_register_my_cpts()
 }
 

@@ -41,19 +41,16 @@
 }
 
 .site-content {
+  width: 100%;
   margin-top: 6.5rem;
 }
 
 .site-content,
 .site-footer {
-  @include transition(all 200ms ease-in);
+  @include transition(margin-left 200ms ease-in);
   
   &.cbp-spmenu-push-toright {
     margin-left: 320px;
-
-    @include media('screen', '>tablet') {
-      width: 100%;
-    }
   }
 }
 

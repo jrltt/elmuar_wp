@@ -11,8 +11,10 @@
 get_header(); ?>
 
 	<div id="primary" class="content-area">
-
-		<main id="main" class="site-main" role="main">
+		<?php
+		$columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns';
+		?>
+		<main id="main" class="site-main <?php echo $columnStyle; ?>" role="main">
 
 			<?php
 			$args = array(

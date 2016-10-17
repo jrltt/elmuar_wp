@@ -210,53 +210,6 @@ function cptui_register_my_cpts() {
 		"supports" => array( "title", "editor", "thumbnail", "custom-fields" ),				
 	);
 	register_post_type( "comission", $args );
-
-	$labels = array(
-		"name" => __( 'Decalage', 'elmuar' ),
-		"singular_name" => __( 'Decalage', 'elmuar' ),
-		"menu_name" => __( 'Decalage', 'elmuar' ),
-		"all_items" => __( 'All Decalage', 'elmuar' ),
-		"add_new" => __( 'Add new', 'elmuar' ),
-		"add_new_item" => __( 'Add new Decalage', 'elmuar' ),
-		"edit_item" => __( 'Edit Decalage', 'elmuar' ),
-		"new_item" => __( 'New Decalage', 'elmuar' ),
-		"view_item" => __( 'View Decalage', 'elmuar' ),
-		"search_items" => __( 'Search Decalage', 'elmuar' ),
-		"not_found" => __( 'No Decalage found', 'elmuar' ),
-		"not_found_in_trash" => __( 'No Decalage found in trash', 'elmuar' ),
-		"parent" => __( 'Parent Decalage', 'elmuar' ),
-		"featured_image" => __( 'Featured image for this Decalage', 'elmuar' ),
-		"set_featured_image" => __( 'Set featured image for this Decalage', 'elmuar' ),
-		"remove_featured_image" => __( 'Remove featured image for this Decalage', 'elmuar' ),
-		"use_featured_image" => __( 'User as featured imaged for Decalage', 'elmuar' ),
-		"archives" => __( 'Decalage archives', 'elmuar' ),
-		"insert_into_item" => __( 'Insert into Decalage', 'elmuar' ),
-		"uploaded_to_this_item" => __( 'Uploaded to this Decalage', 'elmuar' ),
-		"filter_items_list" => __( 'Filter Decalage list', 'elmuar' ),
-		"items_list_navigation" => __( 'Decalage list navigation', 'elmuar' ),
-		"items_list" => __( 'Decalage list', 'elmuar' ),
-		);
-
-	$args = array(
-		"label" => __( 'Decalage', 'elmuar' ),
-		"labels" => $labels,
-		"description" => "",
-		"public" => true,
-		"show_ui" => true,
-		"show_in_rest" => false,
-		"rest_base" => "",
-		"has_archive" => false,
-		"show_in_menu" => true,
-		"exclude_from_search" => false,
-		"capability_type" => "post",
-		"map_meta_cap" => true,
-		"hierarchical" => false,
-		"rewrite" => array( "slug" => "decalage", "with_front" => true ),
-		"query_var" => true,
-		"menu_position" => 8, "menu_icon" => "dashicons-admin-page",		
-		"supports" => array( "title", "editor", "thumbnail", "custom-fields" ),				
-	);
-	register_post_type( "decalage", $args );
 // End of cptui_register_my_cpts()
 }
 

@@ -66,7 +66,7 @@ function build_gallery($size = 'default')
 	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": true }'>
 	<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
-				<img class="box" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="nope">
+				<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="nope">
 				<div class="gallery-cell--metadata">
 					<?php if ($value->post_title) : ?>
 					<h4 class="gallery-cell--metadata__title"><?php echo $value->post_title ?></h4>
@@ -117,7 +117,7 @@ function echo_first_image( $postID ) {
 		foreach ( $attachments as $attachment ) {
 
 			$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
-			echo '<img src="' . $image[0] . '" class="current">';
+			echo '<img src="' . $image[0] . '" class="current wp-post-image">';
 		}
 	}
 }

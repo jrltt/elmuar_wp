@@ -1,15 +1,16 @@
 <?php
 /**
- * Template part for displaying thumbs on template publication.
+ * Template part for displaying thumbs on template publication, commandes and edtromp.
  *
  * @link https://codex.wordpress.org/Template_Hierarchy
  *
  * @package Elisa_Murcia_Artengo
  */
 
+$classTypeArticle = has_gallery();
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class(array($classTypeArticle)); ?>>
 	<header class="entry-header">
 		<div class="entry--header__img-wrapper">
 			<?php 
@@ -24,7 +25,9 @@
 	</header><!-- .entry-header -->
 	<div class="entry--content">
 		<div class="entry--content__text">
-			<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
+			<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
+				<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
+			</a>
 		</div>
 		<div class="entry--content__custom">
 			<?php echo get_field('custom_content', $post->ID); ?>

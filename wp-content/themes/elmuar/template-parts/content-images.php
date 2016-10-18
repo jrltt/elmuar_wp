@@ -8,21 +8,25 @@
  */
 
 ?>
-	<?php 
-	/*
-	 * temporal approach, better solution, with custom fields get the shortcode
-	 * and print the slider or similar.
-	 */
-	?>
-	<div style="display:block;-webkit-box-flex: 0;-ms-flex: 0 0 100%;flex: 0 0 100%;"><?php echo do_shortcode('[eazy-flickity-slider eazy_flickity_slider="41" width="100%" height="798px"]'); ?></div>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+<h1>images</h1>
 	<header class="entry-header">
-		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+		<?php 
+		if ( has_post_gallery() ) {
+			build_gallery('full');
+		} else if ( has_post_thumbnail() ) {
+			the_post_thumbnail('full', array('class' => 'img-responsive'));
+		} else {
+			echo_first_image($post->ID);
+		} ?>
 	</header><!-- .entry-header -->
 
 	<div class="entry-content">
+		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 		<?php
-			the_content();
+			// the_content();
+
+			echo get_field('custom_content');
 
 			wp_link_pages( array(
 				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),

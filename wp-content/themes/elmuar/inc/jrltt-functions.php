@@ -88,7 +88,7 @@ function build_gallery($size = 'default')
 
 function jrltt_posted_on_simple()
 {
-		$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
+	$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
 	if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) {
 		$time_string = '<time class="entry-date published" datetime="%1$s">%2$s</time><time class="updated" datetime="%3$s">%4$s</time>';
 	}
@@ -146,7 +146,8 @@ function custom_navigation_menu()
 	echo $html;
 }
 
-function get_projects_by_title() {
+function get_projects_by_title() 
+{
 	$args = array(
 		'post_type'					=>	 	'project',
 		'order'							=> 		'DESC',
@@ -163,4 +164,14 @@ function get_projects_by_title() {
 	wp_reset_postdata();
 	$html .= '</ul>';
 	return $html;
+}
+
+function has_gallery() {
+	$response = 'image__type--default';
+	if ( has_post_gallery() ) {
+		$response = 'image__type--gallery';
+	} else if ( has_post_thumbnail() ) {
+		$response = 'image__type--thumbnail';
+	}
+	return $response;
 }

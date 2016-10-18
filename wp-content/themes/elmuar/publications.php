@@ -27,7 +27,7 @@ get_header(); ?>
 			$loop = new WP_Query($args);
 			while ( $loop->have_posts() ) : $loop->the_post();
 
-				get_template_part( 'template-parts/thumb', 'publications' );
+				get_template_part( 'template-parts/thumb', 'images' );
 
 			endwhile; // End of the loop.
 			?>

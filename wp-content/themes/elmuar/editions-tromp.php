@@ -15,19 +15,29 @@ get_header(); ?>
 		$columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns';
 		?>
 		<main id="main" class="site-main <?php echo $columnStyle; ?>" role="main">
-
+			
 			<?php
-			$category = get_term_by('slug', 'editions-trompeloeil', 'category');
+
+			while ( have_posts() ) : the_post();
+			?>
+				<article id="post-<?php the_ID(); ?>" <?php post_class(array('type-edtromp__header')); ?>>
+					<?php the_content(); ?>
+				</article>
+			<?php
+			endwhile;
+			
+			wp_reset_postdata();
+
 			$args = array(
-				'post_type'					=>		'publication',
+				'post_type'					=>		'edtromp',
 				'order'							=> 		'DESC',
 				'orderby'						=>		'date',
-				'category__in'			=>		$category->term_id
+				'posts_per_page'		=>		-1
 			);
 			$loop = new WP_Query($args);
 			while ( $loop->have_posts() ) : $loop->the_post();
 
-				get_template_part( 'template-parts/thumb', 'publications' );
+				get_template_part( 'template-parts/thumb', 'images' );
 
 			endwhile; // End of the loop.
 			?>

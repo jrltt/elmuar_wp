@@ -56,6 +56,10 @@
 
   &__text {
     margin-top: .8rem;
+
+    &-link {
+      text-decoration: none;
+    }
   }
 
   &__title {
@@ -64,5 +68,22 @@
 
   &__meta {
     color: $color__link-visited;
+  }
+}
+
+.entry-header {
+  min-height: 500px;
+
+}
+
+.image__type {
+  &--default,
+  &--thumbnail {
+    .entry-header {
+      display: flex;
+      .entry--header__img-wrapper {
+        align-self: flex-end;
+      }
+    }
   }
 }

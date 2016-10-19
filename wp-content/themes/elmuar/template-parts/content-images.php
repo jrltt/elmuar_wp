@@ -9,7 +9,6 @@
 
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-<h1>images</h1>
 	<header class="entry-header">
 		<?php 
 		if ( has_post_gallery() ) {
@@ -19,10 +18,12 @@
 		} else {
 			echo_first_image($post->ID);
 		} ?>
-	</header><!-- .entry-header -->
+	</header>
 
 	<div class="entry-content">
-		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+		<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
+			<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+		</a>
 		<?php
 			// the_content();
 
@@ -33,7 +34,7 @@
 				'after'  => '</div>',
 			) );
 		?>
-	</div><!-- .entry-content -->
+	</div>
 
 	<footer class="entry-footer">
 		<?php
@@ -47,5 +48,5 @@
 				'</span>'
 			);
 		?>
-	</footer><!-- .entry-footer -->
-</article><!-- #post-## -->
+	</footer>
+</article>

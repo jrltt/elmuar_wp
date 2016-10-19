@@ -1,11 +1,21 @@
 .site-footer {
-  margin: 0 auto;
+  margin: 10% auto 0;
   width: 100%;
-  max-width: 85rem;
+  // max-width: 85rem;
   // margin-top: 2rem;
   // padding-left: 2.5rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
   padding-left: $padding__size;
   padding-right: $padding__size;
+
+  @include media('screen', '<tablet') {
+    margin-top: 25%;
+  }
+  
+  .site-info {
+    @include media('screen', '>tablet') {
+      text-align: center;
+    }
+  }
 }

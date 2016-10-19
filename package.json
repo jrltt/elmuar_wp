@@ -34,5 +34,8 @@
     "presets": [
       "es2015"
     ]
+  },
+  "dependencies": {
+    "sass-burger": "^1.3.1"
   }
 }

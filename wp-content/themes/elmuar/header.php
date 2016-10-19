@@ -29,7 +29,11 @@
 	<header id="masthead" class="site-header" role="banner">
 		<div class="site-branding">
 			<div class="header--menu">
-    		<p id="showLeftPush" class="header--menu__symbol">&amp;</p>
+    		<p id="showLeftPush" class="header--menu__symbol">
+    			<a href="#" class="menu-button" id="menuButton">
+    				<span class="burger-icon"></span>
+					</a>
+				</p>
 			</div>
 			<div class="header--title">
 				<?php

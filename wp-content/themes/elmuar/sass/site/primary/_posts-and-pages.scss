@@ -33,11 +33,23 @@
   color: grey;
 }
 
-.blog {
+/*.blog {
   .type-post {
     .entry-header {
       img {
         max-height: 638px;
+      }
+    }
+  }
+}*/
+
+.single {
+  .type {
+    &-publication,
+    &-comission,
+    &-edtromp {
+      @include media('screen', '>tablet') {
+        min-height: 48rem;
       }
     }
   }

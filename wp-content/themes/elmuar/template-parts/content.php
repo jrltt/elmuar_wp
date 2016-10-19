@@ -7,30 +7,32 @@
  * @package Elisa_Murcia_Artengo
  */
 
+$classTypeArticle = has_gallery();
 ?>
-
-<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class(array($classTypeArticle)); ?>>
 	<header class="entry-header">
-
-		<?php
-			if ( has_post_gallery() ) {
-				build_gallery('full');
-			} else if ( has_post_thumbnail() ) {
-				the_post_thumbnail('full', array('class' => 'img-responsive'));
-			} else {
-				echo_first_image($post->ID);
-			}
-
-			// if ( is_single() ) {
-			/*} else {
-				the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' );
-			}*/
+		<div class="entry--header__img-wrapper">
+			<?php
+				if ( has_post_gallery() ) {
+					build_gallery('full');
+				} else if ( has_post_thumbnail() ) {
+					the_post_thumbnail('full', array('class' => 'img-responsive'));
+				} else {
+					echo_first_image($post->ID);
+				}
 			?>
-	</header><!-- .entry-header -->
+		</div>
+	</header>
 
 	<div class="entry-content">
+		<?php if (!is_single()) : ?>
+		<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
+			<?php the_title( '<h2 class="entry-title entry--content__title">', '</h2>' );?>
+		</a>
+		<?php else: ?>
+			<?php the_title( '<h2 class="entry-title entry--content__title">', '</h2>' );?>
+		<?php endif; ?>
 		<?php
-			the_title( '<h1 class="entry-title">', '</h1>' );
 			
 			echo get_field('custom_content', $post->ID);
 
@@ -39,12 +41,8 @@
 				'after'  => '</div>',
 			) );
 		?>
-	</div><!-- .entry-content -->
-	<?php
-		if ( 'post' === get_post_type() ) : ?>
-		<div class="entry-meta">
-			<?php jrltt_posted_on_simple(); ?>
-		</div><!-- .entry-meta -->
-		<?php
-	endif; ?>
-</article><!-- #post-## -->
+	</div>
+	<div class="entry-meta">
+		<?php jrltt_posted_on_simple(); ?>
+	</div>
+</article>

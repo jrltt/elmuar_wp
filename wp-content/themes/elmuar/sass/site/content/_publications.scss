@@ -72,8 +72,14 @@
 }
 
 .entry-header {
-  min-height: 500px;
+  @include media('screen', '<tablet') {
+    margin-left: -$padding__size;
+    margin-right: -$padding__size;
+  }
 
+  @include media('screen', '>tablet') {
+    min-height: 500px;
+  }
 }
 
 .image__type {
@@ -81,6 +87,7 @@
   &--thumbnail {
     .entry-header {
       display: flex;
+      
       .entry--header__img-wrapper {
         align-self: flex-end;
       }

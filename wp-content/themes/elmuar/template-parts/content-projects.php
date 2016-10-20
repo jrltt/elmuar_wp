@@ -11,7 +11,7 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+		<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
 	</header><!-- .entry-header -->
 
 	<div class="entry-content">
@@ -24,30 +24,33 @@
 			
 			$detect = new Mobile_Detect;
 			if ($detect->isMobile() && !$detect->isTablet()) {
-				echo '<h1>HOLA MOBILE</h1>';
-				$tmp = 'class="carousel" data-flickity';
+				$classParent = 'class="carousel" data-flickity';
+				$styleChild = 'carousel-cell';
 			} else {
-				echo '<h1>NOPEEEEE</h1>';
-				$tmp = 'class="other"';
+				$classParent = 'class="table__projects other"';
+				$styleChild = 'table__projects--child zoomTarget';
 			}
+			?>
+			<?php
+			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
+ 				$gallery = get_attached_media( $post );
+ 				// print_r($gallery);
+				$image_list = '<div '.$classParent.'>';
+				foreach( $gallery as $key => $image_url ) {
 
-			if( has_shortcode( $post->post_content, 'gallery' ) ) {
- 				$gallery = get_post_gallery_images( $post );
-				$image_list = '<ul '.$tmp.'>';
-				// Loop through each image in each gallery
-				foreach( $gallery as $image_url ) {
-					$image_list .= '<li class="carousel-cell">' . '<img src="' . $image_url . '">' . '</li>';
+					// if ($key == 214) {
+					// 	print_r($image_url);
+					// }
+					$image_list .= '<div class="'. $styleChild .'">' . '<img class=" table__projects--image" src="' . $image_url->guid . '">' . '</div>';
+					if (get_field('class', $image_url->ID)) {
+						$image_list .= '<div class="table__projects--child '.get_field('class', $image_url->ID).'"></div>';
+					}
 				}
-				$image_list .= '</ul>';
+				$image_list .= '</div>';
 				// Append our image list to the content of our post
 				$content .= $image_list;
 		 		echo $content;
 		 	}
-
-			// wp_link_pages( array(
-			// 	'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),
-			// 	'after'  => '</div>',
-			// ) );
 		?>
 	</div><!-- .entry-content -->
 

@@ -24,6 +24,8 @@
 	</div><!-- #content -->
 </div><!-- #page -->
 <script src="https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="<?php echo get_template_directory_uri() . '/js/jquery.zoomooz.js' ?>"></script>
 <?php wp_footer(); ?>
 </body>
 </html>

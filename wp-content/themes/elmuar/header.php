@@ -62,4 +62,4 @@
 			<?php custom_navigation_menu(); ?>
 		</nav><!-- #site-navigation -->
 	<div id="layer" class="site-layer"></div>
-	<div id="content" class="site-content">
+	<div id="content" class="site-content zoomViewport">

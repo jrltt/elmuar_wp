@@ -1,0 +1,20 @@
+.table__projects {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  &--image {
+    height: 50px;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+
+  &--child {
+    &.one-space {
+      width: 56.38px;
+    }
+    &.two-column {
+      width: 112.76px;
+    }
+  }
+}

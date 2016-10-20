@@ -79,6 +79,10 @@
 
   @include media('screen', '>tablet') {
     min-height: 500px;
+
+    .page-template-projects & {
+      min-height: 0;
+    }
   }
 }
 

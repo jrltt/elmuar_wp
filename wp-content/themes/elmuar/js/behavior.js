@@ -32,7 +32,9 @@ console.log('hello bro!!1');
       }
     }
   });
-
+  // $('.zoomTarget').zoomTo({
+  //   root: $('.projects')
+  // });
 })(jQuery);
 
 var body = document.querySelector('body');

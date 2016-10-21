@@ -18,3 +18,28 @@
     }
   }
 }
+
+.content-area {
+  // Needs latest Compass, add '@import "compass"' to your scss
+// Permalink - use to edit and share this gradient:
+// http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&1+0,0+100;White+to+Transparent
+  // @include background(linear-gradient(to right, white, #dddddd));
+ }
+
+.type-project {
+  position: relative;
+  
+  &:after {
+    content: "";
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 54px;
+    height: 50px;
+    width: 15%;
+    background-size: 100%;
+    background: -webkit-linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
+    pointer-events: none;
+  }
+}

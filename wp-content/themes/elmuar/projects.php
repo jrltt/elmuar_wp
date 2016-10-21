@@ -10,9 +10,9 @@
 
 get_header(); ?>
 
-	<div id="primary" class="content-area  zoomContainer">
-
-		<main id="main" class="site-main projects " role="main">
+	<div id="primary" class="content-area ">
+		<!-- zoomViewport -->
+		<main id="main" class="site-main projects  zoomContainer" role="main">
 
 			<?php
 			$args = array(

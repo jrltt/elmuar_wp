@@ -23,7 +23,7 @@
 </head>
 
 <body <?php body_class(); ?>>
-<div id="page" class="site">
+<div id="page" class="site zoomViewport">
 	<a class="skip-link screen-reader-text" href="#main"><?php esc_html_e( 'Skip to content', 'elmuar' ); ?></a>
 
 	<header id="masthead" class="site-header" role="banner">
@@ -62,4 +62,4 @@
 			<?php custom_navigation_menu(); ?>
 		</nav><!-- #site-navigation -->
 	<div id="layer" class="site-layer"></div>
-	<div id="content" class="site-content zoomViewport">
+	<div id="content" class="site-content">

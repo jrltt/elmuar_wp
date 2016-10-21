@@ -41,9 +41,9 @@
 					// if ($key == 214) {
 					// 	print_r($image_url);
 					// }
-					$image_list .= '<div class="'. $styleChild .'">' . '<img class=" table__projects--image" src="' . $image_url->guid . '">' . '</div>';
+					$image_list .= '<div class="'. $styleChild .'" data-targetsize="0.5">' . '<img class=" table__projects--image" src="' . $image_url->guid . '">' . '</div>';
 					if (get_field('class', $image_url->ID)) {
-						$image_list .= '<div class="table__projects--child '.get_field('class', $image_url->ID).'"></div>';
+						$image_list .= '<div class="table__projects--child zoomTarget '.get_field('class', $image_url->ID).'"></div>';
 					}
 				}
 				$image_list .= '</div>';

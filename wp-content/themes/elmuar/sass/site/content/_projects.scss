@@ -16,13 +16,18 @@
     &.two-column {
       width: 112.76px;
     }
+
+    &.white--child {
+      width: 56.38px;
+      // height: 57px;
+    }
   }
 }
 
 .content-area {
   // Needs latest Compass, add '@import "compass"' to your scss
-// Permalink - use to edit and share this gradient:
-// http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&1+0,0+100;White+to+Transparent
+  // Permalink - use to edit and share this gradient:
+  // http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&1+0,0+100;White+to+Transparent
   // @include background(linear-gradient(to right, white, #dddddd));
  }
 

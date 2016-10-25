@@ -14,6 +14,7 @@ require_once( 'inc/jrltt-functions.php' );
 */
 if ( function_exists( 'add_image_size' ) ) {
 	add_image_size('pub-index', 381, 560, false);
+	add_image_size('project', 50, 50, true);
 }
 
 /**
@@ -328,7 +329,11 @@ function elmuar_scripts() {
 
 	wp_enqueue_script( 'elmuar-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
 
-	// wp_enqueue_script( 'zoomooz', get_template_directory_uri() . '/js/jquery.zoomooz.min.js', array(), '20162010', false );
+	wp_enqueue_script( 'zoomooz', get_template_directory_uri() . '/js/jquery.zoomooz.min.js', array(), '20162010', true );
+	
+	// wp_enqueue_script( 'unveil', get_template_directory_uri() . '/js/jquery.unveil.js', array(), '20162510', true );
+
+	// wp_enqueue_script( 'lazy-load', get_template_directory_uri() . '/js/lazyload.js', array(), '20162510', true );
 
 	wp_enqueue_script( 'elmuar-flickity', get_template_directory_uri() . '/js/flickity.pkgd.min.js', array(), '20160110', true );
 

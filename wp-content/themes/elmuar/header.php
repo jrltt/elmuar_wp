@@ -20,6 +20,8 @@
 <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:400,300italic,300' rel='stylesheet' type='text/css'>
 
 <?php wp_head(); ?>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="<?php echo get_template_directory_uri() . '/js/lazyload.js' ?>"></script>
 </head>
 
 <body <?php body_class(); ?>>

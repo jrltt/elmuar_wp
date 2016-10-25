@@ -1,7 +1,8 @@
 .table__projects {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: no-wrap;
+  width: 2790px;
 
   &--image {
     height: 50px;

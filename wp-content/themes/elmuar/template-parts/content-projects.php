@@ -29,27 +29,29 @@
 			} else {
 				$classParent = 'class="table__projects other"';
 				$styleChild = 'table__projects--child zoomTarget';
+				$targetSize = ($detect->isTablet()) ? '0.30' : '0.45';
 			}
 			?>
 			<?php
 			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
  				$gallery = get_attached_media( $post );
-				$image_list = '<div '.$classParent.'>';
+				$content = '<div '.$classParent.'>';
 				// echo count($gallery);
 				foreach( $gallery as $key => $image_url ) {
 					// print_r($image_url);
-					$image = wp_get_attachment_image_src($image_url->ID, 'thumbnail');
-					$image_list .= '<div class="'. $styleChild .'" data-targetsize="0.5">' . '<img class=" table__projects--image" src="' . $image[0] . '" size="'.wp_get_attachment_image_sizes($image_url->ID).'" srcset="'.wp_get_attachment_image_srcset($image_url->ID). '">' . '</div>';
+					$image = wp_get_attachment_image_src($image_url->ID, 'project');
+					$content .= '<div class="' . $styleChild . '" data-targetsize="' . $targetSize . '">';
+
+					$content .= '<img class="lazy table__projects--image"  src="blank.gif" data-src="' . $image[0] . '" size="' . wp_get_attachment_image_sizes($image_url->ID) . '" srcset="'.wp_get_attachment_image_srcset($image_url->ID). '" height="50">';
+					$content .= '</div>';
 					if (get_field('white-space', $image_url->ID)) {
 						$whiteProjects = get_field('white-space', $image_url->ID);
 						for ($i=0; $i < $whiteProjects; $i++) { 
-							$image_list .= '<div class="table__projects--child zoomTarget white--child" data-targetsize="0.5"></div>';
+							$content .= '<div class="table__projects--child zoomTarget white--child" data-targetsize="' . $targetSize . '"></div>';
 						}
 					}
 				}
-				$image_list .= '</div>';
-				// Append our image list to the content of our post
-				$content .= $image_list;
+				$content .= '</div>';
 		 		echo $content;
 		 	}
 		?>

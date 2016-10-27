@@ -19,3 +19,5 @@ wp-content/themes/elmuar/style.css
 .maintenance
 033!
 *.map
+wp-content/plugins/wpml-*
+wp-content/plugins/sitepress-multilingual-cms

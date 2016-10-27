@@ -11,6 +11,8 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
+	<a href="#" data-featherlight="#mylightbox">Open element in lightbox</a>
+	<div id="mylightbox">This div will be opened in a lightbox</div>
 		<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
 	</header><!-- .entry-header -->
 

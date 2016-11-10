@@ -57,7 +57,8 @@ var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),
     body = document.getElementById( 'content' ),
     menuButton = document.getElementById('menuButton');
 
-showLeftPush.onclick = function() {
+showLeftPush.onclick = function(e) {
+  e.preventDefault();
   classie.toggle( this, 'active' );
   classie.toggle( layer, 'active' );
   classie.toggle( body, 'cbp-spmenu-push-toright' );
@@ -66,7 +67,8 @@ showLeftPush.onclick = function() {
   disableOther( 'showLeftPush' );
 };
 
-layer.onclick = function() {
+layer.onclick = function(e) {
+  e.preventDefault();
   classie.toggle( this, 'active' );
   classie.toggle( body, 'cbp-spmenu-push-toright' );
   classie.toggle( menuLeft, 'cbp-spmenu-open' );

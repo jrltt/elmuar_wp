@@ -37,12 +37,12 @@
     height: auto;
 
     @include media('screen','>tablet') {
-      max-height: 500px;
+      max-height: $max_height_images;
     }
     
     .wp-post-image {
       width: auto;
-      max-height: 500px;
+      max-height: $max_height_images;
     }
   }
 }
@@ -78,7 +78,7 @@
   }
 
   @include media('screen', '>tablet') {
-    min-height: 500px;
+    min-height: $max_height_images;
 
     .page-template-projects & {
       min-height: 0;

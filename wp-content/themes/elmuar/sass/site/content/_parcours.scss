@@ -9,8 +9,6 @@
 
         ul {
           li {
-            // float: left;
-            // clear: left;
             list-style: none;
             margin-bottom: 1rem;
             
@@ -19,10 +17,12 @@
               clear: left;
               margin-right: .5rem;
             }
+            
+            > ul {
+              margin-left: 5.2rem;
+            }
 
             ul {
-              // float: left;
-
               li {
                 margin-bottom: .25rem;
               }

@@ -8,13 +8,18 @@
     padding: 0;
     margin-bottom: .5rem;
     text-transform: uppercase;
+
+    &:hover {
+      color: #a09f9f;
+      border-bottom-color: #a09f9f;
+    }
   }
 
   .tailor-toggle {
-    margin-bottom: 1rem;
+    margin-bottom: 1.8rem;
 
     &__body {
-      margin-top: .5rem;
+      margin-top: 1.2rem;
       padding: 0;
       border: 0;
 

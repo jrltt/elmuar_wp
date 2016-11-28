@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('hello bro!!1');
-
 /*window.addEventListener("resize", function(){
     // fire when above 1203
     if (document.documentElement.clientWidth > 480) {
@@ -20,7 +18,6 @@ console.log('hello bro!!1');
 
 (function($) {
   $('.menu-item a[href*="#"]:not([href="#"])').click(function() {
-    console.log('hoal');
     if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
       var target = $(this.hash);
       target = target.length ? target : $('[name=' + this.hash.slice(1) +']');

@@ -152,14 +152,14 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
   width: 100%;
   min-height: 385px;
   margin-right: 10px;
-  background: #8C8;
+  // background: #8C8;
   /* flex-box */
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
 
   @include media('screen', '>tablet') {
-    min-height: 500px;
+    min-height: $max_height_images;
   }
   
 }

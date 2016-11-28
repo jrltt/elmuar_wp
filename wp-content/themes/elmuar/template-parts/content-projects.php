@@ -11,14 +11,11 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-	<a href="#" data-featherlight="#mylightbox">Open element in lightbox</a>
-	<div id="mylightbox">This div will be opened in a lightbox</div>
 		<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
 	</header><!-- .entry-header -->
 
 	<div class="entry-content">
 		<?php
-			// the_content();
 			/**
 			 * http://mobiledetect.net/ switch between mobile, tablet or pc
 			 * https://codex.wordpress.org/Function_Reference/get_post_gallery_images
@@ -33,14 +30,12 @@
 				$styleChild = 'table__projects--child zoomTarget';
 				$targetSize = ($detect->isTablet()) ? '0.30' : '0.45';
 			}
-			?>
-			<?php
+
 			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
  				$gallery = get_attached_media( $post );
 				$content = '<div '.$classParent.'>';
-				// echo count($gallery);
+
 				foreach( $gallery as $key => $image_url ) {
-					// print_r($image_url);
 					$image = wp_get_attachment_image_src($image_url->ID, 'project');
 					$content .= '<div class="' . $styleChild . '" data-targetsize="' . $targetSize . '">';
 
@@ -53,6 +48,11 @@
 						}
 					}
 				}
+				if (get_field('custom_content', $post->ID)) {
+		 			$content .= '<a href="#" data-featherlight="#mylightbox">Open element in lightbox</a>';
+					$content .= '<div id="mylightbox" class="custom--content">'. get_field('custom_content', $post->ID) .'</div>';
+				}
+
 				$content .= '</div>';
 		 		echo $content;
 		 	}

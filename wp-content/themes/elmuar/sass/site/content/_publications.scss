@@ -38,11 +38,19 @@
 
     @include media('screen','>tablet') {
       max-height: $max_height_images;
+
+      .single & {
+        max-height: $max_height_images_single;
+      }
     }
     
     .wp-post-image {
       width: auto;
       max-height: $max_height_images;
+
+      .single & {
+        max-height: $max_height_images_single;
+      }
     }
   }
 }
@@ -59,11 +67,32 @@
 
     &-link {
       text-decoration: none;
+
+      .entry-title {
+        &:after {
+          content: "\21A9";
+          color: white;
+          font-size: 1rem;
+          margin-left: .5rem;
+          display: inline-block;
+          @include transition(all 0.5s);
+          @include transform(translate(-20px,0));
+          opacity: 0;
+        }
+
+        &:hover {    
+          &:after {
+            color: black;
+            @include transform(translate(5px,0));
+            opacity: 1;
+          }
+        }
+      }
     }
   }
 
   &__title {
-    font-size: 1.2rem;
+    font-size: 1.2rem;   
   }
 
   &__meta {
@@ -79,6 +108,9 @@
 
   @include media('screen', '>tablet') {
     min-height: $max_height_images;
+    .single & {
+      max-height: $max_height_images_single;
+    }
 
     .page-template-projects & {
       min-height: 0;

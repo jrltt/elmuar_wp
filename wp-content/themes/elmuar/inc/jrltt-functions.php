@@ -67,6 +67,7 @@ function build_gallery($size = 'default')
 	<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
 				<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="nope">
+				<?php if (is_single()): ?>
 				<div class="gallery-cell--metadata">
 					<?php if ($value->post_title) : ?>
 					<h4 class="gallery-cell--metadata__title"><?php echo $value->post_title ?></h4>
@@ -75,6 +76,7 @@ function build_gallery($size = 'default')
 					<p class="gallery-cell--metadata__excerpt"><?php echo $value->post_excerpt; ?></p>
 					<?php endif; ?>
 				</div>
+				<?php endif; ?>
 			</div>
 		<?php
 	}
@@ -102,7 +104,8 @@ function jrltt_posted_on_simple()
 	echo '<span class="posted-on">' . $time_string . '</span>';
 }
 
-function echo_first_image( $postID ) {
+function echo_first_image( $postID ) 
+{
 	$args = array(
 		'numberposts' => 1,
 		'order' => 'ASC',

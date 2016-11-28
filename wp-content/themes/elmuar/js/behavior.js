@@ -42,6 +42,26 @@ if (classie.hasClass(body, 'page-template-parcour')) {
     classie.toggleClass(toggles.children[i].children[1], 'show--text');
   }
 }
+/*if (classie.hasClass(body, 'single-comission')) {
+  var $carousel = $('.carousel').flickity({
+    cellSelector: '.gallery-cell',
+    prevNextButtons: false, 
+    pageDots: false, 
+    lazyLoad: true,
+    imagesLoaded: true,
+  });
+  var $caption = $('.caption');
+  // Flickity instance
+  var flkty = $carousel.data('flickity');
+
+  $carousel.on( 'select.flickity', function() {
+    // set image caption using img's alt
+    console.log();
+    // console.log(flkty.selectedElement.id);
+    $caption.text( $('#'+flkty.selectedElement.id).data('title') );
+    $caption.html( $('#'+flkty.selectedElement.id).data('excerpt') );
+  });
+}*/
 // var elem = document.querySelector('.carousel');
 // var flkty = new Flickity( elem, {
 //   // options

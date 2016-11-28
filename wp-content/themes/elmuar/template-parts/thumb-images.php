@@ -22,7 +22,7 @@ $classTypeArticle = has_gallery();
 				echo_first_image($post->ID);
 			} ?>
 		</div>
-	</header><!-- .entry-header -->
+	</header>
 	<div class="entry--content">
 		<div class="entry--content__text">
 			<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
@@ -48,5 +48,5 @@ $classTypeArticle = has_gallery();
 				'</span>'
 			);
 		?>
-	</footer><!-- .entry-footer -->
-</article><!-- #post-## -->
+	</footer>
+</article>

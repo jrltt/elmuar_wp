@@ -160,6 +160,11 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
 
   @include media('screen', '>tablet') {
     min-height: $max_height_images;
+
+    .single & {
+      max-height: $max_height_images_single;
+      min-height: auto;
+    }
   }
   
 }

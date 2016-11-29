@@ -17,3 +17,24 @@ a {
 		outline: 0;
 	}
 }
+
+.back-to__link {
+	&:before {
+	  content: "\2190";
+	  color: white;
+	  font-size: 1rem;
+	  margin-left: -1rem;
+	  display: inline-block;
+	  @include transition(all 0.5s);
+	  @include transform(translate(20px,0));
+	  opacity: 0;
+	}
+
+	&:hover {    
+	  &:before {
+	    color: black;
+	    @include transform(translate(-5px,0));
+	    opacity: 1;
+	  }
+	}
+}

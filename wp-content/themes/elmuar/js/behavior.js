@@ -32,6 +32,13 @@
   // $('.zoomTarget').zoomTo({
   //   root: $('.projects')
   // });
+  /*var q;
+  $('.type-project').each(function(i) {
+    $(this).find('.entry-content > .table__projects').children().each(function (image) {
+      console.log($(this).find('.table__projects--child'));
+      // $(this).find('.table__projects--child').delay(100 * image).fadeIn(950);
+    });
+  });*/
 })(jQuery);
 
 var body = document.querySelector('body');

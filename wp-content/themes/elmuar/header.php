@@ -53,15 +53,13 @@
 				endif; ?>
 			</div>
 			<div class="header--leng">
-				<ul class="header--leng__list">
-					<li>ESP</li>
-					<li>FRA</li>
-				</ul>
+				<?php echo languages_list_footer(); ?>
 			</div>
 		</div><!-- .site-branding -->
 	</header><!-- #masthead -->
 		<nav id="cbp-spmenu-s1" class="main-navigation--custom" role="navigation">
 			<?php custom_navigation_menu(); ?>
+			<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_id' => 'single-menu' ) ); ?>
 		</nav><!-- #site-navigation -->
 	<div id="layer" class="site-layer"></div>
 	<div id="content" class="site-content">

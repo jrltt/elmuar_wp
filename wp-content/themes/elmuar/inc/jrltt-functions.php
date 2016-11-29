@@ -127,7 +127,6 @@ function echo_first_image( $postID )
 
 function custom_navigation_menu() 
 {
-	
 		$args = array(
 			'sort_order' => 'asc',
 			'sort_column' => 'menu_order',
@@ -135,8 +134,9 @@ function custom_navigation_menu()
 			'post_status' => 'publish'
 		); 
 		$pages = get_pages($args);
-		$html = '<ul id="primary-menu" class="menu">';
+		$html = '<ul class="projects__menu menu">';
 		foreach ($pages as $key => $value) {
+			if ($value->post_title == 'Projets') {
 			$html .= '<li class="menu-item"><a href="'. $value->guid . '" class="">'.$value->post_title; 
 			if (is_page_template('projects.php')) {
 				if ($value->ID == 10 && $value->post_title == 'Projets') {
@@ -144,6 +144,7 @@ function custom_navigation_menu()
 				}
 			}
 			$html .= '</a></li>';
+			}
 		}
 		$html .= '</ul>';
 	echo $html;
@@ -169,7 +170,8 @@ function get_projects_by_title()
 	return $html;
 }
 
-function has_gallery() {
+function has_gallery() 
+{
 	$response = 'image__type--default';
 	if ( has_post_gallery() ) {
 		$response = 'image__type--gallery';
@@ -177,4 +179,38 @@ function has_gallery() {
 		$response = 'image__type--thumbnail';
 	}
 	return $response;
+}
+
+function languages_list_footer()
+{
+	$languages = icl_get_languages('skip_missing=0&orderby=code');
+	if(!empty($languages)){
+			echo '<ul class="header--leng__list">';
+			foreach($languages as $l){
+					echo '<li>';
+					if(!$l['active']) echo '<a href="'.$l['url'].'">';
+					echo icl_disp_language($l['native_name']);
+					if(!$l['active']) echo '</a>';
+					echo '</li>';
+			}
+			echo '</ul>';
+	}
+}
+
+function jrltt_back_to() 
+{
+	if (is_single()) {
+		if (is_singular('comission')) {
+			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/commandes' : '/encargos';
+		} else if (is_singular('publication')) {
+			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/publications' : '/publicaciones';
+		} else if (is_singular('edtromp')) {
+			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/editions-trompeloeil' : '/editions-trompeloeil';
+		} else if (is_singular('project')) {
+			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/projects' : '/proyectos';
+		} else {
+			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/nouvelles' : '/novedades';
+		}
+		return $url;
+	}
 }

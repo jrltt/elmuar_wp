@@ -12,7 +12,7 @@
   
   .menu {
     list-style: none;
-    margin: 5rem 0 0 0;
+    margin: 0;
     padding-left: 1.4rem;
     padding-right: 1rem;
 
@@ -165,9 +165,6 @@
 
 .menu-button {
   display: inline-block;
-  // padding: .5em;
-  // background-color: #fafafa;
-  // border: 1px solid #ccc;
 }
 
 .burger-icon {
@@ -176,4 +173,10 @@
 
 .menu-button.is-active .burger-icon {
   @include burger-to-cross;
+}
+
+.menu {
+  &.projects__menu {
+    margin-top: 5rem;
+  }
 }

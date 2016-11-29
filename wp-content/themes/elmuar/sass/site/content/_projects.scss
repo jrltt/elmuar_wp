@@ -51,5 +51,41 @@
 }
 
 .custom--content {
-  display: none;
+  &-box {
+    width: 60px;
+    line-height: 2;
+    text-align: center;
+  }
+
+  &__link,
+  &__excerpt {
+    font-size: 2.2px;
+    text-decoration: none;
+  }
+  &__excerpt {
+    width: 45px;
+    margin: 0 auto;
+    padding-top: 1rem;
+  }
+
+  &__link {
+    &:hover {
+      color: grey;
+    }
+  }
+
+  &__text {
+    display: none;
+  }
+}
+
+.page-template-projects {
+  .featherlight {
+    &:last-of-type {
+      background: rgba(255,255,255,.8);
+    }
+    &-content {
+      width: 670px;
+    }
+  }
 }

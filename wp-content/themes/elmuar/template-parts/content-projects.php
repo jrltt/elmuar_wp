@@ -49,8 +49,10 @@
 					}
 				}
 				if (get_field('custom_content', $post->ID)) {
-		 			$content .= '<a href="#" data-featherlight="#mylightbox">Open element in lightbox</a>';
-					$content .= '<div id="mylightbox" class="custom--content">'. get_field('custom_content', $post->ID) .'</div>';
+					$content .= '<div class="custom--content-box ' . $styleChild . '" data-targetsize="' . $targetSize . '">';
+		 			$content .= '<p class="custom--content__excerpt">' . wp_trim_words( get_field('custom_content', $post->ID), 25, null) . '<br/><a class="custom--content__link" href="#" data-featherlight="#mylightbox">Leer más</a></p>';
+					$content .= '<div id="mylightbox" class="custom--content__text">'. get_field('custom_content', $post->ID) . '</div>';
+					$content .= '</div>';
 				}
 
 				$content .= '</div>';

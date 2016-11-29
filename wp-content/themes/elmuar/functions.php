@@ -66,7 +66,8 @@ function cptui_register_my_cpts() {
 		"query_var" => true,
 		"menu_position" => 6,"menu_icon" => "dashicons-admin-page",		
 		"supports" => array( "title", "editor", "thumbnail", "custom-fields", "page-attributes", "post-formats" ),		
-		"taxonomies" => array( "category" ),		
+		"taxonomies" => array( "category" ),
+		"publicly_queryable" => false		
 	);
 	register_post_type( "project", $args );
 

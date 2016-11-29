@@ -25,10 +25,15 @@ get_header(); ?>
 
 		endwhile; // End of the loop.
 		?>
-
-		</main><!-- #main -->
-	</div><!-- #primary -->
+			<nav class="navigation back-to">
+				<?php
+				    printf( __( '<a class="back-to__link" href="%1$s">Volver</a>', 'elmuar' ),
+				        esc_url( jrltt_back_to() )
+				    );
+				?>
+			</nav>
+		</main>
+	</div>
 
 <?php
-// get_sidebar();
 get_footer();

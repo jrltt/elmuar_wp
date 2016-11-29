@@ -72,5 +72,9 @@
     font-size: 0.8rem;
     display: inline;
     list-style: none;
+
+    &:first-child {
+      margin-right: .5rem;
+    }
   }
 }

@@ -1,19 +1,36 @@
 .tailor-toggles {
   .tailor-toggle__title {
     display: inline;
-    border-bottom: 1px solid grey;
+    border-bottom: 0;
     border-top: 0;
     border-left: 0;
     border-right: 0;
     padding: 0;
     margin-bottom: .5rem;
     text-transform: uppercase;
+   
+    &:after {
+      content: "+";
+      color: white;
+      font-size: 1rem;
+      display: inline-block;
+      @include transition(all 0.5s);
+      @include transform(translate(-20px,0));
+      opacity: 0;
+    }
 
     &:hover {
-      color: #a09f9f;
-      border-bottom-color: #a09f9f;
+      color: $color__link-text__hover;
+      // border-bottom-color: #a09f9f;
+
+      &:after {
+        color: black;
+        @include transform(translate(5px,0));
+        opacity: 1;
+      }
     }
   }
+
 
   .tailor-toggle {
     margin-bottom: 1.8rem;
@@ -25,6 +42,21 @@
 
       &.show--text {
         display: block;
+      }
+    }
+  }
+}
+.tailor-toggles {
+  .tailor-toggle__title {
+    &.is-active {
+      &:after {
+        content: '—';
+      }
+
+      &:hover {
+        &:after {
+          content: '—';
+        }
       }
     }
   }

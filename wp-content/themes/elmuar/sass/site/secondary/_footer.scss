@@ -10,6 +10,10 @@
   padding-right: $padding__size;
   font-size: .8rem;
   
+  .page-template-projects & {
+    margin: 0 auto;
+  }
+  
   @include media('screen', '<tablet') {
     margin-top: 25%;
   }

@@ -1,21 +1,5 @@
 'use strict';
 
-/*window.addEventListener("resize", function(){
-    // fire when above 1203
-    if (document.documentElement.clientWidth > 480) {
-      console.log('Greater!');
-    }
-    // fire when below 1203
-    else {
-      console.log('Smaller!');
-      var flkty = new Flickity( '#carousel', {
-       // options
-       cellAlign: 'left',
-       contain: true
-     });
-    }
-}, true);*/
-
 (function($) {
   $('.menu-item a[href*="#"]:not([href="#"])').click(function() {
     if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
@@ -29,16 +13,17 @@
       }
     }
   });
-  // $('.zoomTarget').zoomTo({
-  //   root: $('.projects')
-  // });
-  /*var q;
-  $('.type-project').each(function(i) {
-    $(this).find('.entry-content > .table__projects').children().each(function (image) {
-      console.log($(this).find('.table__projects--child'));
-      // $(this).find('.table__projects--child').delay(100 * image).fadeIn(950);
+
+  setTimeout(function() {
+    $('.table__projects').each(function () {
+      $(this).children('.table__projects--child').each(function (i) {
+        $(this).delay(100*i).fadeIn(250);
+      });
     });
-  });*/
+    // $('.table__projects--child').each(function (i) {
+    //   $(this).delay(100*i).fadeIn(450);
+    // });
+  }, 3000);
 })(jQuery);
 
 var body = document.querySelector('body');
@@ -49,32 +34,7 @@ if (classie.hasClass(body, 'page-template-parcour')) {
     classie.toggleClass(toggles.children[i].children[1], 'show--text');
   }
 }
-/*if (classie.hasClass(body, 'single-comission')) {
-  var $carousel = $('.carousel').flickity({
-    cellSelector: '.gallery-cell',
-    prevNextButtons: false, 
-    pageDots: false, 
-    lazyLoad: true,
-    imagesLoaded: true,
-  });
-  var $caption = $('.caption');
-  // Flickity instance
-  var flkty = $carousel.data('flickity');
 
-  $carousel.on( 'select.flickity', function() {
-    // set image caption using img's alt
-    console.log();
-    // console.log(flkty.selectedElement.id);
-    $caption.text( $('#'+flkty.selectedElement.id).data('title') );
-    $caption.html( $('#'+flkty.selectedElement.id).data('excerpt') );
-  });
-}*/
-// var elem = document.querySelector('.carousel');
-// var flkty = new Flickity( elem, {
-//   // options
-//   cellAlign: 'left',
-//   contain: true
-// });
 var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),
     layer = document.getElementById( 'layer' ),
     showLeftPush = document.getElementById( 'showLeftPush' ),
@@ -104,10 +64,4 @@ function disableOther( button ) {
   if( button !== 'showLeftPush' ) {
     classie.toggle( showLeftPush, 'disabled' );
   }
-
 }
-
-/*menuButton.addEventListener('click', function (e) {
-  menuButton.classList.toggle('is-active');
-  e.preventDefault();
-});*/

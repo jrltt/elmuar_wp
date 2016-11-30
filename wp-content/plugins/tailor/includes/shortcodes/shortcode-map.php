@@ -22,40 +22,83 @@ if ( ! function_exists( 'tailor_shortcode_map' ) ) {
      */
     function tailor_shortcode_map( $atts, $content = null, $tag ) {
 
-        $atts = shortcode_atts( array(
-            'id'                        =>  '',
-            'class'                     =>  '',
-            'address'                   =>  'Melbourne, Australia',
-            'latitude'                  =>  '',
-            'longitude'                 =>  '',
-	        'controls'                  =>  0,
-            'zoom'                      =>  '13',
-            'saturation'                =>  '-50',
-            'hue'                       =>  '',
-        ), $atts, $tag );
+	    /**
+	     * Filter the default shortcode attributes.
+	     *
+	     * @since 1.6.6
+	     *
+	     * @param array
+	     */
+	    $default_atts = apply_filters( 'tailor_shortcode_default_atts_' . $tag, array() );
+	    $atts = shortcode_atts( $default_atts, $atts, $tag );
 
-	    $id = ( '' !== $atts['id'] ) ? 'id="' . esc_attr( $atts['id'] ) . '"' : '';
-	    $class = trim( esc_attr( "tailor-element tailor-map {$atts['class']}" ) );
-        $data = tailor_get_attributes( array(
-            'address'           =>  $atts['address'],
-            'latitude'          =>  $atts['latitude'],
-            'longitude'         =>  $atts['longitude'],
-	        'controls'          =>  $atts['controls'],
-            'zoom'              =>  $atts['zoom'],
-            'saturation'        =>  $atts['saturation'],
-            'hue'               =>  $atts['hue'],
-        ), 'data-' );
+	    $data = array(
+		    'address'           =>  $atts['address'],
+		    'latitude'          =>  $atts['latitude'],
+		    'longitude'         =>  $atts['longitude'],
+		    'controls'          =>  $atts['controls'],
+		    'zoom'              =>  $atts['zoom'],
+		    'saturation'        =>  $atts['saturation'],
+		    'hue'               =>  $atts['hue'],
+	    );
 	    
+	    $html_atts = array(
+		    'id'            =>  empty( $atts['id'] ) ? null : $atts['id'],
+		    'class'         =>  explode( ' ', "tailor-element tailor-map {$atts['class']}" ),
+		    'data'          =>  array_filter( $data ),
+	    );
+	    
+	    /**
+	     * Filter the HTML attributes for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param array $html_attributes
+	     * @param array $atts
+	     * @param string $tag
+	     */
+	    $html_atts = apply_filters( 'tailor_shortcode_html_attributes', $html_atts, $atts, $tag );
+	    $html_atts['class'] = implode( ' ', (array) $html_atts['class'] );
+	    $html_atts = tailor_get_attributes( $html_atts );
+
+	    $inner_html = '%s';
+
 	    if ( false == tailor_get_setting( 'google_maps_api_key', false ) ) {
-		    $content = sprintf( '<p class="tailor-notification tailor-notification--warning">%s</p>', __( 'Please create and add a Google Maps API key in the admin settings', 'tailor' ) );
+		    $content = sprintf(
+			    '<p class="tailor-notification tailor-notification--warning">%s</p>',
+			    __( 'Please create and add a Google Maps API key in the admin settings', 'tailor' )
+		    );
+	    }
+	    else if ( empty( $atts['address'] ) ) {
+		    $content = sprintf(
+			    '<p class="tailor-notification tailor-notification--warning">%s</p>',
+			    __( 'Please enter an address to display on this map', 'tailor' )
+		    );
 	    }
 	    else {
-		    $content = '<div class="tailor-map__canvas"></div>' . do_shortcode( $content );
+		    $inner_html = '<div class="tailor-map__canvas"></div>%s';
+		    $content = do_shortcode( $content );
 	    }
 
-	    return  '<div ' . trim( "{$id} class=\"{$class}\"" ) . ' ' . $data . '>' .
-	                $content .
-	            '</div>';
+	    $outer_html = "<div {$html_atts}>%s</div>";
+	    $html = sprintf( $outer_html, sprintf( $inner_html, $content ) );
+
+	    /**
+	     * Filter the HTML for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param string $html
+	     * @param string $outer_html
+	     * @param string $inner_html
+	     * @param string $html_atts
+	     * @param array $atts
+	     * @param string $content
+	     * @param string $tag
+	     */
+	    $html = apply_filters( 'tailor_shortcode_html', $html, $outer_html, $inner_html, $html_atts, $atts, $content, $tag );
+
+	    return $html;
     }
 
     add_shortcode( 'tailor_map', 'tailor_shortcode_map' );
@@ -75,16 +118,54 @@ if ( ! function_exists( 'tailor_shortcode_map_marker' ) ) {
 	 */
 	function tailor_shortcode_map_marker( $atts, $content = null, $tag ) {
 
-		$atts = shortcode_atts( array(
-			'title'             =>  '',
-			'address'           =>  '',
-			'latitude'          =>  '',
-			'longitude'         =>  '',
-		), $atts, $tag );
+		/**
+		 * Filter the default shortcode attributes.
+		 *
+		 * @since 1.6.6
+		 *
+		 * @param array
+		 */
+		$default_atts = apply_filters( 'tailor_shortcode_default_atts_' . $tag, array() );
+		$atts = shortcode_atts( $default_atts, $atts, $tag );
+		$html_atts = array(
+			'id'            => null,
+			'class'         =>  array( 'tailor-map__marker' ),
+			'data'          =>  $atts,
+		);
 
-		return  '<div class="tailor-map__marker" ' . tailor_get_attributes( $atts, 'data-' ) . '>' .
-		            do_shortcode( wpautop( $content ) ) .
-		        '</div>';
+		/**
+		 * Filter the HTML attributes for the element.
+		 *
+		 * @since 1.7.0
+		 *
+		 * @param array $html_attributes
+		 * @param array $atts
+		 * @param string $tag
+		 */
+		$html_atts = apply_filters( 'tailor_shortcode_html_attributes', $html_atts, $atts, $tag );
+		$html_atts['class'] = implode( ' ', (array) $html_atts['class'] );
+		$html_atts = tailor_get_attributes( $html_atts );
+		
+		$outer_html = "<div {$html_atts}>%s</div>";
+		$inner_html = do_shortcode( wpautop( $content ) );
+		$html = sprintf( $outer_html, $inner_html );
+
+		/**
+		 * Filter the HTML for the element.
+		 *
+		 * @since 1.7.0
+		 *
+		 * @param string $html
+		 * @param string $outer_html
+		 * @param string $inner_html
+		 * @param string $html_atts
+		 * @param array $atts
+		 * @param string $content
+		 * @param string $tag
+		 */
+		$html = apply_filters( 'tailor_shortcode_html', $html, $outer_html, $inner_html, $html_atts, $atts, $content, $tag );
+
+		return $html;
 	}
 
 	add_shortcode( 'tailor_map_marker', 'tailor_shortcode_map_marker' );

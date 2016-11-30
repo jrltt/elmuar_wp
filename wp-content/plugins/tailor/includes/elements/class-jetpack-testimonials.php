@@ -70,6 +70,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Jetpack_Testimo
 					    ),
 				    ),
 			    ),
+			    
 		    );
 		    tailor_control_presets( $this, $general_control_types, $general_control_arguments, $priority );
 
@@ -78,7 +79,18 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Jetpack_Testimo
 			    'order_by',
 			    'order',
 		    );
-		    $query_control_arguments = array();
+		    $query_control_arguments = array(
+			    'order_by'              =>  array(
+				    'setting'               =>  array(
+					    'default'               =>  'date',
+				    ),
+			    ),
+			    'order'                 =>  array(
+				    'setting'               =>  array(
+					    'default'               =>  'DESC',
+				    ),
+			    ),
+		    );
 		    tailor_control_presets( $this, $query_control_types, $query_control_arguments, $priority );
 
 		    $priority = 0;
@@ -97,9 +109,15 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Jetpack_Testimo
 		    $attribute_control_types = array(
 			    'class',
 			    'padding',
+			    'padding_tablet',
+			    'padding_mobile',
 			    'margin',
+			    'margin_tablet',
+			    'margin_mobile',
 			    'border_style',
 			    'border_width',
+			    'border_width_tablet',
+			    'border_width_mobile',
 			    'border_radius',
 			    'shadow',
 			    'background_image',

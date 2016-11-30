@@ -12,17 +12,22 @@ SelectControl = AbstractControl.extend( {
 
     ui : {
         'input' : 'select',
-        'default' : '.js-default'
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
     },
 
-    /**
-     * Adds the required event listeners.
-     *
-     * @since 1.0.0
-     */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
+    events : {
+        'change @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
+    },
+
+    templateHelpers : {
+        
+        selected : function( media, key ) {
+            return key === this.values[ media ] ? 'selected' : '';
+        }
     }
 
 } );

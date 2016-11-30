@@ -46,9 +46,17 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 
 	        $general_control_types = array(
 		        'max_width',
+		        'max_width_tablet',
+		        'max_width_mobile',
 		        'min_height',
+		        'min_height_tablet',
+		        'min_height_mobile',
+		        'vertical_alignment',
+		        'vertical_alignment_tablet',
+		        'vertical_alignment_mobile',
 		        'horizontal_alignment',
-                'vertical_alignment',
+		        'horizontal_alignment_tablet',
+		        'horizontal_alignment_mobile',
 		        'hidden',
 	        );
 	        $general_control_arguments = array(
@@ -76,14 +84,20 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 	        );
 	        $color_control_arguments = array();
 	        tailor_control_presets( $this, $color_control_types, $color_control_arguments, $priority );
-
+	        
 	        $priority = 0;
 	        $attribute_control_types = array(
 		        'class',
 		        'padding',
+		        'padding_tablet',
+		        'padding_mobile',
 		        'margin',
+		        'margin_tablet',
+		        'margin_mobile',
 		        'border_style',
 		        'border_width',
+		        'border_width_tablet',
+		        'border_width_mobile',
 		        'border_radius',
 		        'shadow',
 		        'background_image',
@@ -110,7 +124,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 					        ),
 					        'parallax'              => array(
 						        'condition'             =>  'not',
-						        'value'                 =>  1,
+						        'value'                 =>  '1',
 					        ),
 				        ),
 			        ),
@@ -124,7 +138,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 					        ),
 					        'parallax'              => array(
 						        'condition'             =>  'not',
-						        'value'                 =>  1,
+						        'value'                 =>  '1',
 					        ),
 				        ),
 			        ),
@@ -138,7 +152,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 					        ),
 					        'parallax'              => array(
 						        'condition'             =>  'not',
-						        'value'                 =>  1,
+						        'value'                 =>  '1',
 					        ),
 				        ),
 			        ),
@@ -152,7 +166,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 					        ),
 					        'parallax'              => array(
 						        'condition'             =>  'not',
-						        'value'                 =>  1,
+						        'value'                 =>  '1',
 					        ),
 				        ),
 			        ),
@@ -173,6 +187,10 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 				        'condition'             =>  'not',
 				        'value'                 =>  '',
 			        ),
+			        'background_video'      => array(
+				        'condition'             =>  'equals',
+				        'value'                 =>  '',
+			        ),
 		        ),
 	        ) );
         }
@@ -187,72 +205,64 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Section_Element
 	     */
 	    public function generate_css( $atts = array() ) {
 		    $css_rules = array();
-		    $excluded_control_types = array();
+		    $excluded_control_types = array(
+			    'max_width',
+			    'max_width_tablet',
+			    'max_width_mobile',
+			    'min_height',
+			    'min_height_tablet',
+			    'min_height_mobile',
+		    );
+		    $css_rules = tailor_css_presets( $css_rules, $atts, $excluded_control_types );
 
-		    if ( ! empty( $atts['max_width'] ) ) {
-			    $css_rules[] = array(
-				    'selectors'         =>  array( '.tailor-section__content' ),
-				    'declarations'      =>  array(
-					    'max-width'         =>  esc_attr( $atts['max_width'] ),
-				    ),
-				    'setting'           =>  'max_width',
-			    );
-		    }
+		    $selectors = array(
+			    'max_width'                 =>  array( '.tailor-section__content' ),
+			    'max_width_tablet'          =>  array( '.tailor-section__content' ),
+			    'max_width_mobile'          =>  array( '.tailor-section__content' ),
+			    'min_height'                =>  array( '.tailor-section__content' ),
+			    'min_height_tablet'         =>  array( '.tailor-section__content' ),
+			    'min_height_mobile'         =>  array( '.tailor-section__content' ),
+		    );
+		    $css_rules = tailor_generate_general_css_rules( $css_rules, $atts, $selectors );
 
-		    if ( ! empty( $atts['min_height'] ) ) {
-			    $css_rules[] = array(
-				    'selectors'         =>  array(),
-				    'declarations'      =>  array(
-					    'min-height'        =>  esc_attr( $atts['min_height'] ),
-				    ),
-				    'setting'           =>  'min_height',
-			    );
-		    }
+		    // Parallax background image
+		    if ( ! empty( $atts['background_image'] ) ) {
+			    if (
+				    ! empty( $atts['parallax'] ) && 1 == $atts['parallax'] &&
+				    $background_image_url = wp_get_attachment_image_url( $atts['background_image'], 'full' )
+			    ) {
 
-		    if ( ! empty( $atts['background_image'] ) && 1 == $atts['parallax'] ) {
+				    // Prevent default background image styles from being applied
+				    $excluded_control_types[] = 'background_image';
 
-			    $excluded_control_types[] = 'background_image';
-			    $background_image_url = wp_get_attachment_image_url( $atts['background_image'], 'full' );
+				    // Parallax background image with color
+				    if ( ! empty( $atts['background_color'] ) ) {
 
-			    if ( ! empty( $atts['background_color'] ) ) {
+					    // Semi-transparent color over image
+					    if ( false !== strpos( $atts['background_color'], 'rgba' ) ) {
+						    $background = "linear-gradient( {$atts['background_color']}, {$atts['background_color']} ), url({$background_image_url}) center center / cover no-repeat";
+					    }
 
-				    // If an RGBA background color is used, "tint" the background image
-				    // @see: https://css-tricks.com/tinted-images-multiple-backgrounds/
-				    if ( false !== strpos( $atts['background_color'], 'rgba' ) ) {
-					    $css_rules[] = array(
-						    'selectors'    => array( '.tailor-section__background' ),
-						    'declarations' => array(
-							    'background' => esc_attr(
-								    "linear-gradient( {$atts['background_color']}, {$atts['background_color']} ), 
-								url({$background_image_url}) center center / cover no-repeat"
-							    ),
-						    ),
-					    );
+					    // Image displayed over solid color
+					    else {
+						    $background = "{$atts['background_color']} url({$background_image_url}) center center / cover no-repeat";
+					    }
 				    }
+
+				    // Parallax background image with no color
 				    else {
-
-					    // Image displayed over color
-					    $css_rules[] = array(
-						    'selectors'    => array( '.tailor-section__background' ),
-						    'declarations' => array(
-							    'background' => esc_attr(
-								    "{$atts['background_color']} url({$background_image_url}) center center / cover no-repeat"
-							    ),
-						    ),
-					    );
+					    $background =  "url({$background_image_url}) center center / cover no-repeat";
 				    }
-			    }
-			    else {
+
 				    $css_rules[] = array(
+					    'setting'           =>  'parallax',
 					    'selectors'         =>  array( '.tailor-section__background' ),
 					    'declarations'      =>  array(
-						    'background'        =>  "url('{$background_image_url}') center center / cover no-repeat",
+						    'background'        =>  esc_attr( $background ),
 					    ),
 				    );
 			    }
 		    }
-
-		    $css_rules = tailor_css_presets( $css_rules, $atts, $excluded_control_types );
 		    
 		    return $css_rules;
 	    }

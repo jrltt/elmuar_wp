@@ -90,6 +90,11 @@ ElementView = Marionette.ItemView.extend( {
 		this.$el.replaceWith( el );
 		this.setElement( el );
 
+		this.el.setAttribute( 'draggable', true );
+		this.el.setAttribute( 'tailor-label', this.model.get( 'label' ) );
+		this.el.classList.add( 'tailor-' + this.model.id );
+		this.el.title = _l10n.edit_element;
+		
 		return this;
 	},
 
@@ -133,7 +138,7 @@ ElementView = Marionette.ItemView.extend( {
 		}
 		
 		view.el.classList.add( 'is-rendering' );
-
+		
 		window.ajax.send( 'tailor_render', {
 			data : {
 				model : JSON.stringify( model ),
@@ -163,8 +168,9 @@ ElementView = Marionette.ItemView.extend( {
 			 *
 			 * @since 1.0.0
 			 */
-			error : function() {
-				view.updateTemplate( 'The template for ' + view.cid + ' could not be refreshed' );
+			error : function( response ) {
+				view.updateTemplate( '<p class="tailor-notification tailor-notification--error">The template for ' + view.cid + ' could not be refreshed</p>' );
+				console.log( response );
 			},
 
 			/**
@@ -218,11 +224,27 @@ ElementView = Marionette.ItemView.extend( {
 		if ( refresh ) {
 
 			/**
-			 * Fires when an element setting configured to be updated using JavaScript changes.
+			 * Fires before the element is refreshed using JavaScript.
+			 *
+			 * @since 1.7.5
+			 */
+			this.triggerAll( 'before:element:jsRefresh', this, this.model.get( 'atts' ) );
+			
+			/**
+			 * Fires when an element setting is changed.
+			 *
+			 * This is only fired when the setting is configured for JavaScript updates.
 			 *
 			 * @since 1.5.0
 			 */
 			app.channel.trigger( 'element:setting:change', setting, this );
+
+			/**
+			 * Fires after the element is refreshed using JavaScript.
+			 *
+			 * @since 1.7.5
+			 */
+			this.triggerAll( 'element:jsRefresh', this, this.model.get( 'atts' ) );
 		}
 	},
 
@@ -253,17 +275,27 @@ ElementView = Marionette.ItemView.extend( {
 		var view = this;
 		
 		this.$el
-			.addClass( 'tailor-' + this.model.get( 'id' ) )
-			.attr( { draggable: true } )
 			.find( 'a' )
 			.attr( { draggable : false, target : '_blank' } );
 
 		this.$el
+			.find( '[onchange]' )
+			.removeAttr( 'onchange' );
+
+		this.$el
 			.find( 'img' )
 			.attr( { draggable : false } );
-		
+
 		this.$el.imagesLoaded( function() {
 			view._isReady = true;
+
+			// Display the empty element message for widgets that do not produce any visible content
+			if ( view.el.classList.contains( 'tailor-widget' ) && 0 == view.$el.children().innerHeight() ) {
+				var el = document.querySelector( '#tmpl-tailor-element-empty' );
+				if ( el ) {
+					view.$el.html( el.innerHTML );
+				}
+			}
 
 			/**
 			 * Fires when the element is rendered and all images have been loaded.

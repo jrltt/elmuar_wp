@@ -70,28 +70,14 @@ if ( class_exists( 'Tailor_Control' ) && ! class_exists( 'Tailor_Editor_Control'
          */
         protected function render_template() {
             global $editor_styles;
-
-            if ( ! isset( $editor_styles ) ) {
-                $editor_styles = array();
-            }
-
-            $tailor_editor_styles = (array) get_option( '_tailor_editor_styles', array() );
-
-            /**
-             * Filters the array of editor styles.
-             *
-             * @since 1.0.0
-             *
-             * @param array $editor_styles
-             */
-	        $editor_styles = apply_filters( 'tailor_editor_styles', array_merge( $editor_styles, $tailor_editor_styles ) );
-
+	        $editor_styles = get_option( '_tailor_editor_styles', $editor_styles );
             $editor_settings = array(
                 'textarea_rows'     =>  30,
                 'tinymce'           =>  array(
-                    'toolbar1'          =>  'bold,italic,bullist,numlist,blockquote,hr,wp_adv,tailoricon',
+                    'toolbar1'          =>  'bold,italic,bullist,numlist,blockquote,tailoricon,wp_adv',
                     'toolbar2'          =>  'link,unlink,alignleft,aligncenter,alignright,alignjustify,outdent,indent',
-                    'toolbar3'          =>  'formatselect,styleselect,charmap,forecolor,underline,strikethrough,undo,redo,pastetext,removeformat',
+                    'toolbar3'          =>  'forecolor,hr,strikethrough,pastetext,removeformat,undo,redo',
+                    'toolbar4'          =>  'fontselect,fontsizeselect,formatselect,styleselect',
                 ),
             );
 
@@ -104,7 +90,7 @@ if ( class_exists( 'Tailor_Control' ) && ! class_exists( 'Tailor_Editor_Control'
              */
             $editor_settings = apply_filters( 'tailor_editor_settings', $editor_settings );
 
-            wp_editor( 'tailor-value', 'tailor-editor', $editor_settings );
+	        wp_editor( 'tailor-value', 'tailor-editor', $editor_settings );
         }
     }
 }

@@ -22,22 +22,60 @@ if ( ! function_exists( 'tailor_shortcode_content' ) ) {
      */
     function tailor_shortcode_content( $atts, $content = null, $tag ) {
 
-	    $atts = shortcode_atts( array(
-		    'id'                        =>  '',
-		    'class'                     =>  '',
-	    ), $atts, $tag );
-
-	    $id = ( '' !== $atts['id'] ) ? 'id="' . esc_attr( $atts['id'] ) . '"' : '';
-	    $class = trim( esc_attr( "tailor-element tailor-content {$atts['class']}" ) );
+	    /**
+	     * Filter the default shortcode attributes.
+	     *
+	     * @since 1.6.6
+	     *
+	     * @param array
+	     */
+	    $default_atts = apply_filters( 'tailor_shortcode_default_atts_' . $tag, array() );
+	    $atts = shortcode_atts( $default_atts, $atts, $tag );
+	    $html_atts = array(
+		    'id'            =>  empty( $atts['id'] ) ? null : $atts['id'],
+		    'class'         =>  explode( ' ', "tailor-element tailor-content {$atts['class']}" ),
+		    'data'          =>  array(),
+	    );
 
 	    if ( empty( $content ) ) {
-		    $class .= ' tailor-content--placeholder';
+		    $html_atts['class'][] = 'tailor-content--placeholder';
 		    $content = tailor_get_setting( 'content_placeholder', tailor_do_shakespeare() );
 	    }
 
-	    return  '<div ' . trim( "{$id} class=\"{$class}\"" ) . '>' .
-	                do_shortcode( wpautop( $content ) ) .
-	            '</div>';
+	    /**
+	     * Filter the HTML attributes for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param array $html_attributes
+	     * @param array $atts
+	     * @param string $tag
+	     */
+	    $html_atts = apply_filters( 'tailor_shortcode_html_attributes', $html_atts, $atts, $tag );
+	    $html_atts['class'] = implode( ' ', (array) $html_atts['class'] );
+	    $html_atts = tailor_get_attributes( $html_atts );
+	    
+	    $outer_html = "<div {$html_atts}>%s</div>";
+	    $inner_html = '%s';
+	    $content = do_shortcode( wpautop( $content ) );
+	    $html = sprintf( $outer_html, sprintf( $inner_html, $content ) );
+	    
+	    /**
+	     * Filter the HTML for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param string $html
+	     * @param string $outer_html
+	     * @param string $inner_html
+	     * @param string $html_atts
+	     * @param array $atts
+	     * @param string $content
+	     * @param string $tag
+	     */
+	    $html = apply_filters( 'tailor_shortcode_html', $html, $outer_html, $inner_html, $html_atts, $atts, $content, $tag );
+
+	    return $html;
     }
 
     add_shortcode( 'tailor_content', 'tailor_shortcode_content' );

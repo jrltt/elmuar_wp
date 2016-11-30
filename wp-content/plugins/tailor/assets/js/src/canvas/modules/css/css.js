@@ -33,11 +33,10 @@ CSSModule = Marionette.Module.extend( {
      */
     addEventListeners : function() {
         this.listenTo( app.channel, 'css:add', this.addRules );         // Add CSS for an element (or elements)
+        this.listenTo( app.channel, 'css:delete', this.deleteRules );   // Delete CSS rules for an element/setting (or elements)
         this.listenTo( app.channel, 'css:update', this.updateRules );   // Update the CSS for a given element
-		this.listenTo( app.channel, 'css:copy', this.copyRules );       // Copy the CSS for one element to another
-		this.listenTo( app.channel, 'css:clear', this.clearRules );     // Delete all CSS in the stylesheet
-
-		//this.listenTo( this.collection, 'reset', this.onReset );
+		this.listenTo( app.channel, 'css:copy', this.copyRules );       // Copy the CSS for one element/setting to another
+		this.listenTo( app.channel, 'css:clear', this.clearRules );     // Clear all dynamic CSS rules
 		this.listenTo( this.collection, 'destroy', this.onDestroy );
 	},
 
@@ -73,8 +72,8 @@ CSSModule = Marionette.Module.extend( {
 		_.each( mediaQueries, function( atts, id ) {
 			if ( ! _.isEmpty( atts.min ) ) {
 				if ( ! _.isEmpty( atts.max ) ) {
-					this.stylesheets[ id ] = this.createSheet( id, atts.min, atts.max );
 					this.stylesheets[ id + '-up' ] = this.createSheet( id + '-up', atts.min );
+					this.stylesheets[ id ] = this.createSheet( id, atts.min, atts.max );
 				}
 				else {
 					this.stylesheets[ id ] = this.createSheet( id, atts.min );
@@ -158,7 +157,6 @@ CSSModule = Marionette.Module.extend( {
 
 	            // Get rules for the existing element
 	            var rules = this.stylesheets[ queryId ].getRules( elementId );
-
 	            if ( rules.length ) {
 
 		            // Update the selector strings
@@ -172,7 +170,6 @@ CSSModule = Marionette.Module.extend( {
 		            var rulesSet = {};
 		            rulesSet[ queryId ] = {};
 		            rulesSet[ queryId ][ newElementId ] = rules;
-		            
 		            this.addRules( rulesSet );
 	            }
             }

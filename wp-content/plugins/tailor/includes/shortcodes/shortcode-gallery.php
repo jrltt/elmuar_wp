@@ -22,84 +22,111 @@ if ( ! function_exists( 'tailor_shortcode_gallery' ) ) {
      */
     function tailor_shortcode_gallery( $atts, $content = null, $tag ) {
 
-        $atts = shortcode_atts( array(
-            'id'                        =>  '',
-            'class'                     =>  '',
-            'ids'                       =>  '',
-            'layout'                    =>  'list',
-            'items_per_row'             =>  2,
-            'masonry'                   =>  false,
-            //'lightbox'                  =>  false,
-            'caption'                   =>  false,
-            'autoplay'                  =>  '',
-            'fade'                      =>  '',
-            'arrows'                    =>  '',
-            'dots'                      =>  '',
-            'thumbnails'                =>  '',
-            'image_link'                =>  'large',
-            'image_size'                =>  'large',
-            'aspect_ratio'              =>  '',
-            'stretch'                   =>  false,
-        ), $atts, $tag );
-
-	    $id = ( '' !== $atts['id'] ) ? 'id="' . esc_attr( $atts['id'] ) . '"' : '';
-	    $class = trim( esc_attr( "tailor-element tailor-gallery tailor-{$atts['layout']} tailor-{$atts['layout']}--gallery {$atts['class']}" ) );
-
-	    if ( 'lightbox' == $atts['image_link'] ) {
-		    $class .= ' is-lightbox-gallery';
+	    /**
+	     * Filter the default shortcode attributes.
+	     *
+	     * @since 1.6.6
+	     *
+	     * @param array
+	     */
+	    $default_atts = apply_filters( 'tailor_shortcode_default_atts_' . $tag, array() );
+	    $atts = shortcode_atts( $default_atts, $atts, $tag );
+	    $class = explode( ' ', "tailor-element tailor-gallery tailor-{$atts['layout']} tailor-{$atts['layout']}--gallery {$atts['class']}" );
+	    
+	    if ( empty( $atts['ids'] ) ) {
+		    $data = array();
+		    $content = sprintf(
+			    '<p class="tailor-notification tailor-notification--warning">%s</p>',
+			    __( 'Please select one or more images to display in this gallery', 'tailor' )
+		    );
 	    }
+	    else {
 
-	    $items_per_row = (string) intval( $atts['items_per_row'] );
-	    $dots = (
-            ( 'carousel' == $atts['layout'] && boolval( $atts['dots'] ) ) ||
-            ( 'slideshow' == $atts['layout'] && boolval( $atts['thumbnails'] ) )
-        );
+		    if ( 'lightbox' == $atts['image_link'] ) {
+			    $class[] = 'is-lightbox-gallery';
+		    }
 
-	    $data = tailor_get_attributes(
-		    array(
+		    $items_per_row = (string) intval( $atts['items_per_row'] );
+		    $dots = (
+			    ( 'carousel' == $atts['layout'] && boolval( $atts['dots'] ) ) ||
+			    ( 'slideshow' == $atts['layout'] && boolval( $atts['thumbnails'] ) )
+		    );
+		    
+		    $data = array(
 			    'slides'            =>  $items_per_row,
 			    'autoplay'          =>  boolval( $atts['autoplay'] ) ? 'true' : 'false',
 			    'arrows'            =>  boolval( $atts['arrows'] ) ? 'true' : 'false',
 			    'dots'              =>  $dots ? 'true' : 'false',
 			    'thumbnails'        =>  boolval( $atts['thumbnails'] ) ? 'true' : 'false',
 			    'fade'              =>  boolval( $atts['fade'] && '1' == $items_per_row ) ? 'true' : 'false',
-		    ),
-		    'data-'
-	    );
+		    );
+		    
+		    $q = new WP_Query( array(
+			    'post_type'             =>  'attachment',
+			    'post_status'           =>  'any',
+			    'post__in'              =>  explode( ',', $atts['ids'] ),
+			    'orderby'               =>  'post__in',
+		    ) );
 
-	    $html = '<div ' . trim( "{$id} class=\"{$class}\"" ) . " {$data}>";
-
-	    if ( empty( $atts['ids'] ) ) {
-		    return $html . sprintf( '<p class="tailor-notification tailor-notification--warning">%s</p>', __( 'Please select one or more images to display in this gallery', 'tailor' ) ) . '</div>';
+		    ob_start();
+		    tailor_partial( 'loop', $atts['layout'], array(
+			    'q'                 =>  $q,
+			    'layout_args'       =>  array(
+				    'items_per_row'     =>  $atts['items_per_row'],
+				    'masonry'           =>  $atts['masonry'] && empty( $atts['aspect_ratio'] ),
+				    'thumbnails'        =>  $atts['thumbnails'],
+				    'pagination'        =>  false,
+			    ),
+			    'entry_args'        =>  array(
+				    'image_link'        =>  $atts['image_link'],
+				    'image_size'        =>  $atts['image_size'],
+				    'aspect_ratio'      =>  $atts['aspect_ratio'],
+				    'stretch'           =>  $atts['stretch'],
+				    'caption'           =>  $atts['caption'],
+			    ),
+		    ) );
+		    $content = ob_get_clean();
 	    }
 
-	    $q = new WP_Query( array(
-		    'post_type'             =>  'attachment',
-		    'post_status'           =>  'any',
-		    'post__in'              =>  explode( ',', $atts['ids'] ),
-		    'orderby'               =>  'post__in',
-	    ) );
+	    $html_atts = array(
+		    'id'            =>  empty( $atts['id'] ) ? null : $atts['id'],
+		    'class'         =>  $class,
+		    'data'          =>  array_filter( $data ),
+	    );
 
-	    ob_start();
+	    /**
+	     * Filter the HTML attributes for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param array $html_attributes
+	     * @param array $atts
+	     * @param string $tag
+	     */
+	    $html_atts = apply_filters( 'tailor_shortcode_html_attributes', $html_atts, $atts, $tag );
+	    $html_atts['class'] = implode( ' ', (array) $html_atts['class'] );
+	    $html_atts = tailor_get_attributes( $html_atts );
 
-	    tailor_partial( 'loop', $atts['layout'], array(
-		    'q'                 =>  $q,
-		    'layout_args'       =>  array(
-			    'items_per_row'     =>  $atts['items_per_row'],
-			    'masonry'           =>  $atts['masonry'] && empty( $atts['aspect_ratio'] ),
-			    'thumbnails'        =>  $atts['thumbnails'],
-			    'pagination'        =>  false,
-		    ),
-		    'entry_args'        =>  array(
-			    'image_link'        =>  $atts['image_link'],
-			    'image_size'        =>  $atts['image_size'],
-			    'aspect_ratio'      =>  $atts['aspect_ratio'],
-			    'stretch'           =>  $atts['stretch'],
-			    'caption'           =>  $atts['caption'],
-		    ),
-	    ) );
+	    $outer_html = "<div {$html_atts}>%s</div>";
+	    $inner_html = '%s';
+	    $html = sprintf( $outer_html, sprintf( $inner_html, $content ) );
 
-	    return $html . ob_get_clean() . '</div>';
+	    /**
+	     * Filter the HTML for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param string $html
+	     * @param string $outer_html
+	     * @param string $inner_html
+	     * @param string $html_atts
+	     * @param array $atts
+	     * @param string $content
+	     * @param string $tag
+	     */
+	    $html = apply_filters( 'tailor_shortcode_html', $html, $outer_html, $inner_html, $html_atts, $atts, $content, $tag );
+
+	    return $html;
     }
 
     add_shortcode( 'tailor_gallery', 'tailor_shortcode_gallery' );

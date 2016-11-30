@@ -4,7 +4,7 @@
  * Plugin Name: Tailor
  * Plugin URI: http://www.gettailor.com
  * Description: Build beautiful page layouts quickly and easily using your favourite theme.
- * Version: 1.5.6
+ * Version: 1.7.6
  * Author: Andrew Worsfold
  * Author URI:  http://www.andrewworsfold.com
  * Text Domain: tailor
@@ -214,6 +214,7 @@ if ( ! class_exists( 'Tailor' ) ) {
 		        'class-canvas',
 		        'class-tinymce',
 		        'class-customizer',
+		        'class-widgets',
 	        ) );
 	        
 	        /**
@@ -245,9 +246,6 @@ if ( ! class_exists( 'Tailor' ) ) {
 	     */
 	    protected function apply_editor_styles() {
 		    global $editor_styles;
-		    if ( isset( $editor_styles ) ) {
-			    update_option( '_tailor_editor_styles', $editor_styles );
-		    }
 
 		    /**
 		     * Allow developers to prevent Tailor editor styles from being added.
@@ -260,6 +258,17 @@ if ( ! class_exists( 'Tailor' ) ) {
 			    $extension = SCRIPT_DEBUG ? '.css' : '.min.css';
 			    $editor_styles[] = $this->plugin_url() . 'assets/css/frontend' . $extension;
 			    $editor_styles[] = $this->plugin_url() . 'assets/css/tinymce' . $extension;
+
+			    /**
+			     * Filter the editor styles.
+			     *
+			     * @since 1.7.5
+			     */
+			    $editor_styles = apply_filters( 'tailor_editor_styles', $editor_styles );
+		    }
+
+		    if ( ! empty( $editor_styles ) ) {
+			    update_option( '_tailor_editor_styles', $editor_styles );
 		    }
 	    }
 
@@ -354,12 +363,26 @@ if ( ! class_exists( 'Tailor' ) ) {
 	         * @param bool
 	         */
 	        if ( is_singular() && apply_filters( 'tailor_enable_frontend_styles', true ) ) {
+
 		        wp_enqueue_style(
 			        'tailor-styles',
 			        $this->plugin_url() . 'assets/css/frontend' . ( SCRIPT_DEBUG ? '.css' : '.min.css' ),
 			        array(),
 			        $this->version()
 		        );
+
+		        /**
+		         * Load our IE stylesheet:
+		         * <!--[if IE]> ... <![endif]-->
+		         */
+		        wp_enqueue_style(
+			        'tailor-styles-ie',
+			        $this->plugin_url() . 'assets/css/ie' . ( SCRIPT_DEBUG ? '.css' : '.min.css' ),
+			        array( 'tailor-styles' ),
+			        $this->version()
+		        );
+
+		        wp_style_add_data( 'tailor-styles-ie', 'conditional', 'IE' );
 	        }
         }
 
@@ -844,6 +867,19 @@ if ( ! class_exists( 'Tailor' ) ) {
 	        }
             return ( isset( $_GET['tailor'] ) && 1 == $_GET['tailor'] );
         }
+
+	    /**
+	     * Returns true if the given post has a Tailor layout.
+	     *
+	     * @since 1.5.7
+	     *
+	     * @param int|null $post_id
+	     * @return bool
+	     */
+	    public function is_tailored( $post_id = null ) {
+			$post = get_post( $post_id );
+		    return $post && false != get_post_meta( $post->ID, '_tailor_layout', true );
+	    }
 
 	    /**
 	     * Returns true if this is a Tailor Canvas page load.

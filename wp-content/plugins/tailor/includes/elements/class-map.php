@@ -45,7 +45,8 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Map_Element' ) 
 	        $priority = 0;
 
             $this->add_setting( 'address', array(
-                'sanitize_callback'     =>  'tailor_sanitize_text',
+	            'sanitize_callback'     =>  'tailor_sanitize_text',
+	            'default'               =>  'Melbourne, Australia',
             ) );
             $this->add_control( 'address', array(
                 'label'                 =>  __( 'Address', 'tailor' ),
@@ -55,37 +56,39 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Map_Element' ) 
             ) );
 
             $this->add_setting( 'latitude', array(
-                'sanitize_callback'     =>  'tailor_sanitize_text',
+                'sanitize_callback'     =>  'tailor_sanitize_number',
             ) );
             $this->add_control( 'latitude', array(
                 'label'                 =>  __( 'Latitude (optional)', 'tailor' ),
-                'type'                  =>  'text',
+                'type'                  =>  'number',
                 'priority'              =>  $priority += 10,
                 'section'               =>  'general',
             ) );
 
             $this->add_setting( 'longitude', array(
-                'sanitize_callback'     =>  'tailor_sanitize_text',
+                'sanitize_callback'     =>  'tailor_sanitize_number',
             ) );
             $this->add_control( 'longitude', array(
                 'label'                 =>  __( 'Longitude (optional)', 'tailor' ),
-                'type'                  =>  'text',
+                'type'                  =>  'number',
                 'priority'              =>  $priority += 10,
                 'section'               =>  'general',
             ) );
 
 	        $this->add_setting( 'zoom', array(
-		        'sanitize_callback'     =>  'tailor_sanitize_text',
+		        'sanitize_callback'     =>  'tailor_sanitize_number',
+		        'default'               =>  '13',
 	        ) );
 	        $this->add_control( 'zoom', array(
 		        'label'                 =>  __( 'Zoom level', 'tailor' ),
-		        'type'                  =>  'text',
+		        'type'                  =>  'number',
 		        'priority'              =>  $priority += 10,
 		        'section'               =>  'general',
 	        ) );
 
 	        $this->add_setting( 'controls', array(
 		        'sanitize_callback'     =>  'tailor_sanitize_number',
+		        'default'               =>  '0',
 	        ) );
 	        $this->add_control( 'controls', array(
 		        'label'                 =>  __( 'Show controls', 'tailor' ),
@@ -130,7 +133,10 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Map_Element' ) 
 		        'section'               =>  'colors',
 	        ) );
 
-	        $this->add_setting( 'saturation', array() );
+	        $this->add_setting( 'saturation', array(
+		        'sanitize_callback'     =>  'tailor_sanitize_text',
+		        'default'               =>  '-50',
+	        ) );
 	        $this->add_control( 'saturation', array(
 		        'label'                 =>  __( 'Saturation', 'tailor' ),
 		        'type'                  =>  'number',
@@ -142,9 +148,15 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Map_Element' ) 
 	        $attribute_control_types = array(
 		        'class',
 		        'padding',
+		        'padding_tablet',
+		        'padding_mobile',
 		        'margin',
+		        'margin_tablet',
+		        'margin_mobile',
 		        'border_style',
 		        'border_width',
+		        'border_width_tablet',
+		        'border_width_mobile',
 		        'border_radius',
 		        'shadow',
 		        'background_image',
@@ -165,16 +177,6 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Map_Element' ) 
 			        ),
 		        ),
 		        'border_radius'         =>  array(
-			        'control'               =>  array(
-				        'dependencies'          =>  array(
-					        'border_style'          =>  array(
-						        'condition'             =>  'not',
-						        'value'                 =>  array( '', 'none' ),
-					        ),
-				        ),
-			        ),
-		        ),
-		        'shadow'                =>  array(
 			        'control'               =>  array(
 				        'dependencies'          =>  array(
 					        'border_style'          =>  array(

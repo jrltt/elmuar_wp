@@ -71,7 +71,7 @@ ModalView = Marionette.LayoutView.extend( {
         var model = this.model;
         var sections = app.channel.request( 'sidebar:sections', model );
         var controls = app.channel.request( 'sidebar:controls', model );
-
+        
         this.showChildView( 'sections', new SectionCollectionView( {
             element : model,
             collection : sections,
@@ -105,7 +105,7 @@ ModalView = Marionette.LayoutView.extend( {
     onChange : function( setting ) {
         this.isModified = true;
         this.ui.apply.attr( 'disabled', false );
-
+        
         var model = this.model;
         if ( ! model.isTracking() ) {
             model.startTracking();
@@ -113,7 +113,7 @@ ModalView = Marionette.LayoutView.extend( {
 
         var update = setting.get( 'refresh' );
         var jsRefresh = update.hasOwnProperty( 'method' ) && 'js' == update['method'];
-
+        
         // Check dependencies, if they exist
         if ( jsRefresh && update.hasOwnProperty( 'dependencies' ) ) {
             for ( var settingId in update['dependencies'] ) {
@@ -184,7 +184,7 @@ ModalView = Marionette.LayoutView.extend( {
      */
     onClose : function() {
         if ( this.isModified ) {
-            var applyChanges = confirm( 'You have made changes to this element.  Would you like to apply them?' );
+            var applyChanges = confirm( window._l10n.confirmElement );
 
             if ( true === applyChanges ) {
                 this.triggerMethod( 'apply' );
@@ -230,7 +230,10 @@ ModalView = Marionette.LayoutView.extend( {
     atts : function() {
         var atts = {};
         this.settings.each( function( setting ) {
-            atts[ setting.get( 'id' ) ] = setting.get( 'value' );
+            var value = setting.get( 'value' );
+            if ( null !== value ) {
+                atts[ setting.get( 'id' ) ] = value;
+            }
         }, this );
         return atts;
     }

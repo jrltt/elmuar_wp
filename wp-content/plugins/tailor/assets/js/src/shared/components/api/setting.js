@@ -1,5 +1,7 @@
 
-var app = window.app,
+var $ = window.jQuery,
+    $win = $( window ),
+    app = window.app,
     cssModule,
     callbacks = {
         'sidebar' : [],
@@ -39,6 +41,9 @@ var onSidebarChange = function( setting ) {
     _.each( callbacks['sidebar'][ settingId ], function( callback ) {
         callback.apply( window, [ setting.get( 'value' ), setting.previous( 'value' ) ] );
     } );
+
+    // Trigger a resize even on the window when a sidebar setting changes
+    $win.trigger( 'resize' );
 };
 
 /**
@@ -70,17 +75,17 @@ var onElementChange = function( setting, view ) {
             
             // Get the collection of rules from the callback function
             rules = callback.apply( view, [ setting.get( 'value' ), setting.previous( 'value' ), view.model ] );
-            
-            if ( _.isArray( rules ) && rules.length > 0 ) {
+
+            // Re-render the element if the the callback function returns a value of false
+            if ( false === rules ) {
+                view.model.trigger( 'change:atts', view.model, view.model.get( 'atts' ) );
+            }
+            else if ( _.isArray( rules ) && rules.length > 0 ) {
 
                 // Process the rules
                 for ( var rule in rules ) {
                     if ( rules.hasOwnProperty( rule ) ) {
-                        
-                        if (
-                            ! rules[ rule ].hasOwnProperty( 'selectors' ) ||
-                            ! rules[ rule ].hasOwnProperty( 'declarations' )
-                        ) {
+                        if ( ! rules[ rule ].hasOwnProperty( 'selectors' ) || ! rules[ rule ].hasOwnProperty( 'declarations' ) ) {
                             continue;
                         }
                         
@@ -92,7 +97,7 @@ var onElementChange = function( setting, view ) {
                             ruleSets[ query ][ elementId ].push( {
                                 selectors: rules[ rule ].selectors,
                                 declarations: rules[ rule ].declarations,
-                                setting: settingId
+                                setting: rules[ rule ].setting || settingId
                             } );
                         }
                     }

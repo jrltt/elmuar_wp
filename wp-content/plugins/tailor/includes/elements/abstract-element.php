@@ -57,7 +57,7 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 	     * @since 1.0.0
 	     * @var string
 	     */
-	    public $type = 'element';
+	    public $type = 'content';
 
 	    /**
 	     * The child item tag, if any.
@@ -66,6 +66,14 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 	     * @var string
 	     */
 	    public $child;
+
+	    /**
+	     * The child view container, if any.
+	     *
+	     * @since 1.6.1
+	     * @var string
+	     */
+	    public $child_container;
 
 	    /**
 	     * True if the element content is dynamically-generated.
@@ -110,10 +118,54 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 	        $this->tag = $this->id = $tag;
 
 	        if ( $this->active() ) {
-		        $this->register_element_controls();
+		        $this->add_actions();
+		        $this->add_filters();
 	        }
         }
 
+	    /**
+	     * Registers the required action hooks.
+	     *
+	     * @since 1.7.6
+	     */
+	    protected function add_actions() {
+
+		    // Ensure element controls are not loaded too early, but also available when re-rendering elements using AJAX
+		    add_action( 'admin_init', array( $this, 'register_element_controls' ) );
+		    add_action( 'wp', array( $this, 'register_element_controls' ) );
+	    }
+
+	    /**
+	     * Registers the required filter hooks.
+	     * 
+	     * @since 1.6.6
+	     */
+	    protected function add_filters() {
+		    add_filter( 'tailor_shortcode_default_atts_' . $this->tag, array( $this, 'shortcode_default_atts' ) );
+
+		    if ( method_exists( $this, 'get_selectors' ) ) {
+			    add_filter( 'tailor_css_selectors_' . $this->tag, array( $this, 'get_selectors' ) );
+		    }
+	    }
+
+	    /**
+	     * Returns setting defaults for use with the shortcode rendering function.
+	     * 
+	     * @since 1.6.6
+	     * 
+	     * @param array $defaults
+	     *
+	     * @return array
+	     */
+	    public function shortcode_default_atts( $defaults = array() ) {
+		    foreach ( (array) $this->settings() as $setting ) { /* @var $setting Tailor_Setting */
+			    if ( ! array_key_exists( $setting->id, $defaults ) ) {
+				    $defaults[ $setting->id ] = $setting->default;
+			    }
+		    }
+		    return $defaults;
+	    }
+	    
 	    /**
 	     * Checks whether the element is active.
 	     *
@@ -122,7 +174,6 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 	     * @return bool
 	     */
 	    final public function active() {
-
 		    if ( isset( $this->active_callback ) ) {
 			    $active = call_user_func( $this->active_callback, $this );
 		    }
@@ -156,6 +207,10 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 
 		    if ( isset( $this->child ) ) {
 			    $properties['child'] = $this->child;
+		    }
+
+		    if ( isset( $this->child_container ) ) {
+			    $properties['child_container'] = $this->child_container;
 		    }
 
 		    $properties['active'] = $this->active();
@@ -224,6 +279,7 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 	        }
 
             $shortcode = '[' . $this->tag;
+
             if ( '' !== ( $attributes = tailor_get_attributes( $atts ) ) ) {
                 $shortcode .= " {$attributes}";
             }
@@ -278,6 +334,7 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 
 		    // Prepare panels
 		    $panels = array();
+            $this->panels = array_reverse( $this->panels );
 		    uasort( $this->panels, array( $this, '_cmp_priority' ) );
 		    foreach ( $this->panels as $panel ) {  /* @var $panel Tailor_Panel */
 
@@ -289,6 +346,7 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 
 		    // Prepare sections
 		    $sections = array();
+            $this->sections = array_reverse( $this->sections );
 		    uasort( $this->sections, array( $this, '_cmp_priority' ) );
 		    foreach ( $this->sections as $section ) {  /* @var $section Tailor_Section */
 
@@ -307,6 +365,7 @@ if ( class_exists( 'Tailor_Setting_Manager' ) && ! class_exists( 'Tailor_Element
 
 		    // Prepare controls
 		    $controls = array();
+            $this->controls = array_reverse( $this->controls );
 		    uasort( $this->controls, array( $this, '_cmp_priority' ) );
 		    foreach ( $this->controls as $control ) {  /* @var $control Tailor_Control */
 

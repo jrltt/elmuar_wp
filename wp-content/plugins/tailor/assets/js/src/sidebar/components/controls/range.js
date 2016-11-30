@@ -9,42 +9,62 @@ var AbstractControl = require( './abstract-control' ),
     RangeControl;
 
 RangeControl = AbstractControl.extend( {
-
-	ui : {
+    
+    ui : {
         'range' : 'input[type=range]',
-		'input' : 'input[type=text]',
-        'default' : '.js-default'
-	},
+        'input' : 'input[type=text]',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
+    },
 
     events : {
-        'input @ui.range' : 'onControlChange',
-        'change @ui.input' : 'onControlChange',
-        'click @ui.default' : 'restoreDefaultValue'
+        'input @ui.range' : 'onFieldChange',
+        'blur @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
+    templateHelpers : {
+
+        /**
+         * Returns the attributes for the control.
+         *
+         * @since 1.0.0
+         *
+         * @returns {string}
+         */
+        inputAttrs : function() {
+            var atts = '';
+            _.each( this.attrs, function( value, attr ) {
+                atts += ( attr + '="' + value + '"' );
+            } );
+            return atts;
+        }
+    },
+    
     /**
-     * Responds to a control change.
+     * Provides additional data to the template rendering function.
      *
-     * @since 1.0.0
+     * @since 1.7.2
+     *
+     * @returns {*}
      */
-    onControlChange : function( e ) {
+    addSerializedData : function( data ) {
+        data.attrs = this.model.get( 'input_attrs' );
+        return data;
+    },
+    
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function( e ) {
         var value = e.target.value;
-        this.ui.input.val( value );
-        this.ui.range.val( value );
-
-        this.setSettingValue( value );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        this.setSettingValue( this.getDefaultValue() );
-        this.render();
+        this.ui.input.filter( '[name^="' + this.media + '"]' ).val( value );
+        this.ui.range.filter( '[name^="' + this.media + '"]' ).val( value );
+        this.setValue( value );
     }
 
 } );

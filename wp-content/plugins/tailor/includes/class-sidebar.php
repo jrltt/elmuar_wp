@@ -69,7 +69,7 @@ if ( ! class_exists( 'Tailor_Sidebar' ) ) {
 
             add_action( 'wp_ajax_tailor_refresh_nonces', array( $this, 'refresh_nonces' ) );
         }
-
+	    
 	    /**
 	     * Renders a blank page.
 	     *
@@ -79,6 +79,10 @@ if ( ! class_exists( 'Tailor_Sidebar' ) ) {
 	     * @return bool|string
 	     */
         public function render_page( $template = '' ) {
+
+	        if ( is_customize_preview() ) {
+		        return $template;
+	        }
 	        
 	        if ( ! tailor()->check_user_role() || ! tailor()->check_post() ) {
 	            return $template;
@@ -197,7 +201,7 @@ if ( ! class_exists( 'Tailor_Sidebar' ) ) {
 	        tailor_partial( 'underscore/sidebar', 'home' );
 	        tailor_partial( 'underscore/sidebar', 'home-empty' );
         }
-
+	    
         /**
          * Enqueues styles for the Tailor Sidebar.
          *
@@ -300,7 +304,7 @@ if ( ! class_exists( 'Tailor_Sidebar' ) ) {
 		        'dragElement'       =>  __( 'To add an element, drag it into the desired position on the page', 'tailor' ),
 		        'dragTemplate'      =>  __( 'To add a template, drag it into the desired position on the page', 'tailor' ),
 		        'confirmPage'       =>  __( 'The changes you made will be lost if you navigate away from this page', 'tailor' ),
-		        'confirmElement'    =>  __( 'You have made changes to this element.  Would you like to save them?', 'tailor' ),
+		        'confirmElement'    =>  __( 'You have made changes to this element. Would you like to save them?', 'tailor' ),
 
 		        'edit'              =>  __( 'Edit', 'tailor' ),
 		        'delete'            =>  __( 'Delete', 'tailor' ),
@@ -356,7 +360,6 @@ if ( ! class_exists( 'Tailor_Sidebar' ) ) {
             }
 
             $nonces = $this->create_nonces();
-
             wp_send_json_success( $nonces );
         }
 

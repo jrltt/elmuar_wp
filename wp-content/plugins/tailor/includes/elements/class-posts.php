@@ -69,6 +69,9 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Posts_Element' 
 	        );
 	        $general_control_arguments = array(
 		        'style'                 =>  array(
+			        'setting'               =>  array(
+				        'default'               =>  'default',
+			        ),
 			        'control'               =>  array(
 				        'choices'               =>  array(
 					        'default'               =>  __( 'Default', 'tailor' ),
@@ -77,6 +80,9 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Posts_Element' 
 			        ),
 		        ),
 		        'layout'                =>  array(
+			        'setting'               =>  array(
+				        'default'               =>  'list',
+			        ),
                     'control'               =>  array(
                         'choices'               =>  array(
                             'list'                  =>  __( 'List', 'tailor' ),
@@ -101,7 +107,7 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Posts_Element' 
 		        ),
 		        'items_per_row'         =>  array(
                     'setting'               =>  array(
-                        'default'               =>  '2',
+                        'default'               =>  '1',
                     ),
                     'control'               =>  array(
                         'dependencies'          =>  array(
@@ -170,6 +176,21 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Posts_Element' 
                             'comment-number'        =>  __( 'Comment number', 'tailor' ),
                         ),
                     ),
+		        ),
+		        'posts_per_page'        =>  array(
+			        'setting'               =>  array(
+				        'default'               =>  '2',
+			        ),
+		        ),
+		        'order_by'              =>  array(
+			        'setting'               =>  array(
+				        'default'               =>  'date',
+			        ),
+		        ),
+		        'order'                 =>  array(
+			        'setting'               =>  array(
+				        'default'               =>  'DESC',
+			        ),
 		        ),
 		        'image_link'            =>  array(
 			        'control'               =>  array(
@@ -268,9 +289,15 @@ if ( class_exists( 'Tailor_Element' ) && ! class_exists( 'Tailor_Posts_Element' 
 	        $attribute_control_types = array(
 		        'class',
 		        'padding',
+		        'padding_tablet',
+		        'padding_mobile',
 		        'margin',
+		        'margin_tablet',
+		        'margin_mobile',
 		        'border_style',
 		        'border_width',
+		        'border_width_tablet',
+		        'border_width_mobile',
 		        'border_radius',
 		        'shadow',
 		        'background_image',

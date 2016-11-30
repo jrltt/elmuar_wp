@@ -50,7 +50,9 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 	         * @since 1.3.4
 	         */
 	        do_action( 'tailor_canvas_init' );
-	        
+
+	        add_filter( 'body_class', array( $this, 'add_body_class' )  );
+
             add_action( 'wp_head', array( $this, 'canvas_head' ) );
 	        add_filter( 'the_content', array( $this, 'canvas_content' ), -1 );
 	        add_action( 'wp_footer', array( $this, 'canvas_footer' ) );
@@ -60,6 +62,20 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 	        
             add_action( 'tailor_canvas_footer', array( $this, 'print_templates' ) );
         }
+
+	    /**
+	     * Adds a custom body class to the preview window.
+	     * 
+	     * @since 1.7.0
+	     * 
+	     * @param $classes
+	     * 
+	     * @return $classes
+	     */
+	    public function add_body_class( $classes ) {
+		    $classes[] = 'is-canvas';
+		    return $classes;
+	    }
 
 	    /**
 	     * Fires the tailor_canvas_head action.
@@ -194,7 +210,7 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 		        'isCrossDomain'     =>  $is_cross_domain,
 	        ) );
 
-	        wp_localize_script( $handle, '_strings', array(
+	        wp_localize_script( $handle, '_l10n', array(
 		        'edit_element'      => __( 'Shift-click to edit this element', 'tailor' )
 	        ) );
 	        wp_localize_script( $handle, '_nonces', $this->create_nonces() );
@@ -230,13 +246,11 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 	     * @since 1.0.0
 	     */
 	    public function refresh_nonces() {
-
 		    if ( ! tailor()->is_tailoring() ) {
 			    wp_send_json_error();
 		    }
 
 		    $nonces = $this->create_nonces();
-
 		    wp_send_json_success( $nonces );
 	    }
 
@@ -249,13 +263,11 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 	     * @return array
 	     */
 	    protected function create_nonces() {
-
 		    $nonces = array(
 			    'render'                =>  wp_create_nonce( 'tailor-render' ),
 			    'reset'                 =>  wp_create_nonce( 'tailor-reset' ),
 			    'loadTemplate'          =>  wp_create_nonce( 'tailor-load-template' ),
 		    );
-
 		    return $nonces;
 	    }
 
@@ -266,6 +278,8 @@ if ( ! class_exists( 'Tailor_Canvas' ) ) {
 	     */
 	    function print_templates() {
 		    tailor_partial( 'underscore/canvas', 'tools' );
+		    
+		    tailor_partial( 'underscore/element', 'empty' );
 	    }
     }
 }

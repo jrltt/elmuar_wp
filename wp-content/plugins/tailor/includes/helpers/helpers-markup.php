@@ -8,6 +8,58 @@
  * @since 1.0.0
  */
 
+if ( ! function_exists( 'tailor_filter_html_attributes' ) ) {
+
+	/**
+	 * Filter the HTML attributes passed to the shortcode rendering function.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param array $html_atts
+	 * @param array $atts
+	 * @param string $tag
+	 *
+	 * @return array $html_atts
+	 */
+	function tailor_filter_html_attributes( $html_atts, $atts, $tag  ) {
+
+		// Ensure that the ID contains no spaces
+		$html_atts['id'] = preg_replace( '/\s+/', '', $html_atts['id'] );
+		if ( empty( $html_atts['id'] ) ) {
+			unset( $html_atts['id'] );
+		}
+		
+		$screen_sizes = array( '', 'mobile', 'tablet' );
+		foreach ( $screen_sizes as $screen_size ) {
+			$setting_postfix = empty( $screen_size ) ? '' : "_{$screen_size}";
+			$class_postfix = empty( $screen_size ) ? '' : "-{$screen_size}";
+
+			if ( ! empty( $atts["horizontal_alignment{$setting_postfix}"] ) ) {
+				$alignment = $atts[ "horizontal_alignment{$setting_postfix}" ];
+				$html_atts['class'][] = "u-text-{$alignment}{$class_postfix}";
+			}
+			
+			if ( ! empty( $atts["vertical_alignment{$setting_postfix}"] ) ) {
+				$alignment = $atts[ "vertical_alignment{$setting_postfix}" ];
+				$html_atts['class'][] = "u-align-{$alignment}{$class_postfix}";
+			}
+		}
+
+		if ( ! empty( $atts['hidden'] ) ) {
+			$hidden_screen_sizes = explode( ',', $atts['hidden'] );
+			foreach ( $hidden_screen_sizes as $hidden_screen_size ) {
+				$html_atts['class'][] = "u-hidden-{$hidden_screen_size}";
+			}
+		}
+		
+		$html_atts['class'] = array_unique( $html_atts['class'] );
+
+		return $html_atts;
+	}
+
+	add_filter( 'tailor_shortcode_html_attributes', 'tailor_filter_html_attributes', 10, 3 );
+}
+
 if ( ! function_exists( 'tailor_filter_allowed_html' ) ) {
 
 	/**
@@ -31,6 +83,12 @@ if ( ! function_exists( 'tailor_filter_allowed_html' ) ) {
 			$allowed['div']['data-arrows'] = true;
 			$allowed['div']['data-dots'] = true;
 			$allowed['div']['data-fade'] = true;
+
+			$allowed['iframe']['src'] = true;
+			$allowed['iframe']['width'] = true;
+			$allowed['iframe']['height'] = true;
+			$allowed['iframe']['allowfullscreen'] = true;
+			$allowed['iframe']['frameborder'] = true;
 		}
 
 		return $allowed;
@@ -163,13 +221,11 @@ if ( ! function_exists( 'tailor_clean_content' ) ) {
 	 * @return string
 	 */
 	function tailor_clean_content( $content ) {
-
 		$array = array (
 			'<p>['      => '[',
 			']</p>'     => ']',
 			']<br />'   => ']'
 		);
-
 		return strtr( $content, $array );
 	}
 
@@ -189,13 +245,13 @@ if ( ! function_exists( 'tailor_do_shakespeare' ) ) {
 	function tailor_do_shakespeare( $quote_index = 0 ) {
 
 		$quotes = array (
-			'This life, which had been the tomb of his virtue and of his honour, is but a walking shadow; a poor player, that struts and frets his hour upon the stage, and then is heard no more: it is a tale told by an idiot, full of sound and fury, signifying nothing.',
-			'All the world\'s a stage, and all the men and women merely players: they have their exits and their entrances; and one man in his time plays many parts, his acts being seven ages.',
-			'There is a tide in the affairs of men, Which taken at the flood, leads on to fortune. Omitted, all the voyage of their life is bound in shallows and in miseries. On such a full sea are we now afloat. And we must take the current when it serves, or lose our ventures.',
-			'Some are born great, some achieve greatness, and some have greatness thrust upon them.',
-			'Good night, good night! Parting is such sweet sorrow, that I shall say good night till it be morrow.',
-			'What a piece of work is a man, how noble in reason, how infinite in faculties, in form and moving how express and admirable, in action how like an angel, in apprehension how like a god.',
-			'Sweet are the uses of adversity which, like the toad, ugly and venomous, wears yet a precious jewel in his head.',
+			__( 'This life, which had been the tomb of his virtue and of his honour, is but a walking shadow; a poor player, that struts and frets his hour upon the stage, and then is heard no more: it is a tale told by an idiot, full of sound and fury, signifying nothing.', 'tailor'),
+			__( 'All the world\'s a stage, and all the men and women merely players: they have their exits and their entrances; and one man in his time plays many parts, his acts being seven ages.', 'tailor' ),
+			__( 'There is a tide in the affairs of men, Which taken at the flood, leads on to fortune. Omitted, all the voyage of their life is bound in shallows and in miseries. On such a full sea are we now afloat. And we must take the current when it serves, or lose our ventures.', 'tailor' ),
+			__( 'Some are born great, some achieve greatness, and some have greatness thrust upon them.', 'tailor' ),
+			__( 'Good night, good night! Parting is such sweet sorrow, that I shall say good night till it be morrow.', 'tailor' ),
+			__( 'What a piece of work is a man, how noble in reason, how infinite in faculties, in form and moving how express and admirable, in action how like an angel, in apprehension how like a god.', 'tailor' ),
+			__( 'Sweet are the uses of adversity which, like the toad, ugly and venomous, wears yet a precious jewel in his head.', 'tailor' ),
 		);
 
 		if ( array_key_exists( $quote_index, $quotes ) ) {
@@ -232,36 +288,19 @@ if ( ! function_exists( 'tailor_get_attributes' ) ) {
 	function tailor_get_attributes( $atts = array(), $prefix = '' ) {
 		$attributes = '';
 		foreach ( $atts as $key => $value ) {
-			if ( empty( $value ) ) {
+
+			if ( is_null( $value ) ) {
 				continue;
 			}
-			$attributes .= ' ' . $prefix . $key . '="' . $value . '"';
+
+			if ( is_array( $value ) ) {
+				$attributes .= tailor_get_attributes( $value, $key . '-' );
+			}
+			else {
+				$attributes .= ' ' . esc_attr( $prefix . $key ) . '="' . esc_attr( $value ). '"';
+			}
 		}
 		return $attributes;
-	}
-}
-
-if ( ! function_exists( 'tailor_pluralize_string' ) ) {
-
-	/**
-	 * Pluralizes a given string.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @access private
-	 * @param $string
-	 * @return string
-	 */
-	function tailor_pluralize_string( $string ) {
-		$last = $string[ strlen( $string ) - 1 ];
-		if ( 'y' == $last ) {
-			$cut = substr( $string, 0, -1 );
-			$plural = $cut . 'ies';
-		}
-		else {
-			$plural = $string . 's';
-		}
-		return $plural;
 	}
 }
 
@@ -296,20 +335,17 @@ if ( ! function_exists( 'tailor_responsive_wrap_oembed_dataparse' ) ) {
 	 * @return mixed|string
 	 */
 	function tailor_responsive_wrap_oembed_dataparse( $html, $data ) {
-
 		if ( empty( $data->type ) || ! is_object( $data ) || 'video' != $data->type ) {
 			return $html;
 		}
 
 		$aspect_ratio = $data->width / $data->height;
 		$class_name = 'tailor-responsive-embed';
-
 		if ( abs( $aspect_ratio - ( 4 / 3 ) ) < abs( $aspect_ratio - ( 16 / 9 ) ) ) {
 			$class_name .= ' tailor-responsive-embed-4by3';
 		}
 
 		$html = preg_replace( '/(width|height)="\d*"\s/', "", $html );
-
 		return "<div class=\"{$class_name}\">{$html}</div>";
 	}
 

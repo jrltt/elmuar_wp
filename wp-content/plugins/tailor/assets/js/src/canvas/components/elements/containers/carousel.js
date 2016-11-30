@@ -3,54 +3,7 @@ var ContainerView = require( './../element-container' ),
 	CarouselView;
 
 CarouselView = ContainerView.extend( {
-
-    childViewContainer : '.tailor-carousel__wrap',
-
-    events : {
-        'element:change:order' : 'onReorderElement'
-    },
-
-	/**
-	 * Handles the reordering of carousel items.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param e
-	 * @param id
-	 * @param newIndex
-	 * @param oldIndex
-	 */
-    onReorderElement : function( e, id, newIndex, oldIndex ) {
-        if ( newIndex - oldIndex < 0 ) {
-            this.children.each( function( view ) {
-                if ( view._index >= newIndex && view._index <= oldIndex ) {
-                    if ( view._index == oldIndex ) {
-                        view._index = newIndex;
-                    }
-                    else {
-                        view._index++;
-                    }
-                    view.model.set( 'order', view._index );
-                }
-            }, this );
-        }
-        else {
-            this.children.each( function( view ) {
-                if ( view._index >= oldIndex && view._index <= newIndex ) {
-                    if ( view._index == oldIndex ) {
-                        view._index = newIndex;
-                    }
-                    else {
-                        view._index--;
-                    }
-                    view.model.set( 'order', view._index );
-                }
-            }, this );
-        }
-
-        this.model.collection.sort();
-    },
-
+	
 	/**
 	 * Destroys the carousel navigation dots before the template is refreshed.
 	 *

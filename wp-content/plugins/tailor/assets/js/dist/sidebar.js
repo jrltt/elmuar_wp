@@ -1,6 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
-var app = window.app,
+var $ = window.jQuery,
+    $win = $( window ),
+    app = window.app,
     cssModule,
     callbacks = {
         'sidebar' : [],
@@ -40,6 +42,9 @@ var onSidebarChange = function( setting ) {
     _.each( callbacks['sidebar'][ settingId ], function( callback ) {
         callback.apply( window, [ setting.get( 'value' ), setting.previous( 'value' ) ] );
     } );
+
+    // Trigger a resize even on the window when a sidebar setting changes
+    $win.trigger( 'resize' );
 };
 
 /**
@@ -71,17 +76,17 @@ var onElementChange = function( setting, view ) {
             
             // Get the collection of rules from the callback function
             rules = callback.apply( view, [ setting.get( 'value' ), setting.previous( 'value' ), view.model ] );
-            
-            if ( _.isArray( rules ) && rules.length > 0 ) {
+
+            // Re-render the element if the the callback function returns a value of false
+            if ( false === rules ) {
+                view.model.trigger( 'change:atts', view.model, view.model.get( 'atts' ) );
+            }
+            else if ( _.isArray( rules ) && rules.length > 0 ) {
 
                 // Process the rules
                 for ( var rule in rules ) {
                     if ( rules.hasOwnProperty( rule ) ) {
-                        
-                        if (
-                            ! rules[ rule ].hasOwnProperty( 'selectors' ) ||
-                            ! rules[ rule ].hasOwnProperty( 'declarations' )
-                        ) {
+                        if ( ! rules[ rule ].hasOwnProperty( 'selectors' ) || ! rules[ rule ].hasOwnProperty( 'declarations' ) ) {
                             continue;
                         }
                         
@@ -93,7 +98,7 @@ var onElementChange = function( setting, view ) {
                             ruleSets[ query ][ elementId ].push( {
                                 selectors: rules[ rule ].selectors,
                                 declarations: rules[ rule ].declarations,
-                                setting: settingId
+                                setting: rules[ rule ].setting || settingId
                             } );
                         }
                     }
@@ -603,6 +608,258 @@ module.exports = notify;
 } ) ( window );
 
 },{}],8:[function(require,module,exports){
+( function( window, $ ) {
+    
+    'use strict';
+    
+    var $doc = $( document );
+    var $win = $( window );
+    
+    // Include utilities
+    require( './shared/utility/polyfills/classlist' );
+    require( './shared/utility/polyfills/raf' );
+    require( './shared/utility/polyfills/transitions' );
+    require( './shared/utility/ajax' );
+
+    // Include components
+    Marionette.Behaviors.behaviorsLookup = function() {
+        return {
+            Resizable:          require( './sidebar/components/behaviors/resizable' ),
+            Panel:              require( './sidebar/components/behaviors/panel' ),
+            Draggable:          require( './shared/components/behaviors/draggable' )
+        };
+    };
+    
+    // Create the app
+    var App = require( './sidebar/app' );
+    window.app = new App();
+
+    // Create the Tailor object
+    window.Tailor = {
+        Api : {
+            Setting :   require( './shared/components/api/setting' )
+        },
+        Notify :    require( './shared/utility/notify' ),
+        Models :    {},
+        Panels :    {},
+        Sections :  {},
+        Controls :  {},
+        Items :     {},
+        Helpers :   {
+            
+            /**
+             * Evaluates whether the given condition is true, given two values.
+             *
+             * @since 1.5.0
+             *
+             * @param actual
+             * @param condition
+             * @param required
+             * 
+             * @returns {*}
+             */
+            checkCondition : function( condition, actual, required ) {
+                actual = actual || '';
+                switch ( condition ) {
+                    case 'equals' : return actual === required;
+
+                    case 'not':
+                        if ( _.isArray( required ) ) {
+                            return -1 === required.indexOf( actual );
+                        }
+                        return actual !== required;
+
+                    case 'lessThan': return ( actual < parseInt( required, 10 ) );
+
+                    case 'greaterThan': return ( actual > parseInt( required, 10 ) );
+
+                    case 'contains' :
+                        if ( _.isString( actual ) ) {
+                            actual = actual.split( ',' );
+                        }
+                        if ( _.isArray( required ) ) {
+                            var intersection = _.intersection( required, actual );
+                            return 0 !== intersection.length;
+                        }
+                        return -1 !== _.indexOf( actual, required );
+                }
+            }
+        }
+    };
+
+    wp.media.view.settings.post.id = window.post.id;
+
+    app.addRegions( {
+        content : '#tailor-sidebar-content',
+        dialog : {
+            selector : "#tailor-dialog-container",
+            regionClass : require( './sidebar/modules/dialog/dialog-region' )
+        },
+        modal : {
+            selector : "#tailor-modal-container",
+            regionClass : require( './sidebar/modules/modal/modal-region' )
+        }
+    } );
+
+    // Load models
+    Tailor.Models.Container =           require( './sidebar/entities/models/element-container' );
+    Tailor.Models.Wrapper =             require( './sidebar/entities/models/element-wrapper' );
+    Tailor.Models.Section =             require( './sidebar/entities/models/element-wrapper' ); // Sections are just special wrappers
+    Tailor.Models.Default =             require( './sidebar/entities/models/element' );
+
+    // Load views
+    Tailor.Panels.Default =             require( './sidebar/components/panels/panel-default' );
+    Tailor.Panels.Empty =               require( './sidebar/components/panels/panel-empty' );
+    Tailor.Sections.Default =           require( './sidebar/components/sections/section-default' );
+    Tailor.Controls.ButtonGroup =       require( './sidebar/components/controls/button-group' );
+    Tailor.Controls.Checkbox =          require( './sidebar/components/controls/checkbox' );
+    Tailor.Controls.Code =              require( './sidebar/components/controls/code' );
+    Tailor.Controls.Colorpicker =       require( './sidebar/components/controls/colorpicker' );
+    Tailor.Controls.Editor =            require( './sidebar/components/controls/editor' );
+    Tailor.Controls.Gallery =           require( './sidebar/components/controls/gallery' );
+    Tailor.Controls.Icon =              require( './sidebar/components/controls/icon' );
+    Tailor.Controls.Image =             require( './sidebar/components/controls/image' );
+    Tailor.Controls.InputGroup =        require( './sidebar/components/controls/input-group' );
+    Tailor.Controls.Link =              require( './sidebar/components/controls/link' );
+    Tailor.Controls.List =              require( './sidebar/components/controls/list' );
+    Tailor.Controls.Radio =             require( './sidebar/components/controls/radio' );
+    Tailor.Controls.Range =             require( './sidebar/components/controls/range' );
+    Tailor.Controls.Select =            require( './sidebar/components/controls/select' );
+    Tailor.Controls.SelectMulti =       require( './sidebar/components/controls/select-multi' );
+    Tailor.Controls.Style =             require( './sidebar/components/controls/style' );
+    Tailor.Controls.Switch =            require( './sidebar/components/controls/switch' );
+    Tailor.Controls.Text =              require( './sidebar/components/controls/text' );
+    Tailor.Controls.Textarea =          require( './sidebar/components/controls/textarea' );
+    Tailor.Controls.Video =             require( './sidebar/components/controls/video' );
+    Tailor.Controls.WidgetForm =        require( './sidebar/components/controls/widget-form' );
+    Tailor.Controls.Default =           require( './sidebar/components/controls/text' );
+    Tailor.Controls.Abstract =          require( './sidebar/components/controls/abstract-control' );
+
+    /**
+     * Returns the element name (in title case) based on the tag or type.
+     *
+     * @since 1.5.0
+     *
+     * @param string
+     */
+    function getName( string ) {
+        string = string || '';
+        return string
+            .replace( /_|-|tailor_/gi, ' ' )
+            .replace( /(?: |\b)(\w)/g, function( key ) {
+                return key.toUpperCase().replace( /\s+/g, '' );
+            } );
+    }
+
+    /**
+     * Returns the appropriate object based on tag or type.
+     *
+     * @since 1.5.0
+     *
+     * @param tag
+     * @param type
+     * @param object
+     * @returns {*}
+     */
+    Tailor.lookup = function( tag, type, object ) {
+        if ( ! Tailor.hasOwnProperty( object ) ) {
+            console.error( 'Object type ' + object + ' does not exist' );
+            return;
+        }
+
+        var name = getName( tag );
+        if ( Tailor[ object ].hasOwnProperty( name ) ) {
+            return Tailor[ object ][ name ];
+        }
+
+        if ( type ) {
+            name = getName( type );
+            if ( Tailor[ object ].hasOwnProperty( name ) ) {
+                return Tailor[ object ][ name ];
+            }
+        }
+        return Tailor[ object ].Default;
+    };
+
+    app.on( 'start', function( options ) {
+
+        // Load modules
+        app.module( 'module:library', require( './sidebar/modules/library/library' ) );
+        app.module( 'module:templates', require( './sidebar/modules/templates/templates' ) );
+        app.module( 'module:settings', require( './sidebar/modules/settings/settings' ) );
+        app.module( 'module:history', require( './sidebar/modules/history/history' ) );
+        app.module( 'module:sections', require( './sidebar/modules/sections/sections' ) );
+        app.module( 'module:panels', require( './sidebar/modules/panels/panels' ) );
+        app.module( 'module:modal', require( './sidebar/modules/modal/modal' ) );
+        app.module( 'module:dialog', require( './sidebar/modules/dialog/dialog' ) );
+        app.module( 'module:notification', require( './sidebar/modules/notifications/notifications' ) );
+        app.module( 'module:devicePreview', require( './sidebar/modules/device-preview/device-preview' ) );
+        
+        // Initialize preview
+        require( './sidebar/preview' );
+        
+        $doc.on( 'heartbeat-send', function( e, data ) {
+            data['tailor_post_id'] = window.post.id;
+        } );
+
+        wp.heartbeat.interval( 60 );
+        wp.heartbeat.connectNow();
+
+        $win
+
+            /**
+             * Warns the user if they attempt to navigate away from the page without saving changes.
+             *
+             * @since 1.0.0
+             */
+            .on( 'beforeunload.tailor', function( e ) {
+                if ( app.hasUnsavedChanges() ) {
+                    return window._l10n.confirmPage;
+                }
+            } )
+
+            /**
+             * Unlocks the post when the user navigates away from the page.
+             *
+             * @since 1.0.0
+             */
+            .on( 'unload.tailor', function( e ) {
+                window.ajax.send( 'tailor_unlock_post', {
+                    data : {
+                        post_id : options.postId,
+                        nonce : options.nonces.unlockPost
+                    }
+                } );
+            } );
+    } );
+
+    $doc.ready( function() {
+        
+        // Start the app
+        app.start( {
+            postId : window.post.id,
+            nonces : window._nonces,
+            l10n : window._l10n || [],
+            library : window._library || [],
+            templates : window._templates || [],
+            panels : window._panels || [],
+            sections : window._sections || [],
+            settings : window._settings || [],
+            controls : window._controls || []
+        } );
+
+        /**
+         * Fires when the sidebar is initialized.
+         *
+         * @since 1.0.0
+         *
+         * @param app
+         */
+        app.channel.trigger( 'sidebar:initialize', app );
+    } );
+    
+} ( window, Backbone.$ ) );
+},{"./shared/components/api/setting":1,"./shared/components/behaviors/draggable":2,"./shared/utility/ajax":3,"./shared/utility/notify":4,"./shared/utility/polyfills/classlist":5,"./shared/utility/polyfills/raf":6,"./shared/utility/polyfills/transitions":7,"./sidebar/app":9,"./sidebar/components/behaviors/panel":10,"./sidebar/components/behaviors/resizable":11,"./sidebar/components/controls/abstract-control":12,"./sidebar/components/controls/button-group":13,"./sidebar/components/controls/checkbox":14,"./sidebar/components/controls/code":15,"./sidebar/components/controls/colorpicker":16,"./sidebar/components/controls/editor":17,"./sidebar/components/controls/gallery":18,"./sidebar/components/controls/icon":19,"./sidebar/components/controls/image":20,"./sidebar/components/controls/input-group":21,"./sidebar/components/controls/link":22,"./sidebar/components/controls/list":25,"./sidebar/components/controls/radio":26,"./sidebar/components/controls/range":27,"./sidebar/components/controls/select":29,"./sidebar/components/controls/select-multi":28,"./sidebar/components/controls/style":30,"./sidebar/components/controls/switch":31,"./sidebar/components/controls/text":32,"./sidebar/components/controls/textarea":33,"./sidebar/components/controls/video":34,"./sidebar/components/controls/widget-form":35,"./sidebar/components/panels/panel-default":36,"./sidebar/components/panels/panel-empty":37,"./sidebar/components/sections/section-default":38,"./sidebar/entities/models/element":51,"./sidebar/entities/models/element-container":49,"./sidebar/entities/models/element-wrapper":50,"./sidebar/modules/device-preview/device-preview":56,"./sidebar/modules/dialog/dialog":58,"./sidebar/modules/dialog/dialog-region":57,"./sidebar/modules/history/history":60,"./sidebar/modules/library/library":62,"./sidebar/modules/modal/modal":65,"./sidebar/modules/modal/modal-region":64,"./sidebar/modules/notifications/notifications":73,"./sidebar/modules/panels/panels":74,"./sidebar/modules/sections/sections":79,"./sidebar/modules/settings/settings":81,"./sidebar/modules/templates/templates":84,"./sidebar/preview":85}],9:[function(require,module,exports){
 /**
  * The Sidebar Marionette application.
  */
@@ -632,7 +889,7 @@ SidebarApplication = Marionette.Application.extend( {
 	        'element:add',
             'element:move',
             'element:resize',
-            'element:change:order',
+            'navigation:reorder',
             'element:copy',
             'element:delete',
             
@@ -675,7 +932,7 @@ SidebarApplication = Marionette.Application.extend( {
             'element:add',              // When an element is added
             'element:move',             // When an element is moved
             'element:resize',           // When an element (e.g., column) is resized
-            'element:change:order',     // When an element (e.g., tab) is reordered
+            'navigation:reorder',       // When an element (e.g., tab) is reordered using navigation
             'element:copy',             // When an element is copied
             'element:delete',           // When an element is deleted
             'modal:apply',              // When changes to an element are applied
@@ -785,7 +1042,7 @@ SidebarApplication = Marionette.Application.extend( {
             } );
         } );
 
-        sidebar.listenToOnce( sidebar.channel, 'canvas:handshake', sidebar.registerRemoteChannel );
+        sidebar.listenTo( sidebar.channel, 'canvas:handshake', sidebar.registerRemoteChannel );
 
         /**
          * Restores the next history snapshot, if available.
@@ -900,7 +1157,7 @@ SidebarApplication = Marionette.Application.extend( {
 } );
 
 module.exports = SidebarApplication;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var PanelBehavior = Marionette.Behavior.extend( {
 
     ui: {
@@ -946,7 +1203,7 @@ var PanelBehavior = Marionette.Behavior.extend( {
 } );
 
 module.exports = PanelBehavior;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var ResizableBehavior = Marionette.Behavior.extend( {
 
     ui : {
@@ -1445,21 +1702,47 @@ var ResizableBehavior = Marionette.Behavior.extend( {
 } );
 
 module.exports = ResizableBehavior;
-},{}],11:[function(require,module,exports){
-var AbstractControl = Marionette.ItemView.extend( {
+},{}],12:[function(require,module,exports){
+var $ = window.jQuery,
+    AbstractControl;
+
+AbstractControl = Marionette.ItemView.extend( {
 
     tagName : 'li',
 
+    media : 'desktop',
+
+    ui : {
+        'input' : 'input',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
+    },
+    
+    events : {
+        'blur @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
+    },
+
+	/**
+     * Returns the class name.
+     * 
+     * @since 1.0.0
+     * 
+     * @returns {string}
+     */
     className : function() {
         return 'control control--' + this.model.get( 'type' );
     },
-
-    events : {
-        'input @ui.input' : 'onControlChange',
-        'change @ui.input' : 'onControlChange',
-        'click @ui.default' : 'restoreDefaultValue'
-    },
-
+    
+	/**
+	 * Returns the template ID.
+     * 
+     * @since 1.0.0
+     * 
+     * @returns {string}
+     */
     getTemplate : function() {
         return '#tmpl-tailor-control-' + this.model.get( 'type' );
     },
@@ -1473,12 +1756,45 @@ var AbstractControl = Marionette.ItemView.extend( {
      */
     serializeData : function() {
         var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-        var defaultValue = this.getDefaultValue();
-
-        data.value = this.getSettingValue();
-        data.showDefault = null != defaultValue && ( data.value != defaultValue );
-
+        data.values = this.getValues();
+        data.hideDefault = this.checkDefault( data.values );
+        data = this.addSerializedData( data );
+        
         return data;
+    },
+    
+    /**
+     * Provides additional data to the template rendering function.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    addSerializedData : function( data ) {
+        return data;
+    },
+    
+	/**
+     * Returns true if the Default button should be hidden.
+     * 
+     * @since 1.7.2
+     * 
+     * @param values
+     * @returns {boolean}
+     */
+    checkDefault : function( values ) {
+        var hide = true;
+        _.each( this.getDefaults(), function( value, media ) {
+            if (
+                ! _.isNull( value ) &&
+                values.hasOwnProperty( media ) &&
+                ! _.isNull( values[ media ] ) &&
+                value !== values[ media ]
+            ) {
+                hide = false;
+            }
+        } );
+        return hide;
     },
 
     /**
@@ -1488,7 +1804,7 @@ var AbstractControl = Marionette.ItemView.extend( {
      */
     initialize : function() {
         this.addEventListeners();
-        this.checkDependencies( this.model.setting );
+        this.checkDependencies();
     },
 
     /**
@@ -1497,8 +1813,10 @@ var AbstractControl = Marionette.ItemView.extend( {
      * @since 1.0.0
      */
     addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.toggleDefaultButton );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
+        _.each( this.getSettings(), function( setting ) {
+            this.listenTo( setting, 'change', this.onSettingChange );
+        }, this );
+        this.listenTo( this.getSetting().collection, 'change', this.checkDependencies );
     },
 
     /**
@@ -1509,13 +1827,14 @@ var AbstractControl = Marionette.ItemView.extend( {
      * @param setting
      */
     checkDependencies : function( setting ) {
+        setting = setting || this.getSetting();
         var dependencies = this.model.get( 'dependencies' );
-        var settings = setting.collection;
+        var settingCollection = setting.collection;
         var visible = true;
 
         for ( var id in dependencies ) {
             if ( dependencies.hasOwnProperty( id ) ) {
-                var target = settings.get( id );
+                var target = settingCollection.get( id );
                 if ( ! target ) {
                     continue;
                 }
@@ -1534,74 +1853,193 @@ var AbstractControl = Marionette.ItemView.extend( {
         this.$el.toggle( visible );
     },
 
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
+	/**
+	 * Updates the media-query based control groups when the control is rendered.
+     * 
+     * @since 1.7.2
      */
-    onControlChange : function( e ) {
-        if ( 'function' == typeof this.ui.input.val ) {
-            this.setSettingValue( this.ui.input.val() );
-        }
+    onRender : function() {
+        this.updateControlGroups();
     },
 
-    /**
-     * Toggles the default button based on the setting value.
-     *
-     * @since 1.0.0
-     */
-    toggleDefaultButton : function() {
-        var defaultValue = this.getDefaultValue();
-
-        this.ui.default.toggleClass( 'is-hidden', null == defaultValue || this.getSettingValue() == defaultValue );
-    },
-
-    /**
-     * Returns the setting value.
-     *
-     * @since 1.0.0
-     */
-    getSettingValue : function() {
-        return this.model.setting.get( 'value' );
-    },
-
-    /**
-     * Updates the setting value.
-     *
-     * @since 1.0.0
-     *
-     * @param value
-     */
-    setSettingValue : function( value ) {
-        this.model.setting.set( 'value', value );
-    },
-
-    /**
-     * Returns the default value for the setting.
-     *
-     * @since 1.0.0
-     */
-    getDefaultValue : function() {
-        return this.model.setting.get( 'default' );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
+	/**
+     * Displays the appropriate media-query based control group when the Media button is pressed.
+     * 
+     * @since 1.7.2
+     * 
      * @param e
      */
-    restoreDefaultValue : function( e ) {
-        this.setSettingValue( this.getDefaultValue() );
+    onMediaButtonChange : function( e ) {
+        this.media = e.currentTarget.getAttribute( 'data-media' );
+        this.updateControlGroups();
+    },
 
-        this.triggerMethod( 'restore:default' );
+	/**
+     * Restores the default setting values when the Default button is pressed.
+     * 
+     * @since 1.7.2
+     */
+    onDefaultButtonChange : function() {
+        this.restoreDefaults();
+        this.render();
+    },
+
+	/**
+	 * Updates the current setting value when a field change occurs.
+     * 
+     * @since 1.7.2
+     */
+    onFieldChange : function() {
+        this.setValue( this.ui.input.filter( '[name^="' + this.media + '"]' ).val() );
+    },
+
+	/**
+	 * Updates the state of the Default button when a setting value changes.
+     * 
+     * @since 1.7.2
+     */
+    onSettingChange : function() {
+        this.updateDefaultButton();
+    },
+
+	/**
+     * Displays the control group associated with the current media query.
+     * 
+     * @since 1.7.2
+     */
+    updateControlGroups : function() {
+        var media = this.media;
+
+        this.ui.controlGroups.each( function() {
+            $( this ).toggleClass( 'is-hidden', media != this.id );
+        } );
+
+        this.ui.mediaButton.each( function() {
+            $( this ).toggleClass( 'active', media == this.getAttribute( 'data-media' ) );
+        } );
+    },
+
+	/**
+     * Updates the visibility of the Default button.
+     * 
+     * @since 1.7.2
+     */
+    updateDefaultButton : function() {
+        this.ui.defaultButton.toggleClass( 'is-hidden', this.checkDefault( this.getValues() ) );
+    },
+
+	/**
+     * Returns all control settings.
+     * 
+     * @since 1.7.2
+     * 
+     * @returns {*}
+     */
+    getSettings : function() {
+        return this.model.settings;
+    },
+
+	/**
+     * Returns the setting associated with a given media query.
+     * 
+     * @since 1.7.2
+     * 
+     * @param media
+     * @returns {*}
+     */
+    getSetting : function( media ) {
+        media = media || this.media;
+        var settings = this.getSettings();
+        for ( var i in settings ) {
+            if ( settings.hasOwnProperty( i ) ) {
+                if ( settings[ i ].media == media ) {
+                    return settings[ i ];
+                }
+            }
+        }
+        return false;
+    },
+
+	/**
+	 * Returns the default value for each setting.
+     * 
+     * @since 1.7.2
+     * 
+     * @returns {{}}
+     */
+    getDefaults : function() {
+        var defaults = {};
+        _.each( this.getSettings(), function( setting ) {
+            defaults[ setting.media ] = setting.get( 'default' );
+        } );
+        return defaults;
+    },
+
+	/**
+	 * Returns the value for each setting.
+     * 
+     * @since 1.7.2
+     * 
+     * @returns {{}}
+     */
+    getValues : function() {
+        var values = {};
+        _.each( this.getSettings(), function( setting ) {
+            values[ setting.media ] = setting.get( 'value' ) || '';
+        } );
+        return values;
+    },
+
+	/**
+     * Returns the default value for the current setting.
+     * 
+     * @since 1.7.2
+     * 
+     * @returns {*}
+     */
+    getDefault : function() {
+        return this.getSetting().get( 'default' );
+    },
+
+    /**
+     * Returns the value for the current setting.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    getValue : function() {
+        return this.getSetting().get( 'value' );
+    },
+
+    /**
+     * Updates value for the current setting.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    setValue : function( value ) {
+        this.getSetting().set( 'value', value );
+    },
+
+    /**
+     * Restores each setting to its default value.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    restoreDefaults : function() {
+        _.each( this.getSettings(), function( setting ) {
+            setting.set( 'value', setting.get( 'default' ) );
+        } );
     }
 
 } );
 
 module.exports = AbstractControl;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * Tailor.Controls.ButtonGroup
  *
@@ -1614,60 +2052,43 @@ var AbstractControl = require( './abstract-control' ),
 
 ButtonGroupControl = AbstractControl.extend( {
 
-	ui: {
-		'input' : 'button',
-        'default' : '.js-default'
-	},
+    ui : {
+        'input' : '.control__body .button',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
+    },
 
     events : {
-        'click @ui.input' : 'onControlChange',
-        'click @ui.default' : 'restoreDefaultValue'
+        'click @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
     templateHelpers : {
 
-        /**
-         * Returns the appropriate class name if the current button is the selected one.
-         *
-         * @since 1.0.0
-         *
-         * @param button
-         * @returns {string}
-         */
-        active : function( button ) {
-            return button === this.value ? 'active' : '';
+        active : function( media, key ) {
+            return key === this.values[ media ] ? 'active' : '';
         }
     },
 
     /**
-     * Adds the required event listeners.
+     * Updates the current setting value when a field change occurs.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-    },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-
+    onFieldChange : function( e ) {
+        this.ui.input.filter( '[name^="' + this.media + '"]' ).removeClass( 'active' );
         var button = e.currentTarget;
-
-        this.ui.input.removeClass( 'active' );
         button.classList.add( 'active' );
-        this.setSettingValue( button.value );
+        this.setValue( button.value );
     }
 
 } );
 
 module.exports = ButtonGroupControl;
 
-},{"./abstract-control":11}],13:[function(require,module,exports){
+},{"./abstract-control":12}],14:[function(require,module,exports){
 /**
  * Tailor.Controls.Checkbox
  *
@@ -1680,60 +2101,40 @@ var AbstractControl = require( './abstract-control' ),
 
 CheckboxControl = AbstractControl.extend( {
 
-    ui : {
-        'input' : 'input',
-        'default' : '.js-default'
+    events : {
+        'change @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
     templateHelpers : {
 
-        /**
-         * Returns "checked" if the current choice is the selected one.
-         *
-         * @since 1.0.0
-         *
-         * @param choice
-         * @returns {string}
-         */
-        checked : function( choice ) {
-            var value = this.value.split( ',' );
-            return -1 !== value.indexOf( choice ) ? 'checked' : '';
+        checked : function( media, key ) {
+            var values = this.values[ media ].split( ',' );
+            return -1 !== values.indexOf( key ) ? 'checked' : '';
         }
     },
 
     /**
-     * Adds the required event listeners.
+     * Updates the current setting value when a field change occurs.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-    },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-
-        var value = [];
-
-        _.each( this.ui.input, function( input ) {
-            if ( input.checked ) {
-                value.push( input.value );
+    onFieldChange : function( e ) {
+        var values = [];
+        _.each( this.ui.input.filter( '[name^="' + this.media + '"]:checked' ), function( field ) {
+            if ( field.checked ) {
+                values.push( field.value || 0 );
             }
         } );
-
-        this.setSettingValue( value.join( ',' ) );
+        this.setValue( values.join( ',' ) );
     }
 
 } );
 
 module.exports = CheckboxControl;
 
-},{"./abstract-control":11}],14:[function(require,module,exports){
+},{"./abstract-control":12}],15:[function(require,module,exports){
 /**
  * Tailor.Controls.Code
  *
@@ -1741,86 +2142,115 @@ module.exports = CheckboxControl;
  *
  * @augments Marionette.ItemView
  */
-var AbstractControl = require( './abstract-control' ),
+
+var $ = window.jQuery,
+	AbstractControl = require( './abstract-control' ),
 	CodeControl;
 
 CodeControl = AbstractControl.extend( {
 
-    ui : {
-        'input' : 'textarea',
-        'default' : '.js-default'
-    },
+	ui : {
+		'input' : 'textarea',
+		'mediaButton' : '.js-setting-group .button',
+		'defaultButton' : '.js-default',
+		'controlGroups' : '.control__body > *'
+	},
 
-    events : {
-        'click @ui.default' : 'restoreDefaultValue'
-    },
+	events : {
+		'click @ui.mediaButton' : 'onMediaButtonChange',
+		'click @ui.defaultButton' : 'onDefaultButtonChange'
+	},
 
-    /**
-     * Provides the required information to the template rendering function.
-     *
-     * @since 1.0.0
-     *
-     * @returns {*}
-     */
-    serializeData : function() {
-        var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-        var defaultValue = this.getDefaultValue();
+	/**
+	 * Provides additional data to the template rendering function.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @returns {*}
+	 */
+	addSerializedData : function( data ) {
+		data.cid = this.cid;
+		return data;
+	},
 
-        data.value = this.getSettingValue();
-        data.showDefault = null != defaultValue && data.value != defaultValue;
-        data.cid = this.cid;
-
-        return data;
-    },
-
-    /**
-     * Initializes the editor.
-     *
-     * @since 1.0.0
-     */
+	/**
+	 * Initailizes the CodeMirror editor when the control is rendered.
+	 * 
+	 * @since 1.7.2
+	 */
     onRender : function() {
-        var obj = this;
-        var mode = this.model.get( 'mode' );
+	    var control = this;
+	    var mode = control.model.get( 'mode' );
+	    this.editors = {};
 
-        obj.editor = CodeMirror.fromTextArea( this.ui.input.get(0), {
-			mode : mode,
-			lineNumbers : true,
-			matchBrackets : true,
-			continueComments : 'Enter',
-			viewportMargin : Infinity,
-			extraKeys : {
+	    _.each( this.getValues(), function( value, media ) {
+		    var $field = control.ui.input.filter( '[name^="' + media + '-' + control.cid + '"]' );
 
-				'F11' : function( cm ) {
-					cm.setOption( 'fullScreen', ! cm.getOption( 'fullScreen' ) );
-				},
+		    control.editors[ media ] = CodeMirror.fromTextArea( $field.get(0), {
+			    mode : mode,
+			    lineNumbers : true,
+			    matchBrackets : true,
+			    continueComments : 'Enter',
+			    viewportMargin : Infinity,
+			    extraKeys : {
 
-				'Esc' : function( cm ) {
-					if ( cm.getOption( 'fullScreen' ) )  {
-						cm.setOption( 'fullScreen', false );
-					}
-				}
-			}
+				    'F11' : function( cm ) {
+					    cm.setOption( 'fullScreen', ! cm.getOption( 'fullScreen' ) );
+				    },
+
+				    'Esc' : function( cm ) {
+					    if ( cm.getOption( 'fullScreen' ) )  {
+						    cm.setOption( 'fullScreen', false );
+					    }
+				    }
+			    }
+		    } );
+
+		    control.editors[ media ].on( 'change', function( editor ) {
+			    control.setValue( editor.getValue() );
+		    }, this );
+
+		    setTimeout( function() {
+			    control.editors[ media ].refresh();
+		    }, 10 );
+	    } );
+
+	    this.updateControlGroups();
+    },
+
+	/**
+	 * Restores each setting to its default value.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @returns {*}
+	 */
+	restoreDefaults : function() {
+		_.each( this.getSettings(), function( setting, media ) {
+			var value = setting.get( 'default' ) || '';
+			setting.set( 'value', value );
+		} );
+	},
+
+	/**
+	 * Displays the control group associated with the current media query.
+	 *
+	 * @since 1.7.2
+	 */
+	updateControlGroups : function() {
+		var control = this;
+		var media = this.media;
+
+		this.ui.controlGroups.each( function() {
+			$( this ).toggleClass( 'is-hidden', media != this.id );
 		} );
 
-        var onControlChange = function( editor ) {
-            obj.setSettingValue( editor.getValue() );
-        };
+		this.ui.mediaButton.each( function() {
+			$( this ).toggleClass( 'active', media == this.getAttribute( 'data-media' ) );
+		} );
 
-        this.editor.on( 'change', onControlChange );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        var value = this.getDefaultValue();
-        this.setSettingValue( value );
-        this.editor.setValue( value );
-    },
+		control.editors[ media ].refresh();
+	},
 
     /**
      * Destroys the editor instance when the control is destroyed.
@@ -1828,15 +2258,18 @@ CodeControl = AbstractControl.extend( {
      * @since 1.0.0
      */
 	onDestroy : function() {
-        this.editor.off( 'change', this.onChange );
-		this.editor.toTextArea();
+		var control = this;
+	    _.each( this.getValues(), function( value, media ) {
+		    control.editors[ media ].off();
+		    control.editors[ media ].toTextArea();
+	    } );
 	}
 
 } );
 
 module.exports = CodeControl;
 
-},{"./abstract-control":11}],15:[function(require,module,exports){
+},{"./abstract-control":12}],16:[function(require,module,exports){
 /**
  * Tailor.Controls.ColorPicker
  *
@@ -1844,7 +2277,8 @@ module.exports = CodeControl;
  *
  * @augments Marionette.ItemView
  */
-var AbstractControl = require( './abstract-control' ),
+var $ = window.jQuery,
+    AbstractControl = require( './abstract-control' ),
     ColorPickerControl;
 
 /**
@@ -1860,10 +2294,7 @@ var AbstractControl = require( './abstract-control' ),
  */
 ( function( $ ) {
 
-    // Variable for some backgrounds
     var image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAAHnlligAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHJJREFUeNpi+P///4EDBxiAGMgCCCAGFB5AADGCRBgYDh48CCRZIJS9vT2QBAggFBkmBiSAogxFBiCAoHogAKIKAlBUYTELAiAmEtABEECk20G6BOmuIl0CIMBQ/IEMkO0myiSSraaaBhZcbkUOs0HuBwDplz5uFJ3Z4gAAAABJRU5ErkJggg==';
-
-    // html stuff for wpColorPicker copy of the original color-picker.js
     var	_before = '<a tabindex="0" class="wp-color-result" />',
         _after = '<div class="wp-picker-holder" />',
         _wrap = '<div class="wp-picker-container" />',
@@ -1896,7 +2327,7 @@ var AbstractControl = require( './abstract-control' ),
     $.widget( 'wp.wpColorPicker', $.wp.wpColorPicker, {
 
         _create: function() {
-            // bail early for unsupported Iris.
+
             if ( ! $.support.iris ) {
                 return;
             }
@@ -1906,26 +2337,28 @@ var AbstractControl = require( './abstract-control' ),
 
             $.extend( self.options, el.data() );
 
-            // keep close bound so it can be attached to a body listener
             self.close = $.proxy( self.close, self );
-
             self.initialValue = el.val();
 
             // Set up HTML structure, hide things
             el.addClass( 'wp-color-picker' ).hide().wrap( _wrap );
             self.wrap = el.parent();
-            self.toggler = $( _before ).insertBefore( el ).css( { backgroundColor: self.initialValue } ).attr( 'title', wpColorPickerL10n.pick ).attr( 'data-current', wpColorPickerL10n.current );
+            self.toggler = $( _before )
+                .insertBefore( el )
+                .css( { backgroundColor: self.initialValue } )
+                .attr( 'title', wpColorPickerL10n.pick )
+                .attr( 'data-current', wpColorPickerL10n.current );
             self.pickerContainer = $( _after ).insertAfter( el );
             self.button = $( _button );
 
             if ( self.options.defaultColor ) {
                 self.button.addClass( 'wp-picker-default' ).val( wpColorPickerL10n.defaultString );
-            } else {
+            }
+            else {
                 self.button.addClass( 'wp-picker-clear' ).val( wpColorPickerL10n.clear );
             }
 
             el.wrap( '<span class="wp-picker-input-wrap" />' ).after(self.button);
-
             el.iris( {
                 target: self.pickerContainer,
                 hide: self.options.hide,
@@ -1945,10 +2378,10 @@ var AbstractControl = require( './abstract-control' ),
                             'border-bottom-left-radius': '3px',
                             'background': ui.color.toString()
                         });
-                    } else {
+                    }
+                    else {
                         self.toggler.css( { backgroundColor: ui.color.toString() } );
                     }
-                    // check for a custom cb
                     if ( $.isFunction( self.options.change ) ) {
                         self.options.change.call( this, event, ui );
                     }
@@ -1965,7 +2398,6 @@ var AbstractControl = require( './abstract-control' ),
         _addListeners: function() {
             var self = this;
 
-            // prevent any clicks inside this widget from leaking to the top and closing it
             self.wrap.on( 'click.wpcolorpicker', function( event ) {
                 event.stopPropagation();
             });
@@ -1973,7 +2405,8 @@ var AbstractControl = require( './abstract-control' ),
             self.toggler.click( function(){
                 if ( self.toggler.hasClass( 'wp-picker-open' ) ) {
                     self.close();
-                } else {
+                }
+                else {
                     self.open();
                 }
             });
@@ -1981,22 +2414,22 @@ var AbstractControl = require( './abstract-control' ),
             self.element.change( function( event ) {
                 var me = $( this ),
                     val = me.val();
-                // Empty or Error = clear
+
                 if ( val === '' || self.element.hasClass('iris-error') ) {
                     if ( self.options.rgba ) {
                         self.toggler.removeAttr('style');
                         self.toggler.find('span').css( 'backgroundColor', '' );
-                    } else {
+                    }
+                    else {
                         self.toggler.css( 'backgroundColor', '' );
                     }
-                    // fire clear callback if we have one
+
                     if ( $.isFunction( self.options.clear ) ) {
                         self.options.clear.call( this, event );
                     }
                 }
             });
 
-            // open a keyboard-focused closed picker with space or enter
             self.toggler.on( 'keyup', function( event ) {
                 if ( event.keyCode === 13 || event.keyCode === 32 ) {
                     event.preventDefault();
@@ -2011,37 +2444,35 @@ var AbstractControl = require( './abstract-control' ),
                     if ( self.options.rgba ) {
                         self.toggler.removeAttr('style');
                         self.toggler.find('span').css( 'backgroundColor', '' );
-                    } else {
+                    }
+                    else {
                         self.toggler.css( 'backgroundColor', '' );
                     }
                     if ( $.isFunction( self.options.clear ) ) {
                         self.options.clear.call( this, event );
                     }
-                } else if ( me.hasClass( 'wp-picker-default' ) ) {
+                }
+                else if ( me.hasClass( 'wp-picker-default' ) ) {
                     self.element.val( self.options.defaultColor ).change();
                 }
             });
         }
-    });
+    } );
 
     /**
-     * Overwrite iris
+     * Overwrite Iris
      */
     $.widget( 'a8c.iris', $.a8c.iris, {
+
         _create: function() {
             this._super();
-
-            // Global option for check is mode rbga is enabled
             this.options.rgba = this.element.data( 'rgba' ) || false;
-
-            // Is not input disabled
             if ( ! this.element.is( ':input' ) ) {
                 this.options.alpha = false;
             }
 
             if ( typeof this.options.rgba !== 'undefined' && this.options.rgba ) {
                 var self = this,
-                    el = self.element,
                     _html = '<div class="iris-strip iris-slider iris-alpha-slider"><div class="iris-slider-offset iris-slider-offset-alpha"></div></div>',
                     aContainer = $( _html ).appendTo( self.picker.find( '.iris-picker-inner' ) ),
                     aSlider = aContainer.find( '.iris-slider-offset-alpha' ),
@@ -2053,7 +2484,7 @@ var AbstractControl = require( './abstract-control' ),
                 // Push new controls
                 $.each( controls, function( k, v ){
                     self.controls[k] = v;
-                });
+                } );
 
                 // Change size strip and add margin for sliders
                 self.controls.square.css({'margin-right': '0'});
@@ -2063,44 +2494,43 @@ var AbstractControl = require( './abstract-control' ),
 
                 $.each( [ 'aContainer', 'strip' ], function( k, v ) {
                     self.controls[v].width( stripsWidth ).css({ 'margin-left': stripsMargin + 'px' });
-                });
+                } );
 
-                // Add new slider
                 self._initControls();
-
-                // For updated widget
                 self._change();
             }
         },
+
         _initControls: function() {
             this._super();
-
             if ( this.options.rgba ) {
                 var self = this,
                     controls = self.controls;
 
-                controls.aSlider.slider({
+                controls.aSlider.slider( {
                     orientation: 'vertical',
                     min: 0,
                     max: 100,
                     step: 1,
                     value: parseInt( self._color._alpha * 100 ),
                     slide: function( event, ui ) {
-                        // Update alpha value
                         self._color._alpha = parseFloat( ui.value/100 );
                         self._change.apply( self, arguments );
                     }
-                });
+                } );
             }
         },
+
         _change: function() {
+
             this._super();
+
             var self = this,
                 el = self.element;
 
             if ( this.options.rgba ) {
                 var	controls = self.controls,
-                    alpha = parseInt( self._color._alpha*100 ),
+                    alpha = parseInt( self._color._alpha * 100 ),
                     color = self._color.toRgb(),
                     gradient = [
                         'rgb(' + color.r + ',' + color.g + ',' + color.b + ') 0%',
@@ -2110,38 +2540,32 @@ var AbstractControl = require( './abstract-control' ),
                     customWidth = self.options.customWidth,
                     target = self.picker.closest('.wp-picker-container').find( '.wp-color-result' );
 
-                // Generate background slider alpha, only for CSS3 old browser fuck!! :)
-                controls.aContainer.css({ 'background': 'linear-gradient(to bottom, ' + gradient.join( ', ' ) + '), url(' + image + ')' });
+                controls.aContainer.css( { 'background': 'linear-gradient(to bottom, ' + gradient.join( ', ' ) + '), url(' + image + ')' } );
 
                 if ( target.hasClass('wp-picker-open') ) {
-                    // Update alpha value
                     controls.aSlider.slider( 'value', alpha );
 
-                    /**
-                     * Disabled change opacity in default slider Saturation ( only is alpha enabled )
-                     * and change input width for view all value
-                     */
                     if ( self._color._alpha < 1 ) {
                         var style = controls.strip.attr( 'style' ).replace( /rgba\(([0-9]+,)(\s+)?([0-9]+,)(\s+)?([0-9]+)(,(\s+)?[0-9\.]+)\)/g, 'rgb($1$3$5)' );
-
                         controls.strip.attr( 'style', style );
-
                         el.width( parseInt( defaultWidth + customWidth ) );
-                    } else {
+                    }
+                    else {
                         el.width( defaultWidth );
                     }
                 }
             }
 
-            var reset = el.data('reset-alpha') || false;
+            var reset = el.data( 'reset-alpha' ) || false;
             if ( reset ) {
                 self.picker.find( '.iris-palette-container' ).on( 'click.palette', '.iris-palette', function() {
                     self._color._alpha = 1;
                     self.active = 'external';
                     self._change();
-                });
+                } );
             }
         },
+
         _addInputListeners: function( input ) {
             var self = this,
                 debounceTimeout = 100,
@@ -2150,15 +2574,13 @@ var AbstractControl = require( './abstract-control' ),
                         val = input.val();
 
                     input.removeClass( 'iris-error' );
-                    // we gave a bad color
                     if ( color.error ) {
-                        // don't error on an empty input
                         if ( val !== '' ) {
                             input.addClass( 'iris-error' );
                         }
-                    } else {
+                    }
+                    else {
                         if ( color.toString() !== self._color.toString() ) {
-                            // let's not do this on keyup for hex shortcodes
                             if ( ! ( event.type === 'keyup' && val.match( /^[0-9a-fA-F]{3}$/ ) ) ) {
                                 self._setOption( 'color', color.toString() );
                             }
@@ -2172,7 +2594,7 @@ var AbstractControl = require( './abstract-control' ),
             if ( self.options.hide ) {
                 input.one( 'focus', function() {
                     self.show();
-                });
+                } );
             }
         }
     } );
@@ -2181,72 +2603,96 @@ var AbstractControl = require( './abstract-control' ),
 
 ColorPickerControl = AbstractControl.extend( {
 
-    ui : {
-        'input' : 'input'
-    },
-
-    events : {},
-
     /**
-     * Provides the required information to the template rendering function.
+     * Provides additional data to the template rendering function.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      *
      * @returns {*}
      */
-    serializeData : function() {
-        var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-
-        data.value = this.model.setting.get( 'value' );
+    addSerializedData : function( data ) {
         data.rgba = this.model.get( 'rgba' );
-
         return data;
     },
 
     /**
-     * Adds the required event listeners.
+     * Initializes the Iris colorpicker and updates the media-query based control groups when the control is rendered.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
+    onRender : function() {
+        this.initWidgets();
+        this.updateControlGroups();
+    },
+
+    /**
+     * Restores the default setting values when the Default button is pressed.
+     *
+     * @since 1.7.2
+     */
+    onDefaultButtonChange : function() {
+        this.restoreDefaults();
+        this.destroyWidgets();
+        this.render();
     },
 
 	/**
-     * Initializes the WP ColorPicker jQuery widget.
+	 * Initializes the Iris colorpicker(s).
      *
-     * @since 1.0.0
+     * @since 1.7.2
      */
-    onRender : function() {
+    initWidgets : function() {
         var control = this;
-        this.ui.input.wpColorPicker( {
-            palettes : this.model.get( 'palettes' ),
-            defaultColor : control.getDefaultValue(),
+        var defaults = this.getDefaults();
+        var palettes = this.model.get( 'palettes' );
 
-            change : function() {
-                control.setSettingValue( control.ui.input.wpColorPicker( 'color' ) );
-            },
+        this.ui.input.each( function() {
 
-            clear : function() {
-                control.setSettingValue( '' );
-            }
+            var $el = $( this );
+            $el.wpColorPicker( {
+                palettes : palettes,
+                defaultColor : defaults[ this.name ],
+
+                change : function() {
+                    var color = control.ui.input.wpColorPicker( 'color' );
+                    if ( 'undefined' == typeof control.getValue() && '' == color ) {
+                        return;
+                    }
+                    control.setValue( $el.wpColorPicker( 'color' ) );
+                },
+
+                clear : function() {
+                    control.setValue( '' );
+                }
+            } );
+        } );
+    },
+
+    /**
+     * Destroys the Iris colorpicker(s).
+     *
+     * @since 1.7.2
+     */
+    destroyWidgets : function() {
+        this.ui.input.each( function() {
+            $( this ).wpColorPicker( 'close' );
         } );
     },
 
 	/**
-     * Ensures that the WP ColorPicker widget is closed when the control is destroyed.
+     * Destroys the Iris colorpicker(s) before the control is destroyed.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      */
     onBeforeDestroy : function() {
-        this.ui.input.wpColorPicker( 'close' );
+        this.destroyWidgets();
     }
 
 } );
 
 module.exports = ColorPickerControl;
 
-},{"./abstract-control":11}],16:[function(require,module,exports){
+},{"./abstract-control":12}],17:[function(require,module,exports){
 /**
  * Tailor.Controls.Editor
  *
@@ -2259,104 +2705,132 @@ var AbstractControl = require( './abstract-control' ),
 
 EditorControl = AbstractControl.extend( {
 
-    ui : {
-        'input' : 'textarea',
-        'default' : '.js-default'
-    },
+	ui : {
+		'input' : 'textarea',
+		'mediaButton' : '.js-setting-group .button',
+		'defaultButton' : '.js-default',
+		'controlGroups' : '.control__body > *'
+	},
+
+	events : {
+		'blur @ui.input' : 'onFieldChange',
+		'click @ui.mediaButton' : 'onMediaButtonChange',
+		'click @ui.defaultButton' : 'restoreDefaults'
+	},
 
     getTemplate : function() {
         var html = document.getElementById( 'tmpl-tailor-control-editor' ).innerHTML;
         return _.template( html
-                .replace( new RegExp( 'tailor-editor', 'gi' ), this.cid )
-                .replace( new RegExp( 'tailor-value', 'gi' ), '<%= value %>' )
+                .replace( new RegExp( 'tailor-editor', 'gi' ), '<%= media %>-<%= cid %>' )
+                .replace( new RegExp( 'tailor-value', 'gi' ), '<%= values[ media ] %>' )
         );
     },
-
-    /**
-     * Adds the required event listeners.
-     *
-     * @since 1.0.0
-     */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.toggleDefaultButton );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-        this.listenTo( app.channel, 'list:change:order', this.maybeRefreshEditor );
-    },
+	
+	/**
+	 * Provides additional data to the template rendering function.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @returns {*}
+	 */
+	addSerializedData : function( data ) {
+		data.cid = this.cid;
+		return data;
+	},
 
 	/**
-	 * Refreshes the editor after the containing list item is moved.
+	 * Adds the required event listeners.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param e
+	 */
+	addEventListeners : function() {
+		this.listenTo( this.getSetting().collection, 'change', this.checkDependencies );
+	},
+
+	/**
+	 * Maybe refershes the TinyMCE instance(s).
+	 * 
+	 * @since 1.7.2
+	 * 
 	 * @param el
 	 */
 	maybeRefreshEditor : function( el ) {
         if ( el.contains( this.el ) ) {
-            tinyMCE.execCommand( 'mceRemoveEditor', false, this.cid );
-            tinyMCE.execCommand( 'mceAddEditor', false, this.cid );
+	        _.each( this.getValues(), function( value, media ) {
+		        tinyMCE.execCommand( 'mceRemoveEditor', false, media + '-' + this.cid );
+		        tinyMCE.execCommand( 'mceAddEditor', false, media + '-' + this.cid );
+	        }, this );
         }
     },
 
-    /**
-     * Initializes the TinyMCE instance.
-     *
-     * @since 1.0.0
-     */
+	/**
+	 * Initializes the TinyMCE instance(s).
+	 * 
+	 * @since 1.7.2
+	 */
     onAttach : function() {
-		var input = this.ui.input;
-		var id = this.cid;
-		var quickTagSettings = _.extend( {}, tinyMCEPreInit.qtInit['tailor-editor'], { id : id } );
+	    var control = this;
 
-		quicktags( quickTagSettings );
-		QTags._buttonsInit();
+	    _.each( this.getValues(), function( value, media ) {
+		    var id = media + '-' + control.cid;
+		    var quickTagSettings = _.extend( {}, tinyMCEPreInit.qtInit['tailor-editor'], { id : id } );
 
-		tinyMCEPreInit.mceInit[ id ] = _.extend( {}, tinyMCEPreInit.mceInit['tailor-editor'], {
-			id : id,
-			resize : 'vertical',
-			height: 350,
+		    quicktags( quickTagSettings );
+		    QTags._buttonsInit();
 
-			setup : function( ed ) {
-                ed.on( 'change', function() {
-                    ed.save();
-                    input.change();
-                } );
-			}
-		} );
+		    tinyMCEPreInit.mceInit[ id ] = _.extend( {}, tinyMCEPreInit.mceInit['tailor-editor'], {
+			    id : id,
+			    resize : 'vertical',
+			    height: 350,
 
-		switchEditors.go( id, 'tmce' );
+			    setup : function( ed ) {
+				    ed.on( 'change', function() {
+					    ed.save();
+					    control.setValue( ed.getContent() );
+				    } );
+			    }
+		    } );
 
-        tinymce.execCommand( 'mceAddEditor', true, id );
+		    switchEditors.go( id, 'tmce' );
+		    tinymce.execCommand( 'mceAddEditor', true, id );
+	    }, this );
 	},
 
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        var value = this.getDefaultValue();
+	/**
+	 * Restores each setting to its default value.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @returns {*}
+	 */
+	restoreDefaults : function() {
+		_.each( this.getSettings(), function( setting ) {
 
-        this.setSettingValue( value );
-        tinyMCE.get( this.cid ).setContent( value );
-    },
+			var value = setting.get( 'default' ) || '';
+			setting.set( 'value', value );
 
-    /**
-     * Destroys the TinyMCE instance when the control is destroyed.
-     *
-     * @since 1.0.0
-     */
+			var editor = tinyMCE.get( setting.media + '-' + this.cid );
+			editor.setContent( value );
+
+		}, this );
+	},
+
+	/**
+	 * Destroys the TinyMCE instance(s).
+	 * 
+	 * @since 1.7.2
+	 */
 	onDestroy : function() {
-        tinyMCE.execCommand( 'mceRemoveEditor', true, this.cid );
+	    _.each( this.getValues(), function( value, media ) {
+		    tinyMCE.execCommand( 'mceRemoveEditor', true, media + '-' + this.cid );
+	    }, this );
 	}
 
 } );
 
 module.exports = EditorControl;
 
-},{"./abstract-control":11}],17:[function(require,module,exports){
+},{"./abstract-control":12}],18:[function(require,module,exports){
 /**
  * Tailor.Controls.Gallery
  *
@@ -2370,48 +2844,38 @@ var AbstractControl = require( './abstract-control' ),
 GalleryControl = AbstractControl.extend( {
 
 	ui: {
-        select : '.button--select',
-        change : '.button--change',
-		remove : '.button--remove',
-        thumbnails : '.thumbnails',
-        default : '.js-default'
+        'select' : '.button--select',
+        'change' : '.button--change',
+		'remove' : '.button--remove',
+        'thumbnails' : '.thumbnails',
+		'mediaButton' : '.js-setting-group .button',
+		'defaultButton' : '.js-default',
+		'controlGroups' : '.control__body > *'
 	},
 
     events : {
         'click @ui.select' : 'selectImages',
         'click @ui.change' : 'selectImages',
-        'click @ui.thumbnails' : 'selectImages',
-        'click @ui.remove' : 'removeImages',
-        'click @ui.default' : 'restoreDefaultValue'
+	    'click @ui.remove' : 'removeImages',
+	    'click @ui.thumbnails' : 'selectImages',
+	    'click @ui.mediaButton' : 'onMediaButtonChange',
+	    'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
-    /**
-     * Provides the required information to the template rendering function.
-     *
-     * @since 1.0.0
-     *
-     * @returns {*}
-     */
-    serializeData : function() {
-        var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-        var defaultValue = this.getDefaultValue();
-
-        data.value = this.getSettingValue();
-        data.showDefault = null != defaultValue && data.value != defaultValue;
-        data.ids = this.ids();
-
-        return data;
-    },
-
-    /**
-     * Adds the required event listeners.
-     *
-     * @since 1.0.0
-     */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-    },
+	/**
+	 * Provides additional data to the template rendering function.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @returns {*}
+	 */
+	addSerializedData : function( data ) {
+		data.ids = {};
+		_.each( data.values, function( value, media ) {
+			data.ids[ media ] = this.getIds( value );
+		}, this );
+		return data;
+	},
 
 	/**
 	 * Opens the Media Library window.
@@ -2419,43 +2883,73 @@ GalleryControl = AbstractControl.extend( {
 	 * @since 1.0.0
 	 */
     selectImages : function() {
-        var galleryControl = this;
-        var ids = this.ids();
-		var selection = this.getSelection( ids );
-        var frame = wp.media( {
-            frame : 'post',
-            state : ( ids.length ? 'gallery-edit' : 'gallery-library' ),
-            editing : true,
-            multiple : true,
-            selection : selection
-        } );
-		var library;
 
-        frame
-            .on( 'open', function() {
+		_.each( this.getValues(), function( value, media ) {
+			if ( media == this.media ) {
+				var control = this;
+				var ids = control.getIds( value );
+				var selection = this.getSelection( ids );
+				var frame = wp.media( {
+					frame : 'post',
+					state : ( ids.length ? 'gallery-edit' : 'gallery-library' ),
+					editing : true,
+					multiple : true,
+					selection : selection
+				} );
 
-	            // Hide the Cancel Gallery link
-                var mediaFrame = frame.views.get( '.media-frame-menu' )[0];
-                mediaFrame.$el.children().slice( 0, 2 ).hide();
+				var library;
 
-	            library = JSON.stringify( selection.toJSON() );
-            } )
-            .on( 'update', function( collection ) {
-	            var value = collection.pluck( 'id' ).join( ',' );
-	            galleryControl.setSettingValue( value );
+				frame
 
-	            if ( ! _.isEqual( library, JSON.stringify( collection.toJSON() ) ) ) {
-		            galleryControl.model.setting.trigger( 'change', galleryControl.model.setting, value );
-	            }
-	            galleryControl.updateThumbnails( collection );
+					/**
+					 * Hide the Cancel Gallery link and record the original library.
+					 */
+					.on( 'open', function() {
+						var mediaFrame = frame.views.get( '.media-frame-menu' )[0];
+						mediaFrame.$el.children().slice( 0, 2 ).hide();
+						library = JSON.stringify( selection.toJSON() );
+					} )
 
-            } )
-            .on( 'close', function() {
-                frame.dispose();
-            } );
+					/**
+					 * Update the setting value and thumbnails.
+					 */
+					.on( 'update', function( collection ) {
+						var value = collection.pluck( 'id' ).join( ',' );
+						control.setValue( value );
 
-        frame.open();
+						// Trigger change if the images are the same (implies other change)
+						if ( ! _.isEqual( library, JSON.stringify( collection.toJSON() ) ) ) {
+							var setting = control.getSetting( media );
+							setting.trigger( 'change', setting, value );
+						}
+					} )
+
+					/**
+					 * Dispose of the media frame when it's closed.
+					 */
+					.on( 'close', function() {
+						frame.dispose();
+					} );
+
+				frame.open();
+			}
+		}, this );
     },
+
+	/**
+	 * Returns the ID(s) of the selected image(s).
+	 * 
+	 * @since 1.7.2
+	 * 
+	 * @param value
+	 * @returns {*}
+	 */
+	getIds : function( value ) {
+		if ( _.isEmpty( value ) ) {
+			return false;
+		}
+		return value.split( ',' )
+	},
 
 	/**
 	 * Removes all selected images.
@@ -2463,9 +2957,17 @@ GalleryControl = AbstractControl.extend( {
 	 * @since 1.0.0
 	 */
     removeImages : function() {
-        this.setSettingValue( '' );
-        this.render();
+        this.setValue( '' );
     },
+
+	/**
+	 * Re-renders the control when a setting value changes.
+	 * 
+	 * @since 1.7.2
+	 */
+	onSettingChange : function() {
+		this.render();
+	},
 
 	/**
 	 * Updates the thumbnails when the control is rendered.
@@ -2473,45 +2975,33 @@ GalleryControl = AbstractControl.extend( {
 	 * @since 1.0.0
 	 */
     onRender : function() {
-        this.generateThumbnails();
-    },
-
-	/**
-	 * Generates image thumbnails.
-	 *
-	 * @since 1.0.0
-	 */
-	generateThumbnails : function() {
-		var gallery = this;
-		var ids = this.ids();
-
-		if ( ids.length ) {
-			var selection = this.getSelection( this.ids() );
-
+		var control = this;
+		_.each( this.getValues(), function( value, media ) {
+			var selection = this.getSelection( control.getIds( value ) );
 			selection.more().done( function() {
 				selection.props.set( { query: false } );
 				selection.unmirror();
 				selection.props.unset( 'orderby' );
-
-				gallery.updateThumbnails( selection );
+				control.updateThumbnails( selection, media );
 			} );
-		}
+		}, this );
+
+		this.updateControlGroups();
 	},
 
 	/**
-	 * Updates image thumbnails based on a selection from the Media Library.
-	 *
-	 * @since 1.0.0
-	 *
+	 * Updates the image thumbnails.
+	 * 
+	 * @since 1.7.2
+	 * 
 	 * @param selection
+	 * @param media
 	 */
-	updateThumbnails : function( selection ) {
+	updateThumbnails : function( selection, media ) {
 		var html = '';
 		var urls = selection.map( function( attachment ) {
-
 			var sizes = attachment.get( 'sizes' );
 			var url;
-
 			if ( sizes.hasOwnProperty( 'medium' ) ) {
 				url = sizes.medium.url;
 			}
@@ -2524,7 +3014,6 @@ GalleryControl = AbstractControl.extend( {
 			else {
 				url = '';
 			}
-
 			return url;
 		} );
 
@@ -2534,7 +3023,9 @@ GalleryControl = AbstractControl.extend( {
 			} );
 		}
 
-		this.ui.thumbnails
+		this.ui.controlGroups
+			.filter( '[id^="' + media + '"]' )
+			.find( '.thumbnails' )
 			.removeClass( 'is-loading' )
 			.html( html );
 	},
@@ -2559,34 +3050,13 @@ GalleryControl = AbstractControl.extend( {
             props : attachments.props.toJSON(),
             multiple: true
         } );
-    },
-	
-    /**
-     * Returns the selected image IDs.
-     *
-     * @since 1.0.0
-     *
-     * @returns {Array|*}
-     */
-    ids : function() {
-        var value = this.getSettingValue();
-        return value ? value.split( ',' ) : false;
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     */
-    restoreDefaultValue : function() {
-        this.setSettingValue( this.getDefaultValue() );
     }
 
 } );
 
 module.exports = GalleryControl;
 
-},{"./abstract-control":11}],18:[function(require,module,exports){
+},{"./abstract-control":12}],19:[function(require,module,exports){
 /**
  * Tailor.Controls.Icon
  *
@@ -2605,7 +3075,9 @@ IconControl = AbstractControl.extend( {
         'change' : '.button--change',
         'remove' : '.button--remove',
         'icon' : 'i',
-        'default' : '.js-default'
+		'mediaButton' : '.js-setting-group .button',
+		'defaultButton' : '.js-default',
+		'controlGroups' : '.control__body > *'
 	},
 
     events : {
@@ -2613,17 +3085,8 @@ IconControl = AbstractControl.extend( {
         'click @ui.change' : 'openDialog',
         'click @ui.remove' : 'removeIcon',
         'click @ui.icon' : 'openDialog',
-        'click @ui.default' : 'restoreDefaultValue'
-    },
-
-    /**
-     * Adds the required event listeners.
-     *
-     * @since 1.0.0
-     */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
+	    'click @ui.mediaButton' : 'onMediaButtonChange',
+	    'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
 	/**
@@ -2646,7 +3109,7 @@ IconControl = AbstractControl.extend( {
              */
             content : function() {
                 var kits = window._kits || {};
-                var value = control.getSettingValue();
+                var value = control.getValue();
 
                 if ( _.keys( kits ).length ) {
                     return _.template( document.getElementById( 'tmpl-tailor-control-icon-select' ).innerHTML)( {
@@ -2669,8 +3132,7 @@ IconControl = AbstractControl.extend( {
                 var $kits = $el.find( '.icon-kit' );
 
                 this.$el.find( '.search--icon' ).on( 'input', function( e ) {
-                    var term =  this.value.replace( /[-\/\\^$*+?.()|[\]{}]/g, '\\$&' );
-
+                    var term = this.value.replace( /[-\/\\^$*+?.()|[\]{}]/g, '\\$&' );
                     term = term.replace( / /g, ')(?=.*' );
                     var match = new RegExp( '^(?=.*' + term + ').+', 'i' );
 
@@ -2707,7 +3169,7 @@ IconControl = AbstractControl.extend( {
 	         * @since 1.0.0
 	         */
             onSave : function() {
-                control.setSettingValue( $( 'input[name=icon]:checked' ).val() );
+                control.setValue( $( 'input[name=icon]:checked' ).val() );
             },
 
 	        /**
@@ -2728,15 +3190,29 @@ IconControl = AbstractControl.extend( {
 	    app.channel.trigger( 'dialog:open', options );
     },
 
+	/**
+	 * Re-renders the control when a setting value changes.
+	 *
+	 * @since 1.7.2
+	 */
+	onSettingChange : function() {
+		this.render();
+	},
+
+	/**
+	 * Clears the current setting value when an icon is removed.
+	 * 
+	 * @since 1.7.2
+	 */
     removeIcon : function() {
-        this.setSettingValue( '' );
+        this.setValue( '' );
     }
 
 } );
 
 module.exports = IconControl;
 
-},{"./abstract-control":11}],19:[function(require,module,exports){
+},{"./abstract-control":12}],20:[function(require,module,exports){
 /**
  * Tailor.Controls.Image
  *
@@ -2753,8 +3229,9 @@ ImageControl = AbstractControl.extend( {
         'select' : '.button--select',
         'change' : '.button--change',
 		'remove' : '.button--remove',
-        'default' : '.js-default',
-        'thumbnails' : '.thumbnails',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *',
         'thumbnail' : '.thumbnail'
     },
 
@@ -2763,7 +3240,8 @@ ImageControl = AbstractControl.extend( {
         'click @ui.change' : 'openFrame',
         'click @ui.remove' : 'removeImage',
         'click @ui.thumbnail' : 'openFrame',
-        'click @ui.default' : 'restoreDefaultValue'
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
     /**
@@ -2774,7 +3252,6 @@ ImageControl = AbstractControl.extend( {
      * @param options
      */
     initialize : function( options ) {
-
         this.frame = wp.media( {
             states: [
                 new wp.media.controller.Library({
@@ -2787,7 +3264,7 @@ ImageControl = AbstractControl.extend( {
         } );
 
         this.addEventListeners();
-        this.checkDependencies( this.model.setting );
+        this.checkDependencies();
     },
 
     /**
@@ -2796,9 +3273,10 @@ ImageControl = AbstractControl.extend( {
      * @since 1.0.0
      */
     addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-        //this.listenTo( this.frame, 'select', this.selectImage );
+        _.each( this.getSettings(), function( setting ) {
+            this.listenTo( setting, 'change', this.onSettingChange );
+        }, this );
+        this.listenTo( this.getSetting().collection, 'change', this.checkDependencies );
 
         this.frame.on( 'select', this.selectImage.bind( this ) );
     },
@@ -2821,9 +3299,7 @@ ImageControl = AbstractControl.extend( {
         var selection = this.frame.state().get( 'selection' );
         var attachment = selection.first();
         var sizes = attachment.get( 'sizes' );
-
-        this.setSettingValue( attachment.get( 'id' ) );
-        this.updateThumbnail( sizes );
+        this.setValue( attachment.get( 'id' ) );
     },
 
     /**
@@ -2832,8 +3308,9 @@ ImageControl = AbstractControl.extend( {
      * @since 1.0.0
      *
      * @param sizes
+     * @param media
      */
-    updateThumbnail : function( sizes ) {
+    updateThumbnail : function( sizes, media ) {
         var url;
         if ( sizes.hasOwnProperty( 'medium' ) ) {
             url = sizes.medium.url;
@@ -2842,13 +3319,15 @@ ImageControl = AbstractControl.extend( {
             url = sizes.thumbnail.url;
         }
         else if ( sizes.hasOwnProperty( 'full' ) ) {
-            url = sizes.full.url; // small images do not have thumbnail generated
+            url = sizes.full.url; // Small images do not have thumbnail generated
         }
         else {
-            return; // invalid sizes
+            return; // Invalid sizes
         }
         
-        this.ui.thumbnails
+        this.ui.controlGroups
+            .filter( '[id^="' + media + '"]' )
+            .find( '.thumbnails' )
             .removeClass( 'is-loading' )
             .html( '<li class="thumbnail"><img src="' + url + '"/></li>' );
     },
@@ -2859,7 +3338,16 @@ ImageControl = AbstractControl.extend( {
      * @since 1.0.0
      */
     removeImage : function() {
-        this.setSettingValue( '' );
+        this.setValue( '' );
+    },
+
+    /**
+     * Re-renders the control when a setting value changes.
+     *
+     * @since 1.7.2
+     */
+    onSettingChange : function() {
+        this.render();
     },
 
     /**
@@ -2868,26 +3356,26 @@ ImageControl = AbstractControl.extend( {
      * @since 1.0.0
      */
     onRender : function() {
-
-        var control = this;
-        var id = this.getSettingValue();
-
-        if ( id ) {
-            var attachment = wp.media.attachment( id );
-            var sizes = attachment.get( 'sizes' );
-
-            if ( sizes ) {
-                this.updateThumbnail( sizes );
+        _.each( this.getValues(), function( value, media ) {
+            if ( value ) {
+                var attachment = wp.media.attachment( value );
+                var sizes = attachment.get( 'sizes' );
+                if ( sizes ) {
+                    this.updateThumbnail( sizes, media );
+                }
+                else {
+                    var control = this;
+                    attachment.fetch( {
+                        success : function() {
+                            sizes = attachment.get( 'sizes' );
+                            control.updateThumbnail( sizes, media );
+                        }
+                    } );
+                }
             }
-            else {
-                attachment.fetch( {
-                    success : function() {
-                        sizes = attachment.get( 'sizes' );
-                        control.updateThumbnail( sizes );
-                    }
-                } );
-            }
-        }
+        }, this );
+
+        this.updateControlGroups();
     },
 
     /**
@@ -2903,7 +3391,72 @@ ImageControl = AbstractControl.extend( {
 
 module.exports = ImageControl;
 
-},{"./abstract-control":11}],20:[function(require,module,exports){
+},{"./abstract-control":12}],21:[function(require,module,exports){
+/**
+ * Tailor.Controls.InputGroup
+ *
+ * An input group control.
+ *
+ * @augments Marionette.ItemView
+ */
+var AbstractControl = require( './abstract-control' ),
+    InputGroup;
+
+InputGroup = AbstractControl.extend( {
+
+    /**
+     * Provides additional data to the template rendering function.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    addSerializedData : function( data ) {
+        data.choices = this.model.get( 'choices' );
+        data.values = {};
+        
+        _.each( this.getValues(), function( value, media ) {
+            data.values[ media ] = {};
+            var values = [];
+            if ( _.isString( value ) ) {
+                if ( -1 != value.indexOf( ',' ) ) {
+                    values = value.split( ',' );
+                }
+                else {
+                    values = value.split( '-' ); // Old format
+                }
+            }
+
+            var i = 0;
+            for ( var choice in data.choices ) {
+                if ( data.choices.hasOwnProperty( choice ) ) {
+                    data.values[ media ][ choice ] = values[ i ];
+                    i ++;
+                }
+            }
+        } );
+
+        return data;
+    },
+
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function( e ) {
+        var fields = this.ui.input.filter( '[name^="' + this.media + '"]' ).serializeArray();
+        var values = _.map( fields, function( field ) {
+            return field.value;
+        } );
+        this.setValue( values.join( ',' ) );
+    }
+
+} );
+
+module.exports = InputGroup;
+
+},{"./abstract-control":12}],22:[function(require,module,exports){
 /**
  * Tailor.Controls.Link
  *
@@ -2920,33 +3473,29 @@ LinkControl = AbstractControl.extend( {
 	ui: {
         'input' : 'input',
         'select' : '.button--select',
-        'default' : '.js-default'
+		'mediaButton' : '.js-setting-group .button',
+		'defaultButton' : '.js-default',
+		'controlGroups' : '.control__body > *'
 	},
 
     events : {
-        'input @ui.input' : 'onControlChange',
-        'change @ui.input' : 'onControlChange',
+        'blur @ui.input' : 'onFieldChange',
         'click @ui.select' : 'openDialog',
-        'click @ui.default' : 'restoreDefaultValue'
+	    'click @ui.mediaButton' : 'onMediaButtonChange',
+	    'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
-
-    /**
-     * Provides the required information to the template rendering function.
-     *
-     * @since 1.0.0
-     *
-     * @returns {*}
-     */
-    serializeData : function() {
-        var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-        var defaultValue = this.getDefaultValue();
-
-        data.value = this.getSettingValue();
-        data.placeholder = this.model.get( 'placeholder' );
-        data.showDefault = null != defaultValue && data.value != defaultValue;
-
-        return data;
-    },
+	
+	/**
+	 * Provides additional data to the template rendering function.
+	 *
+	 * @since 1.7.2
+	 *
+	 * @returns {*}
+	 */
+	addSerializedData : function( data ) {
+		data.placeholder = this.model.get( 'placeholder' );
+		return data;
+	},
 
 	/**
      * Queries the server for links based on the search criteria.
@@ -2960,9 +3509,7 @@ LinkControl = AbstractControl.extend( {
         var $searchResults = this.$el.find( '.search-results' );
 
         if ( $searchResults.length ) {
-
             control.$el.addClass( 'is-searching' );
-
             var options = {
 	            
                 data : {
@@ -3029,9 +3576,7 @@ LinkControl = AbstractControl.extend( {
                 var timeout;
 
                 this.$el.find( '.search--content' ).on( 'input', function( e ) {
-
                     clearTimeout( timeout );
-
                     var term = this.value;
                     if ( term.length >= minimumCharacters && previousTerm != $.trim( term ) ) {
                         timeout = setTimeout( $.proxy( control.search, dialog, term ), 500 );
@@ -3057,9 +3602,7 @@ LinkControl = AbstractControl.extend( {
 	         */
             onSave : function() {
                 var url = $( 'input[name=url]:checked' ).val();
-
-                control.setSettingValue( url );
-                control.ui.input.val( url )
+                control.setValue( url );
             },
 
 	        /**
@@ -3079,30 +3622,21 @@ LinkControl = AbstractControl.extend( {
 		 */
 		app.channel.trigger( 'dialog:open', options );
     },
-
+	
 	/**
-     * Clears the selected icon.
-     *
-     * @since 1.0.0
-     */
-    removeIcon : function() {
-        this.setSettingValue( '' );
-    },
-
-	/**
-     * Re-renders the control when the default value is restored.
-     *
-     * @since 1.0.0
-     */
-    onRestoreDefault : function() {
-        this.render();
-    }
+	 * Re-renders the control when a setting value changes.
+	 *
+	 * @since 1.7.2
+	 */
+	onSettingChange : function() {
+		this.render();
+	}
 
 } );
 
 module.exports = LinkControl;
 
-},{"./abstract-control":11}],21:[function(require,module,exports){
+},{"./abstract-control":12}],23:[function(require,module,exports){
 /**
  * The empty-list view.
  *
@@ -3115,7 +3649,7 @@ var EmptyListView = Marionette.ItemView.extend( {
 } );
 
 module.exports = EmptyListView;
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /**
  * Individual list item view.
  *
@@ -3310,12 +3844,11 @@ var ListItemControl = Marionette.CompositeView.extend( {
         this.model.resetAttributes();
     }
 
-
 } );
 
 module.exports = ListItemControl;
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * Tailor.Controls.List
  *
@@ -3586,7 +4119,7 @@ var ListControl = Marionette.CompositeView.extend( {
      */
     updateContent : function() {
 	    var shortcode = this.generateShortcode();
-        this.model.setting.set( 'value', shortcode );
+        this.model.settings[0].set( 'value', shortcode );
     },
 
     /**
@@ -3623,7 +4156,7 @@ var ListControl = Marionette.CompositeView.extend( {
 
 module.exports = ListControl;
 
-},{"./list-empty":21,"./list-item":22}],24:[function(require,module,exports){
+},{"./list-empty":23,"./list-item":24}],26:[function(require,module,exports){
 /**
  * Tailor.Controls.Radio
  *
@@ -3636,50 +4169,33 @@ var AbstractControl = require( './abstract-control' ),
 
 RadioControl = AbstractControl.extend( {
 
-    ui : {
-        'input' : 'input',
-        'default' : '.js-default'
+    events : {
+        'change @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
     templateHelpers : {
 
-        /**
-         * Returns "checked" if the current choice is the selected one.
-         *
-         * @since 1.0.0
-         *
-         * @param choice
-         * @returns {string}
-         */
-        checked : function( choice ) {
-            return ( this.value === choice ) ? 'checked' : '';
+        checked : function( media, key ) {
+            return this.values[ media ] === key ? 'checked' : '';
         }
     },
-
+    
     /**
-     * Adds the required event listeners.
+     * Updates the current setting value when a field change occurs.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-    },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-        this.setSettingValue( this.ui.input.filter( ':checked' ).val() );
+    onFieldChange : function() {
+        this.setValue( this.ui.input.filter( '[name^="' + this.media + '"]:checked' ).val() );
     }
 
 } );
 
 module.exports = RadioControl;
 
-},{"./abstract-control":11}],25:[function(require,module,exports){
+},{"./abstract-control":12}],27:[function(require,module,exports){
 /**
  * Tailor.Controls.Range
  *
@@ -3691,362 +4207,21 @@ var AbstractControl = require( './abstract-control' ),
     RangeControl;
 
 RangeControl = AbstractControl.extend( {
-
-	ui : {
-        'range' : 'input[type=range]',
-		'input' : 'input[type=text]',
-        'default' : '.js-default'
-	},
-
-    events : {
-        'input @ui.range' : 'onControlChange',
-        'change @ui.input' : 'onControlChange',
-        'click @ui.default' : 'restoreDefaultValue'
-    },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-        var value = e.target.value;
-        this.ui.input.val( value );
-        this.ui.range.val( value );
-
-        this.setSettingValue( value );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        this.setSettingValue( this.getDefaultValue() );
-        this.render();
-    }
-
-} );
-
-module.exports = RangeControl;
-
-},{"./abstract-control":11}],26:[function(require,module,exports){
-/**
- * Tailor.Controls.SelectMulti
- *
- * A select multi control.
- *
- * @augments Marionette.ItemView
- */
-var AbstractControl = require( './abstract-control' ),
-    SelectMultiControl;
-
-SelectMultiControl = AbstractControl.extend( {
-
-
-    ui : {
-        'input' : 'select',
-        'default' : '.js-default'
-    },
-
-    templateHelpers : {
-
-        /**
-         * Returns "selected" if the current choice is the selected one.
-         *
-         * @since 1.0.0
-         *
-         * @param choice
-         * @returns {string}
-         */
-        selected : function( choice ) {
-            var value = this.value.split( ',' );
-            return -1 !== value.indexOf( choice ) ? 'selected' : '';
-        }
-    },
-
-    /**
-     * Initializes the Select2 plugin.
-     *
-     * @since 1.0.0
-     */
-    onRender : function() {
-        this.ui.input.select2();
-    },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-        var select = this.ui.input.get(0);
-        var value = [];
-
-        for ( var i = 0; i < select.length; i ++ ) {
-            if ( select[ i ].selected ) {
-                value.push( select[ i ].value );
-            }
-        }
-
-        this.setSettingValue( value.join( ',' ) );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        this.setSettingValue( this.getDefaultValue() );
-        this.render();
-    },
-
-    /**
-     * Destroys the Select2 instance when the control is destroyed.
-     *
-     * @since 1.0.0
-     */
-    onDestroy : function() {
-        this.ui.input.select2( 'destroy' );
-    }
-
-} );
-
-module.exports = SelectMultiControl;
-
-},{"./abstract-control":11}],27:[function(require,module,exports){
-/**
- * Tailor.Controls.Select
- *
- * A select control.
- *
- * @augments Marionette.ItemView
- */
-var AbstractControl = require( './abstract-control' ),
-    SelectControl;
-
-SelectControl = AbstractControl.extend( {
-
-    ui : {
-        'input' : 'select',
-        'default' : '.js-default'
-    },
-
-    /**
-     * Adds the required event listeners.
-     *
-     * @since 1.0.0
-     */
-    addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-    }
-
-} );
-
-module.exports = SelectControl;
-
-},{"./abstract-control":11}],28:[function(require,module,exports){
-/**
- * Tailor.Controls.Style
- *
- * A style control.
- *
- * @augments Marionette.ItemView
- */
-var AbstractControl = require( './abstract-control' ),
-    StyleControl;
-
-StyleControl = AbstractControl.extend( {
-
-    ui : {
-        'input' : 'input',
-        'default' : '.js-default',
-        'link' : '.js-link'
-    },
-
-    events : {
-        'input @ui.input' : 'onControlChange',
-        'change @ui.input' : 'onControlChange',
-        'click @ui.default' : 'restoreDefaultValue',
-        'click @ui.link' : 'onLinkChange'
-    },
-
-    /**
-     * Initializes the media frame for the control.
-     *
-     * @since 1.0.0
-     *
-     * @param options
-     */
-    initialize : function( options ) {
-        this.linked = true;
-
-        this.addEventListeners();
-        this.checkDependencies( this.model.setting );
-    },
-
-    onRender : function() {
-        this.ui.link.toggleClass( 'is-active', this.linked );
-    },
     
-    onLinkChange: function() {
-        this.linked = ! this.linked;
-        this.ui.link.toggleClass( 'is-active', this.linked );
-    },
-
-    /**
-     * Provides the required information to the template rendering function.
-     *
-     * @since 1.0.0
-     *
-     * @returns {*}
-     */
-    serializeData : function() {
-        var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-        var defaultValue = this.getDefaultValue();
-
-        data.value = this.getSettingValue();
-        data.showDefault = null != defaultValue && ( data.value != defaultValue );
-        data.choices = [];
-
-        var values = data.value.split( '-' );
-        var choices = this.model.get( 'choices' );
-        for ( var choice in choices ) {
-            if ( choices.hasOwnProperty( choice ) ) {
-                data.choices[ choices[ choice ] ] = values.shift() || '';
-            }
-        }
-
-        return data;
-    },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-
-        var values;
-
-        if ( this.linked ) {
-
-            // Update the values
-            values = Array( this.ui.input.length ).fill( e.currentTarget.value );
-
-            // Update the other inputs
-            var $inputs = this.ui.input.filter( function( i, el ) {
-                return el != e.currentTarget;
-            } );
-            $inputs.val( e.currentTarget.value );
-        }
-        else {
-            values = [];
-            _.each( this.ui.input, function( input, index ) {
-                values.push( input.value );
-            }, this );
-        }
-
-        this.setSettingValue( values.join( '-' ) );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        this.setSettingValue( this.getDefaultValue() );
-        this.render();
-    }
-
-} );
-
-module.exports = StyleControl;
-
-},{"./abstract-control":11}],29:[function(require,module,exports){
-/**
- * Tailor.Controls.Switch
- *
- * A switch control.
- *
- * @augments Marionette.ItemView
- */
-var AbstractControl = require( './abstract-control' ),
-    SwitchControl;
-
-SwitchControl = AbstractControl.extend( {
-
     ui : {
-        'input' : 'input',
-        'default' : '.js-default'
+        'range' : 'input[type=range]',
+        'input' : 'input[type=text]',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
     },
 
-    templateHelpers : {
-
-        /**
-         * Returns true if the switch is enabled.
-         *
-         * @since 1.0.0
-         *
-         * @returns {string}
-         */
-        checked : function() {
-            return ! this.value ? '' : 'checked';
-        }
+    events : {
+        'input @ui.range' : 'onFieldChange',
+        'blur @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
-
-    /**
-     * Responds to a control change.
-     *
-     * @since 1.0.0
-     */
-    onControlChange : function( e ) {
-        this.setSettingValue( this.ui.input.get(0).checked ? 1 : '' );
-    },
-
-    /**
-     * Restores the default value for the setting.
-     *
-     * @since 1.0.0
-     *
-     * @param e
-     */
-    restoreDefaultValue : function( e ) {
-        this.setSettingValue( this.getDefaultValue() );
-        this.render();
-    }
-
-} );
-
-module.exports = SwitchControl;
-
-},{"./abstract-control":11}],30:[function(require,module,exports){
-/**
- * Tailor.Controls.Text
- *
- * A text control.
- *
- * @augments Marionette.ItemView
- */
-var AbstractControl = require( './abstract-control' ),
-    TextControl;
-
-TextControl = AbstractControl.extend( {
-
-    ui : {
-		'input' : 'input',
-		'default' : '.js-default'
-	},
 
     templateHelpers : {
 
@@ -4065,35 +4240,370 @@ TextControl = AbstractControl.extend( {
             return atts;
         }
     },
-
+    
     /**
-     * Provides the required information to the template rendering function.
+     * Provides additional data to the template rendering function.
      *
-     * @since 1.0.0
+     * @since 1.7.2
      *
      * @returns {*}
      */
-    serializeData : function() {
-        var data = Backbone.Marionette.ItemView.prototype.serializeData.apply( this, arguments );
-        var defaultValue = this.getDefaultValue();
-
-        data.value = this.getSettingValue();
-        data.showDefault = null != defaultValue && ( data.value != defaultValue );
-
+    addSerializedData : function( data ) {
         data.attrs = this.model.get( 'input_attrs' );
-
         return data;
     },
-
-    onRestoreDefault : function() {
-        this.render();
+    
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function( e ) {
+        var value = e.target.value;
+        this.ui.input.filter( '[name^="' + this.media + '"]' ).val( value );
+        this.ui.range.filter( '[name^="' + this.media + '"]' ).val( value );
+        this.setValue( value );
     }
 
 } );
 
+module.exports = RangeControl;
+
+},{"./abstract-control":12}],28:[function(require,module,exports){
+/**
+ * Tailor.Controls.SelectMulti
+ *
+ * A select multi control.
+ *
+ * @augments Marionette.ItemView
+ */
+var AbstractControl = require( './abstract-control' ),
+    SelectMultiControl;
+
+SelectMultiControl = AbstractControl.extend( {
+    
+    ui : {
+        'input' : 'select',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
+    },
+
+    events : {
+        'change @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
+    },
+
+    templateHelpers : {
+
+        selected : function( media, key ) {
+            var values = this.values[ media ].split( ',' );
+            return -1 !== values.indexOf( key ) ? 'selected' : '';
+        }
+    },
+
+    /**
+     * Initializes the Select2 instance(s) and updates the media-query based control groups when the control is rendered.
+     *
+     * @since 1.7.2
+     */
+    onRender : function() {
+        _.each( this.getValues(), function( value, media ) {
+            var $field = this.ui.input.filter( '[name^="' + media + '"]' );
+            $field.select2()
+        }, this );
+
+        this.updateControlGroups();
+    },
+
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function() {
+        var $field = this.ui.input.filter( '[name^="' + this.media + '"]' );
+        var field = $field.get(0);
+        var values = [];
+        for ( var i = 0; i < field.length; i ++ ) {
+            if ( field[ i ].selected ) {
+                values.push( field[ i ].value );
+            }
+        }
+        this.setValue( values.join( ',' ) );
+    },
+
+    /**
+     * Destroys the Select2 instance(s).
+     *
+     * @since 1.7.2
+     */
+    onDestroy : function() {
+        _.each( this.getValues(), function( value, media ) {
+            var $field = this.ui.input.filter( '[name^="' + media + '"]' );
+            $field.select2( 'destroy' );
+        }, this );
+    }
+
+} );
+
+module.exports = SelectMultiControl;
+
+},{"./abstract-control":12}],29:[function(require,module,exports){
+/**
+ * Tailor.Controls.Select
+ *
+ * A select control.
+ *
+ * @augments Marionette.ItemView
+ */
+var AbstractControl = require( './abstract-control' ),
+    SelectControl;
+
+SelectControl = AbstractControl.extend( {
+
+    ui : {
+        'input' : 'select',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
+    },
+
+    events : {
+        'change @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
+    },
+
+    templateHelpers : {
+        
+        selected : function( media, key ) {
+            return key === this.values[ media ] ? 'selected' : '';
+        }
+    }
+
+} );
+
+module.exports = SelectControl;
+
+},{"./abstract-control":12}],30:[function(require,module,exports){
+/**
+ * Tailor.Controls.Style
+ *
+ * A style control.
+ *
+ * @augments Marionette.ItemView
+ */
+var $ = window.jQuery,
+    AbstractControl = require( './abstract-control' ),
+    StyleControl;
+
+StyleControl = AbstractControl.extend( {
+
+    linked : true,
+
+    ui : {
+        'input' : 'input',
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'linkButton' : '.js-link',
+        'controlGroups' : '.control__body > *'
+    },
+
+    events : {
+        'input @ui.input' : 'updateLinkedFields',
+        'blur @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange',
+        'click @ui.linkButton' : 'onLinkButtonChange'
+    },
+
+    /**
+     * Provides additional data to the template rendering function.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    addSerializedData : function( data ) {
+        data.choices = this.model.get( 'choices' );
+        data.values = {};
+
+        _.each( this.getValues(), function( value, media ) {
+            data.values[ media ] = {};
+            var values = [];
+            if ( _.isString( value ) ) {
+                if ( -1 != value.indexOf( ',' ) ) {
+                    values = value.split( ',' );
+                }
+                else {
+                    values = value.split( '-' ); // Old format
+                }
+            }
+
+            var i = 0;
+            for ( var choice in data.choices ) {
+                if ( data.choices.hasOwnProperty( choice ) ) {
+                    data.values[ media ][ choice ] = values[ i ];
+                    i ++;
+                }
+            }
+        } );
+
+        return data;
+    },
+
+    /**
+     * Updates the media-query based control groups when the control is rendered.
+     *
+     * @since 1.7.2
+     */
+    onRender : function() {
+        this.updateControlGroups();
+        this.updateLinkButton();
+    },
+
+	/**
+     * Updates the control state when the Linked button is pressed.
+     *
+     * @since 1.7.2
+     */
+    onLinkButtonChange: function() {
+        this.linked = ! this.linked;
+        this.updateLinkButton();
+    },
+
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function( e ) {
+        var fields = this.ui.input.filter( '[name^="' + this.media + '"]' ).serializeArray();
+        var values = _.map( fields, function( field ) {
+            return field.value;
+        } );
+        this.setValue( values.join( ',' ) );
+    },
+
+	/**
+	 * Updates the Linked button state.
+     *
+     * @since 1.7.2
+     */
+    updateLinkButton: function() {
+        this.ui.linkButton.toggleClass( 'is-active', this.linked );
+    },
+
+	/**
+     * Updates linked fields when a setting value changed.
+     *
+     * @since 1.7.2
+     *
+     * @param e
+     */
+    updateLinkedFields : function( e ) {
+        if ( this.linked ) {
+            this.ui.input
+                .filter( '[name^="' + this.media + '"]' )
+                .filter( function( i, el ) { return el != e.currentTarget; } )
+                .val( e.currentTarget.value );
+        }
+    }
+
+} );
+
+module.exports = StyleControl;
+
+},{"./abstract-control":12}],31:[function(require,module,exports){
+/**
+ * Tailor.Controls.Switch
+ *
+ * A switch control.
+ *
+ * @augments Marionette.ItemView
+ */
+var AbstractControl = require( './abstract-control' ),
+    SwitchControl;
+
+SwitchControl = AbstractControl.extend( {
+
+    events : {
+        'change @ui.input' : 'onFieldChange',
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
+    },
+
+    templateHelpers : {
+
+        checked : function( media ) {
+            return 1 == parseInt( this.values[ media ], 10 ) ? 'checked' : '';
+        }
+    },
+    
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function() {
+        var $field = this.ui.input.filter( '[name^="' + this.media + '"]' );
+        this.setValue( $field.get(0).checked ? '1' : '0' );
+    }
+
+} );
+
+module.exports = SwitchControl;
+
+},{"./abstract-control":12}],32:[function(require,module,exports){
+/**
+ * Tailor.Controls.Text
+ *
+ * A text control.
+ *
+ * @augments Marionette.ItemView
+ */
+var AbstractControl = require( './abstract-control' ),
+    TextControl;
+
+TextControl = AbstractControl.extend( {
+    
+    templateHelpers : {
+
+        /**
+         * Returns the attributes for the control.
+         *
+         * @since 1.0.0
+         *
+         * @returns {string}
+         */
+        inputAttrs : function() {
+            var atts = '';
+            _.each( this.attrs, function( value, attr ) {
+                atts += ( attr + '="' + value + '"' );
+            } );
+            return atts;
+        }
+    },
+    
+    /**
+     * Provides additional data to the template rendering function.
+     *
+     * @since 1.7.2
+     *
+     * @returns {*}
+     */
+    addSerializedData : function( data ) {
+        data.attrs = this.model.get( 'input_attrs' );
+        return data;
+    }
+    
+} );
+
 module.exports = TextControl;
 
-},{"./abstract-control":11}],31:[function(require,module,exports){
+},{"./abstract-control":12}],33:[function(require,module,exports){
 /**
  * Tailor.Controls.Textarea
  *
@@ -4108,18 +4618,16 @@ TextareaControl = AbstractControl.extend( {
 
     ui : {
         'input' : 'textarea',
-        'default' : '.js-default'
-    },
-
-    onRestoreDefault : function() {
-        this.render();
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
     }
 
 } );
 
 module.exports = TextareaControl;
 
-},{"./abstract-control":11}],32:[function(require,module,exports){
+},{"./abstract-control":12}],34:[function(require,module,exports){
 /**
  * Tailor.Controls.Video
  *
@@ -4127,24 +4635,29 @@ module.exports = TextareaControl;
  *
  * @augments Marionette.ItemView
  */
-var AbstractControl = require( './abstract-control' ),
+var $ = Backbone.$,
+    AbstractControl = require( './abstract-control' ),
     VideoControl;
 
 VideoControl = AbstractControl.extend( {
 
 	ui : {
         'select' : '.button--select',
+        'enterUrl' : '.button--enter',
         'change' : '.button--change',
 		'remove' : '.button--remove',
-        'default' : '.js-default',
-        'preview' : '.video-preview'
+        'mediaButton' : '.js-setting-group .button',
+        'defaultButton' : '.js-default',
+        'controlGroups' : '.control__body > *'
 	},
 
     events : {
         'click @ui.select' : 'openFrame',
+        'click @ui.enterUrl' : 'openDialog',
         'click @ui.change' : 'openFrame',
         'click @ui.remove' : 'removeVideo',
-        'click @ui.default' : 'restoreDefaultValue'
+        'click @ui.mediaButton' : 'onMediaButtonChange',
+        'click @ui.defaultButton' : 'onDefaultButtonChange'
     },
 
     /**
@@ -4167,7 +4680,7 @@ VideoControl = AbstractControl.extend( {
         } );
 
         this.addEventListeners();
-        this.checkDependencies( this.model.setting );
+        this.checkDependencies();
     },
 
     /**
@@ -4176,9 +4689,12 @@ VideoControl = AbstractControl.extend( {
      * @since 1.0.0
      */
     addEventListeners : function() {
-        this.listenTo( this.model.setting, 'change', this.render );
-        this.listenTo( this.model.setting.collection, 'change', this.checkDependencies );
-        this.listenTo( this.frame, 'select', this.selectVideo );
+        _.each( this.getSettings(), function( setting ) {
+            this.listenTo( setting, 'change', this.onSettingChange );
+        }, this );
+        this.listenTo( this.getSetting().collection, 'change', this.checkDependencies );
+
+        this.frame.on( 'select', this.selectVideo.bind( this ) );
     },
 
     /**
@@ -4199,33 +4715,88 @@ VideoControl = AbstractControl.extend( {
         var selection = this.frame.state().get( 'selection' );
         var attachment = selection.first();
 
-        this.setSettingValue( attachment.get( 'id' ) );
-        this.updatePreview( attachment );
+        this.setValue( attachment.get( 'id' ) );
     },
 
     /**
-     * Updates the video preview.
+     * Opens the link selection dialog.
      *
      * @since 1.0.0
-     *
-     * @param attachment
      */
-    updatePreview : function( attachment ) {
-        var url = attachment.get( 'url' );
-        var mime = attachment.get( 'mime' );
+    openDialog : function() {
+        var control = this;
+        var options = {
+            title : 'Enter URL',
+            button : window._l10n.select,
 
-        this.ui.preview
-            .removeClass( 'is-loading' )
-            .html( '<video controls><source src="' + url + '" type="' + mime + '"></video>' );
+            /**
+             * Returns the content for the Select Content dialog.
+             *
+             * @since 1.0.0
+             *
+             * @returns {*}
+             */
+            content : function() {
+                return  '<div class="dialog__container">' +
+                            '<input class="search--content" type="search" role="search">' +
+                        '</div>';
+            },
+
+            /**
+             * Returns true if an item has been selected.
+             *
+             * @since 1.0.0
+             *
+             * @returns {*}
+             */
+            onValidate : function() {
+                var url = $( '.search--content' ).val();
+                return url && /^(ftp|http|https):\/\/[^ "]+$/.test( url );
+            },
+
+            /**
+             * Updates the setting value with the selected item URL.
+             *
+             * @since 1.0.0
+             */
+            onSave : function() {
+                control.setValue( $( '.search--content' ).val() );
+            },
+
+            /**
+             * Cleans up event listeners.
+             *
+             * @since 1.0.0
+             */
+            onClose : function() {
+                this.$el.find( '.search--content' ).off( 'input' );
+            }
+        };
+
+        /**
+         * Fires when the dialog window is opened.
+         *
+         * @since 1.0.0
+         */
+        app.channel.trigger( 'dialog:open', options );
     },
 
+    /**
+     * Re-renders the control when a setting value changes.
+     *
+     * @since 1.7.2
+     */
+    onSettingChange : function() {
+        this.render();
+    },
+    
     /**
      * Removes the selected video.
      *
      * @since 1.0.0
      */
     removeVideo : function() {
-        this.setSettingValue( '' );
+        this.setValue( '' );
     },
 
     /**
@@ -4235,21 +4806,42 @@ VideoControl = AbstractControl.extend( {
      */
     onRender : function() {
         var control = this;
-        var id = this.getSettingValue();
+        _.each( this.getValues(), function( value, media ) {
+            if ( value ) {
+                var attachment = wp.media.attachment( value );
+                if ( ! attachment.get( 'url' ) ) {
+                    attachment.fetch( {
+                        success : function() {
+                            control.updatePreview( attachment, media );
+                        }
+                    } );
+                }
+                else {
+                    control.updatePreview( attachment, media );
+                }
+            }
+        }, this );
 
-        if ( id ) {
-            var attachment = wp.media.attachment( id );
-            if ( ! attachment.get( 'url' ) ) {
-                attachment.fetch( {
-                    success : function() {
-                        control.updatePreview( attachment );
-                    }
-                } );
-            }
-            else {
-                control.updatePreview( attachment );
-            }
-        }
+        this.updateControlGroups();
+    },
+
+    /**
+     * Updates the video preview.
+     *
+     * @since 1.0.0
+     *
+     * @param attachment
+     * @param media
+     */
+    updatePreview : function( attachment, media ) {
+        var url = attachment.get( 'url' );
+        var mime = attachment.get( 'mime' );
+
+        this.ui.controlGroups
+            .filter( '[id^="' + media + '"]' )
+            .find( '.video-preview' )
+            .removeClass( 'is-loading' )
+            .html( '<video controls><source src="' + url + '" type="' + mime + '"></video>' );
     },
 
     /**
@@ -4259,34 +4851,135 @@ VideoControl = AbstractControl.extend( {
      */
     onDestroy : function() {
         this.frame.dispose();
-        //this.destroyPlayer();
-    },
-
-    /**
-     * Initializes the video player.
-     *
-     * @since 1.0.0
-     */
-    initializePlayer : function() {
-        var mejsSettings = window._wpmejsSettings || {};
-        var video = this.ui.preview.get(0).firstChild;
-        this.player = new MediaElementPlayer( video, mejsSettings );
-    },
-
-    /**
-     * Destroys the video player.
-     *
-     * @since 1.0.0
-     */
-    destroyPlayer : function() {
-        this.player && wp.media.mixin.removePlayer( this.player );
     }
-
+    
 } );
 
 module.exports = VideoControl;
 
-},{"./abstract-control":11}],33:[function(require,module,exports){
+},{"./abstract-control":12}],35:[function(require,module,exports){
+/**
+ * Tailor.Controls.WidgetForm
+ *
+ * A widget form control.
+ *
+ * @augments Marionette.ItemView
+ */
+var $ = window.jQuery,
+    AbstractControl = require( './abstract-control' ),
+    WidgetFormControl;
+
+WidgetFormControl = AbstractControl.extend( {
+
+    ui : {},
+
+    events : {
+        'blur *' : 'onFieldChange',
+        'change *' : 'onFieldChange'
+    },
+
+    /**
+     * Returns the template ID.
+     *
+     * @since 1.6.0
+     */
+    getTemplateId : function() {
+        return 'tmpl-tailor-widget-form-' + this.model.get( 'widget_id_base' );
+    },
+
+    /**
+     * Returns the element template.
+     *
+     * @since 1.6.0
+     *
+     * @returns {string}
+     */
+    getTemplate : function() {
+        var el = document.getElementById( this.getTemplateId() );
+        var template = '';
+        if ( el ) {
+            template = _.template( el.innerHTML );
+        }
+        return template;
+    },
+
+	/**
+     * Populate the form with setting values when the control is rendered.
+     *
+     * @since 1.7.2
+     */
+    onRender: function() {
+        var idBase = this.model.get( 'widget_id_base' );
+        var $el = this.$el;
+
+        // Format the default WordPress widget label
+        this.$el.find( 'label' )
+            .addClass( 'control__title' )
+            .each( function() {
+                var $label = $( this );
+                $label.html( this.innerHTML.replace( ':', '' ) );
+            } );
+
+        _.each( this.getValues(), function( value, media ) {
+            if ( ! _.isEmpty( value ) ) {
+                var values = JSON.parse( value );
+                _.each( values, function( value, name ) {
+                    var $field = $el.find( '[name="widget-' + idBase + '[__i__][' + name + ']"]' );
+                    if ( $field.length ) {
+                        if ( 'checkbox' == $field[0].type || 'radio' == $field[0].type  ) {
+                            $field.attr( 'checked', 'true' );
+                        }
+                        else {
+                            $field.val( value );
+                        }
+                    }
+                } );
+            }
+        }, this );
+    },
+
+    /**
+     * Updates the current setting value when a field change occurs.
+     *
+     * @since 1.7.2
+     */
+    onFieldChange : function( e ) {
+        var fields = this.$el.find( 'input, select, radio, textarea' ).serializeArray();
+        var values = {};
+
+        $.each( fields, function() {
+            var matches = this.name.match( /\[(.*?)\]/g );
+            if ( matches && 2 == matches.length ) { // Expecting name in format: widget-{type}[__i__][{field_id}]
+                var name = matches[1].substring( 1, matches[1].length - 1 );
+                if ( 'undefined' != typeof values[ name ] ) {
+                    if ( ! values[ name ].push ) {
+                        values[ name ] = [ values[ name ] ];
+                    }
+                    values[ name ].push( this.value || '' );
+                }
+                else {
+                    values[ name ] = this.value || '';
+                }
+            }
+        } );
+
+        this.setValue( JSON.stringify( values ) );
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    },
+
+	/**
+     * Do nothing on setting change.
+     *
+     * @since 1.7.2
+     */
+    onSettingChange : function() {}
+    
+} );
+
+module.exports = WidgetFormControl;
+},{"./abstract-control":12}],36:[function(require,module,exports){
 var DefaultPanel = Marionette.CompositeView.extend( {
 
     ui : {
@@ -4389,7 +5082,7 @@ var DefaultPanel = Marionette.CompositeView.extend( {
 
 module.exports = DefaultPanel;
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var EmptyPanelView = Marionette.ItemView.extend( {
 
     className : 'empty',
@@ -4412,7 +5105,7 @@ var EmptyPanelView = Marionette.ItemView.extend( {
 } );
 
 module.exports = EmptyPanelView;
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var DefaultSection = Marionette.CompositeView.extend( {
 
     ui: {
@@ -4499,18 +5192,13 @@ var DefaultSection = Marionette.CompositeView.extend( {
 	 */
     onShow : function() {
         this.ui.backButton.get(0).focus();
-        this.children.each( function( control ) {
-            if ( 'code' === control.model.get( 'type' ) ) {
-                control.editor.refresh();
-            }
-        }, this );
     }
 
 } );
 
 module.exports = DefaultSection;
 
-},{"./section-empty":36}],36:[function(require,module,exports){
+},{"./section-empty":39}],39:[function(require,module,exports){
 var EmptySectionView = Marionette.ItemView.extend( {
 
     className : 'empty',
@@ -4529,7 +5217,7 @@ var EmptySectionView = Marionette.ItemView.extend( {
 } );
 
 module.exports = EmptySectionView;
-},{}],37:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var ControlCollection = Backbone.Collection.extend( {
 
 	model : require( '../models/control' ),
@@ -4561,21 +5249,40 @@ var ControlCollection = Backbone.Collection.extend( {
      * @since 1.0.0
      */
     onReset : function() {
-        if ( this.settings ) {
-            this.each( function( model ) {
-                var setting = this.settings.findWhere( { id : model.get( 'setting' ) } );
-                if ( setting ) {
-                    model.setting = setting;
-                }
-            }, this );
+
+        var mediaQueries = [];
+        for ( var mediaQueryId in _media_queries ) {
+            if ( _media_queries.hasOwnProperty( mediaQueryId ) && '' != _media_queries[ mediaQueryId ].max ) {
+                mediaQueries.push( mediaQueryId );
+            }
         }
+
+        this.each( function( model ) {
+            var settingId = model.get( 'setting' );
+            model.settings = this.settings.filter( function( setting ) {
+                var id = setting.get( 'id' );
+                if ( id == settingId ) {
+                    setting.media = 'desktop';
+                    return true;
+                }
+                else {
+                    var index = _.indexOf( mediaQueries, id.replace( settingId + '_', '' ) );
+                    if ( -1 !== index ) {
+                        setting.media = mediaQueries[ index ];
+                        return true;
+                    }
+                }
+
+                return false;
+            } );
+        }, this );
     }
 
 } );
 
 module.exports = ControlCollection;
 
-},{"../models/control":45}],38:[function(require,module,exports){
+},{"../models/control":48}],41:[function(require,module,exports){
 var SearchableCollection = require( './searchable' ),
 	LibraryCollection;
 
@@ -4618,14 +5325,14 @@ LibraryCollection= SearchableCollection.extend( {
 } );
 
 module.exports = LibraryCollection;
-},{"./searchable":40}],39:[function(require,module,exports){
+},{"./searchable":43}],42:[function(require,module,exports){
 var PanelCollection = Backbone.Collection.extend( {
 	model : require( '../models/panel' )
 } );
 
 module.exports = PanelCollection;
 
-},{"../models/panel":49}],40:[function(require,module,exports){
+},{"../models/panel":52}],43:[function(require,module,exports){
 var $ = Backbone.$,
 	SearchableCollection;
 
@@ -4686,14 +5393,14 @@ SearchableCollection = Backbone.Collection.extend( {
 
 module.exports = SearchableCollection;
 
-},{}],41:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var SectionCollection = Backbone.Collection.extend( {
 	model : require( '../models/section' )
 } );
 
 module.exports = SectionCollection;
 
-},{"../models/section":50}],42:[function(require,module,exports){
+},{"../models/section":53}],45:[function(require,module,exports){
 var SettingCollection = Backbone.Collection.extend( {
 
 	model : require( '../models/setting' ),
@@ -4728,7 +5435,7 @@ var SettingCollection = Backbone.Collection.extend( {
     load : function() {
         var atts = this.element.get( 'atts' );
         this.each( function( model ) {
-            model.set( 'value', atts[ model.get( 'id' ) ] || '' );
+            model.set( 'value', atts[ model.get( 'id' ) ] );
         }, this );
     }
 
@@ -4736,7 +5443,7 @@ var SettingCollection = Backbone.Collection.extend( {
 
 module.exports = SettingCollection;
 
-},{"../models/setting":51}],43:[function(require,module,exports){
+},{"../models/setting":54}],46:[function(require,module,exports){
 var SnapshotCollection = Backbone.Collection.extend( {
 
     /**
@@ -4938,7 +5645,7 @@ var SnapshotCollection = Backbone.Collection.extend( {
 
 module.exports = SnapshotCollection;
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var SearchableCollection = require( './searchable' ),
 	TemplateCollection;
 
@@ -4967,7 +5674,7 @@ TemplateCollection = SearchableCollection.extend( {
 
 module.exports = TemplateCollection;
 
-},{"../models/template":52,"./searchable":40}],45:[function(require,module,exports){
+},{"../models/template":55,"./searchable":43}],48:[function(require,module,exports){
 var ControlModel = Backbone.Model.extend( {
 
     /**
@@ -4985,14 +5692,13 @@ var ControlModel = Backbone.Model.extend( {
 		choices : {},
 		priority : 0,
 		setting : '',
-		value : null,
 		section : '' // Only used for controls on the Settings panel
 	}
 } );
 
 module.exports = ControlModel;
 
-},{}],46:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var ContainerModel = Backbone.Model.extend( {
 
     /**
@@ -5178,7 +5884,7 @@ var ContainerModel = Backbone.Model.extend( {
 } );
 
 module.exports = ContainerModel;
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var WrapperModel = Backbone.Model.extend( {
 
     /**
@@ -5327,7 +6033,7 @@ var WrapperModel = Backbone.Model.extend( {
 } );
 
 module.exports = WrapperModel;
-},{}],48:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var ElementModel = Backbone.Model.extend( {
 
     /**
@@ -5523,7 +6229,7 @@ var ElementModel = Backbone.Model.extend( {
 } );
 
 module.exports = ElementModel;
-},{}],49:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var PanelModel = Backbone.Model.extend( {
 
     /**
@@ -5544,7 +6250,7 @@ var PanelModel = Backbone.Model.extend( {
 
 module.exports = PanelModel;
 
-},{}],50:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var SectionModel = Backbone.Model.extend( {
 
     /**
@@ -5565,7 +6271,7 @@ var SectionModel = Backbone.Model.extend( {
 
 module.exports = SectionModel;
 
-},{}],51:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var SettingModel = Backbone.Model.extend( {
 
     /**
@@ -5577,15 +6283,13 @@ var SettingModel = Backbone.Model.extend( {
      */
 	defaults: {
 		id : '',
-        type : '',
-		value : '',
-		default : null
-	}
+        type : ''
+    }
 } );
 
 module.exports = SettingModel;
 
-},{}],52:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var TemplateModel = Backbone.Model.extend( {
 
     /**
@@ -5736,7 +6440,98 @@ var TemplateModel = Backbone.Model.extend( {
 
 module.exports = TemplateModel;
 
-},{}],53:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
+var $ = window.jQuery,
+    DevicePreviewModule;
+
+DevicePreviewModule = Marionette.Module.extend( {
+
+    device : 'desktop',
+
+    onBeforeStart : function() {
+        var module = this;
+        var api = {
+
+            /**
+             * Returns the current device preview size.
+             *
+             * @since 1.7.4
+             *
+             * @returns {*}
+             */
+            getDevice : function() {
+                return module.device;
+            }
+        };
+
+        app.channel.reply( 'sidebar:device', api.getDevice );
+    },
+
+    /**
+     * Initializes the module.
+     *
+     * @since 1.7.4
+     */
+	onStart : function() {
+        var module = this;
+        this.$buttons = $( '.tailor-sidebar .devices button' );
+        this.preview = document.querySelector( '.tailor-preview' );
+        this.viewport = this.preview.querySelector( '.tailor-preview__viewport' );
+        this.mediaQueries = window._media_queries;
+
+        this.setActive( this.$buttons.get(0) );
+        this.addEventListeners();
+
+        /**
+         * Fires when the module is initialized.
+         *
+         * @since ≈
+         *
+         * @param this
+         */
+        app.channel.trigger( 'module:devicePreview:ready', this );
+    },
+
+    /**
+     * Adds the required event listeners.
+     *
+     * @since 1.7.4
+     */
+    addEventListeners : function() {
+        this.$buttons.on( 'click', this.onDevicePreview.bind( this ) );
+    },
+
+    onDevicePreview : function( e ) {
+        var button = e.target;
+        var previous = this.$buttons.filter( "[data-device='" + this.device + "']" ).get(0);
+
+        this.setInactive( previous );
+        this.setActive( button );
+
+        this.device = button.getAttribute( 'data-device' );
+        this.preview.className = 'tailor-preview ' + this.device + '-screens';
+        if ( this.mediaQueries.hasOwnProperty( this.device ) && this.mediaQueries[ this.device ].max ) {
+            this.viewport.style.maxWidth = this.mediaQueries[ this.device ].max;
+        }
+        else {
+            this.viewport.style.maxWidth ='';
+        }
+    },
+
+    setActive: function( button ) {
+        button.classList.add( 'is-active' );
+        button.setAttribute( 'aria-pressed', 'true' );
+    },
+
+    setInactive: function( button ) {
+        button.classList.remove( 'is-active' );
+        button.setAttribute( 'aria-pressed', 'false' );
+    }
+} );
+
+module.exports = DevicePreviewModule;
+
+},{}],57:[function(require,module,exports){
 var DialogRegion = Backbone.Marionette.Region.extend( {
 
     /**
@@ -5776,7 +6571,7 @@ var DialogRegion = Backbone.Marionette.Region.extend( {
 
 module.exports = DialogRegion;
 
-},{}],54:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var DialogView = require( './show/dialog' ),
 	DialogModule;
 
@@ -5817,7 +6612,7 @@ DialogModule = Marionette.Module.extend( {
 } );
 
 module.exports = DialogModule;
-},{"./show/dialog":55}],55:[function(require,module,exports){
+},{"./show/dialog":59}],59:[function(require,module,exports){
 /**
  * Dialog view for present growl-style notifications to the user.
  *
@@ -5965,7 +6760,7 @@ DialogView = Backbone.Marionette.ItemView.extend( {
 
 module.exports = DialogView;
 
-},{}],56:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var SnapshotsCollection = require( '../../entities/collections/snapshots' ),
     SnapshotMenuItem = require( './show/snapshot-menu-item' ),
     HistoryModule;
@@ -6034,7 +6829,7 @@ HistoryModule = Marionette.Module.extend( {
         this.listenTo( app.channel, 'modal:apply', this.onEditElement );
         this.listenTo( app.channel, 'element:delete', this.onDeleteElement );
         this.listenTo( app.channel, 'element:resize', this.onResizeElement );
-        this.listenTo( app.channel, 'element:change:order', this.onReorderElement );
+        this.listenTo( app.channel, 'navigation:reorder', this.onReorderElement );
         this.listenTo( app.channel, 'template:add', this.onAddTemplate );
         this.listenTo( app.channel, 'history:restore', this.restoreSnapshot );
         this.listenTo( app.channel, 'history:undo', this.undoStep );
@@ -6177,7 +6972,7 @@ HistoryModule = Marionette.Module.extend( {
 } );
 
 module.exports = HistoryModule;
-},{"../../entities/collections/snapshots":43,"./show/snapshot-menu-item":57}],57:[function(require,module,exports){
+},{"../../entities/collections/snapshots":46,"./show/snapshot-menu-item":61}],61:[function(require,module,exports){
 var $ = Backbone.$,
     HistoryItem;
 
@@ -6298,7 +7093,7 @@ HistoryItem = Marionette.ItemView.extend( {
 
 module.exports = HistoryItem;
 
-},{}],58:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 
 var LibraryCollection = require( '../../entities/collections/library' ),
     LibraryMenuItem = require( './show/library-menu-item' ),
@@ -6351,7 +7146,7 @@ LibraryModule = Marionette.Module.extend( {
 } );
 
 module.exports = LibraryModule;
-},{"../../entities/collections/library":38,"./show/library-menu-item":59}],59:[function(require,module,exports){
+},{"../../entities/collections/library":41,"./show/library-menu-item":63}],63:[function(require,module,exports){
 var $ = Backbone.$,
     ElementMenuItem;
 
@@ -6431,7 +7226,7 @@ ElementMenuItem = Marionette.ItemView.extend( {
 
 module.exports = ElementMenuItem;
 
-},{}],60:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 var ModalRegion = Backbone.Marionette.Region.extend( {
 
     /**
@@ -6519,7 +7314,7 @@ var ModalRegion = Backbone.Marionette.Region.extend( {
 } );
 
 module.exports = ModalRegion;
-},{}],61:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 var ModalView = require( './show/modal' ),
 	ModalModule;
 
@@ -6581,7 +7376,7 @@ ModalModule = Marionette.Module.extend( {
 } );
 
 module.exports = ModalModule;
-},{"./show/modal":64}],62:[function(require,module,exports){
+},{"./show/modal":68}],66:[function(require,module,exports){
 var EmptyModalView = Marionette.ItemView.extend( {
 
     className : 'empty',
@@ -6591,7 +7386,7 @@ var EmptyModalView = Marionette.ItemView.extend( {
 } );
 
 module.exports = EmptyModalView;
-},{}],63:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 var EmptySectionView = Marionette.ItemView.extend( {
 
     className : 'empty',
@@ -6601,7 +7396,7 @@ var EmptySectionView = Marionette.ItemView.extend( {
 } );
 
 module.exports = EmptySectionView;
-},{}],64:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 var SectionCollectionView = require( './sections' ),
     NavigationView = require( './tabs' ),
     ModalView;
@@ -6675,7 +7470,7 @@ ModalView = Marionette.LayoutView.extend( {
         var model = this.model;
         var sections = app.channel.request( 'sidebar:sections', model );
         var controls = app.channel.request( 'sidebar:controls', model );
-
+        
         this.showChildView( 'sections', new SectionCollectionView( {
             element : model,
             collection : sections,
@@ -6709,7 +7504,7 @@ ModalView = Marionette.LayoutView.extend( {
     onChange : function( setting ) {
         this.isModified = true;
         this.ui.apply.attr( 'disabled', false );
-
+        
         var model = this.model;
         if ( ! model.isTracking() ) {
             model.startTracking();
@@ -6717,7 +7512,7 @@ ModalView = Marionette.LayoutView.extend( {
 
         var update = setting.get( 'refresh' );
         var jsRefresh = update.hasOwnProperty( 'method' ) && 'js' == update['method'];
-
+        
         // Check dependencies, if they exist
         if ( jsRefresh && update.hasOwnProperty( 'dependencies' ) ) {
             for ( var settingId in update['dependencies'] ) {
@@ -6788,7 +7583,7 @@ ModalView = Marionette.LayoutView.extend( {
      */
     onClose : function() {
         if ( this.isModified ) {
-            var applyChanges = confirm( 'You have made changes to this element.  Would you like to apply them?' );
+            var applyChanges = confirm( window._l10n.confirmElement );
 
             if ( true === applyChanges ) {
                 this.triggerMethod( 'apply' );
@@ -6834,7 +7629,10 @@ ModalView = Marionette.LayoutView.extend( {
     atts : function() {
         var atts = {};
         this.settings.each( function( setting ) {
-            atts[ setting.get( 'id' ) ] = setting.get( 'value' );
+            var value = setting.get( 'value' );
+            if ( null !== value ) {
+                atts[ setting.get( 'id' ) ] = value;
+            }
         }, this );
         return atts;
     }
@@ -6842,7 +7640,7 @@ ModalView = Marionette.LayoutView.extend( {
 } );
 
 module.exports = ModalView;
-},{"./sections":66,"./tabs":68}],65:[function(require,module,exports){
+},{"./sections":70,"./tabs":72}],69:[function(require,module,exports){
 var ControlCollectionView = Marionette.CollectionView.extend( {
 
 	tagName : 'ul',
@@ -6874,7 +7672,7 @@ var ControlCollectionView = Marionette.CollectionView.extend( {
      */
     childViewOptions : function( model, index ) {
         var options = { model : model };
-
+        
         if ( 'list' === model.get( 'type' ) ) {
             options.element = this.element;
             options.collection = this.element.collection;
@@ -6934,7 +7732,7 @@ var ControlCollectionView = Marionette.CollectionView.extend( {
 } );
 
 module.exports = ControlCollectionView;
-},{"./empty-section":63}],66:[function(require,module,exports){
+},{"./empty-section":67}],70:[function(require,module,exports){
 var SectionCollectionView = Marionette.CollectionView.extend( {
 
     childView : require( './section' ),
@@ -6967,7 +7765,7 @@ var SectionCollectionView = Marionette.CollectionView.extend( {
 } );
 
 module.exports = SectionCollectionView;
-},{"./empty-modal":62,"./section":65}],67:[function(require,module,exports){
+},{"./empty-modal":66,"./section":69}],71:[function(require,module,exports){
 var NavigationItemView = Marionette.ItemView.extend( {
 
     tagName : 'li',
@@ -7020,7 +7818,7 @@ var NavigationItemView = Marionette.ItemView.extend( {
 } );
 
 module.exports = NavigationItemView;
-},{}],68:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 var NavigationItemView = require( './tab' ),
     NavigationView;
 
@@ -7063,7 +7861,7 @@ NavigationView = Marionette.CollectionView.extend( {
 } );
 
 module.exports = NavigationView;
-},{"./tab":67}],69:[function(require,module,exports){
+},{"./tab":71}],73:[function(require,module,exports){
 var Notify = window.Tailor.Notify,
     NotificationsModule;
 
@@ -7135,7 +7933,7 @@ NotificationsModule = Marionette.Module.extend( {
 
 module.exports = NotificationsModule;
 
-},{}],70:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 var PanelCollection = require( '../../entities/collections/panels' ),
     PanelLayoutView = require( './show/layout' ),
     PanelMenuItem = require( './show/panel-menu-item' ),
@@ -7199,7 +7997,7 @@ PanelsModule = Marionette.Module.extend( {
 
 module.exports = PanelsModule;
 
-},{"../../entities/collections/panels":39,"./show/layout":71,"./show/panel-menu-item":72}],71:[function(require,module,exports){
+},{"../../entities/collections/panels":42,"./show/layout":75,"./show/panel-menu-item":76}],75:[function(require,module,exports){
 var PanelsView = require( './panels' ),
     PanelLayoutView;
 
@@ -7325,7 +8123,7 @@ PanelLayoutView = Marionette.LayoutView.extend( {
 
 module.exports = PanelLayoutView;
 
-},{"./panels":74}],72:[function(require,module,exports){
+},{"./panels":78}],76:[function(require,module,exports){
 var $ = Backbone.$,
 	PanelItem;
 
@@ -7392,7 +8190,7 @@ PanelItem = Marionette.ItemView.extend( {
 
 module.exports = PanelItem;
 
-},{}],73:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 var EmptyPanelView = Marionette.ItemView.extend( {
 
     className : 'empty',
@@ -7402,7 +8200,7 @@ var EmptyPanelView = Marionette.ItemView.extend( {
 } );
 
 module.exports = EmptyPanelView;
-},{}],74:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var PanelsView = Marionette.CompositeView.extend( {
 
     getChildView : function() {
@@ -7428,7 +8226,7 @@ var PanelsView = Marionette.CompositeView.extend( {
 } );
 
 module.exports = PanelsView;
-},{"./panels-empty":73}],75:[function(require,module,exports){
+},{"./panels-empty":77}],79:[function(require,module,exports){
 
 var SectionCollection = require( '../../entities/collections/sections' ),
     DefaultMenuItem = require( './show/default-menu-item' ),
@@ -7501,7 +8299,7 @@ SectionsModule = Marionette.Module.extend( {
 } );
 
 module.exports = SectionsModule;
-},{"../../entities/collections/sections":41,"./show/default-menu-item":76}],76:[function(require,module,exports){
+},{"../../entities/collections/sections":44,"./show/default-menu-item":80}],80:[function(require,module,exports){
 var $ = Backbone.$,
     DefaultItem;
 
@@ -7573,7 +8371,7 @@ DefaultItem = Marionette.ItemView.extend( {
 
 module.exports = DefaultItem;
 
-},{}],77:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 
 var SettingCollection = require( '../../entities/collections/settings' ),
     ControlCollection = require( '../../entities/collections/controls' ),
@@ -7707,7 +8505,7 @@ SettingsModule = Marionette.Module.extend( {
 } );
 
 module.exports = SettingsModule;
-},{"../../entities/collections/controls":37,"../../entities/collections/settings":42}],78:[function(require,module,exports){
+},{"../../entities/collections/controls":40,"../../entities/collections/settings":45}],82:[function(require,module,exports){
 var $ = Backbone.$,
     l10n = window._l10n,
     TemplateMenuItem;
@@ -7881,7 +8679,9 @@ TemplateMenuItem = Marionette.ItemView.extend( {
      * @since 1.0.0
      */
     preview : function() {
-        window.open( window._urls.view + '?template_preview=1&template_id=' + this.model.get( 'id' ), '_blank' );
+
+        window._urls.view += ( window._urls.view.split('?')[1] ? '&':'?') + 'template_preview=1&template_id=' + this.model.get( 'id' );
+        window.open( window._urls.view, '_blank' );
 
         /**
          * Fires when a template is previewed.
@@ -7906,7 +8706,7 @@ TemplateMenuItem = Marionette.ItemView.extend( {
 } );
 
 module.exports = TemplateMenuItem;
-},{}],79:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 var l10n = window._l10n,
     TemplatesPanel;
 
@@ -8216,7 +9016,7 @@ TemplatesPanel = Marionette.CompositeView.extend( {
 } );
 
 module.exports = TemplatesPanel;
-},{}],80:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 
 var TemplateCollection = require( '../../entities/collections/templates' ),
 	TemplatesPanel = require( './show/templates-panel' ),
@@ -8268,7 +9068,7 @@ TemplatesModule = Marionette.Module.extend( {
 } );
 
 module.exports = TemplatesModule;
-},{"../../entities/collections/templates":44,"./show/template-menu-item":78,"./show/templates-panel":79}],81:[function(require,module,exports){
+},{"../../entities/collections/templates":47,"./show/template-menu-item":82,"./show/templates-panel":83}],85:[function(require,module,exports){
 /* window._l10n, window._mediaQueries */
 
 var $ = jQuery;
@@ -8286,286 +9086,4 @@ Tailor.Api.Setting.onChange( 'sidebar:_post_title', function( to, from ) {
 
     document.title = window._l10n.tailoring + to;
 } );
-
-var $buttons = $( '.devices button' );
-var preview = document.querySelector( '.tailor-preview' );
-var viewport = document.querySelector( '.tailor-preview__viewport' );
-var mediaQueries = window._media_queries;
-
-// Change the viewport size based on which device preview size is selected
-$buttons
-    .on( 'click', function( e ) {
-        var button = e.target;
-
-        $buttons.each( function() {
-            if ( this == button ) {
-                var device = button.getAttribute( 'data-device' );
-                this.classList.add( 'is-active' );
-                this.setAttribute( 'aria-pressed', 'true' );
-                preview.className = 'tailor-preview ' + device + '-screens';
-
-                if ( mediaQueries.hasOwnProperty( device ) && mediaQueries[ device ].max ) {
-                    viewport.style.maxWidth = mediaQueries[ device ].max;
-                }
-                else {
-                    viewport.style.maxWidth ='';
-                }
-            }
-            else {
-                this.classList.remove( 'is-active' );
-                this.setAttribute( 'aria-pressed', 'false' );
-            }
-        } );
-
-    } )
-    .first().click();
-},{}],82:[function(require,module,exports){
-
-( function( window, $ ) {
-    
-    'use strict';
-    
-    var $doc = $( document );
-    var $win = $( window );
-    
-    // Include utilities
-    require( '../shared/utility/polyfills/classlist' );
-    require( '../shared/utility/polyfills/raf' );
-    require( '../shared/utility/polyfills/transitions' );
-    require( '../shared/utility/ajax' );
-
-    // Include components
-    Marionette.Behaviors.behaviorsLookup = function() {
-        return {
-            Resizable:          require( './components/behaviors/resizable' ),
-            Panel:              require( './components/behaviors/panel' ),
-            Draggable:          require( '../shared/components/behaviors/draggable' )
-        };
-    };
-    
-    // Create the app
-    var App = require( './app' );
-    window.app = new App();
-
-    // Create the Tailor object
-    window.Tailor = {
-        Api : {
-            Setting :   require( '../shared/components/api/setting' )
-        },
-        Notify :    require( '../shared/utility/notify' ),
-        Models :    {},
-        Panels :    {},
-        Sections :  {},
-        Controls :  {},
-        Items :     {},
-        Helpers :   {
-            
-            /**
-             * Evaluates whether the given condition is true, given two values.
-             *
-             * @since 1.5.0
-             *
-             * @param actual
-             * @param condition
-             * @param required
-             * 
-             * @returns {*}
-             */
-            checkCondition : function( condition, actual, required ) {
-                switch ( condition ) {
-                    case 'equals' : return actual === required;
-
-                    case 'not':
-                        if ( _.isArray( required ) ) {
-                            return -1 === required.indexOf( actual );
-                        }
-                        return actual !== required;
-
-                    case 'lessThan': return ( actual < parseInt( required, 10 ) );
-
-                    case 'greaterThan': return ( actual > parseInt( required, 10 ) );
-
-                    case 'contains' :
-                        if ( _.isString( actual ) ) {
-                            actual = actual.split( ',' );
-                        }
-                        if ( _.isArray( required ) ) {
-                            var intersection = _.intersection( required, actual );
-                            return 0 !== intersection.length;
-                        }
-                        return -1 !== _.indexOf( actual, required );
-                }
-            }
-        }
-    };
-
-    wp.media.view.settings.post.id = window.post.id;
-
-    app.addRegions( {
-        content : '#tailor-sidebar-content',
-        dialog : {
-            selector : "#tailor-dialog-container",
-            regionClass : require( './modules/dialog/dialog-region' )
-        },
-        modal : {
-            selector : "#tailor-modal-container",
-            regionClass : require( './modules/modal/modal-region' )
-        }
-    } );
-
-    // Load models
-    Tailor.Models.Container =           require( './entities/models/element-container' );
-    Tailor.Models.Wrapper =             require( './entities/models/element-wrapper' );
-    Tailor.Models.Section =             require( './entities/models/element-wrapper' ); // Sections are just special wrappers
-    Tailor.Models.Default =             require( './entities/models/element' );
-
-    // Load views
-    Tailor.Panels.Default =             require( './components/panels/panel-default' );
-    Tailor.Panels.Empty =               require( './components/panels/panel-empty' );
-    Tailor.Sections.Default =           require( './components/sections/section-default' );
-    Tailor.Controls.ButtonGroup =       require( './components/controls/button-group' );
-    Tailor.Controls.Checkbox =          require( './components/controls/checkbox' );
-    Tailor.Controls.Code =              require( './components/controls/code' );
-    Tailor.Controls.Colorpicker =       require( './components/controls/colorpicker' );
-    Tailor.Controls.Editor =            require( './components/controls/editor' );
-    Tailor.Controls.Gallery =           require( './components/controls/gallery' );
-    Tailor.Controls.Icon =              require( './components/controls/icon' );
-    Tailor.Controls.Image =             require( './components/controls/image' );
-    Tailor.Controls.Link =              require( './components/controls/link' );
-    Tailor.Controls.List =              require( './components/controls/list' );
-    Tailor.Controls.Radio =             require( './components/controls/radio' );
-    Tailor.Controls.Range =             require( './components/controls/range' );
-    Tailor.Controls.Select =            require( './components/controls/select' );
-    Tailor.Controls.SelectMulti =       require( './components/controls/select-multi' );
-    Tailor.Controls.Style =             require( './components/controls/style' );
-    Tailor.Controls.Switch =            require( './components/controls/switch' );
-    Tailor.Controls.Text =              require( './components/controls/text' );
-    Tailor.Controls.Textarea =          require( './components/controls/textarea' );
-    Tailor.Controls.Video =             require( './components/controls/video' );
-    Tailor.Controls.Default =           require( './components/controls/text' );
-
-    /**
-     * Returns the element name (in title case) based on the tag or type.
-     *
-     * @since 1.5.0
-     *
-     * @param string
-     */
-    function getName( string ) {
-        string = string || '';
-        return string
-            .replace( /_|-|tailor_/gi, ' ' )
-            .replace( /(?: |\b)(\w)/g, function( key ) {
-                return key.toUpperCase().replace( /\s+/g, '' );
-            } );
-    }
-
-    /**
-     * Returns the appropriate object based on tag or type.
-     *
-     * @since 1.5.0
-     *
-     * @param tag
-     * @param type
-     * @param object
-     * @returns {*}
-     */
-    Tailor.lookup = function( tag, type, object ) {
-
-        if ( ! Tailor.hasOwnProperty( object ) ) {
-            console.error( 'Object type ' + object + ' does not exist' );
-            return;
-        }
-
-        var name = getName( tag );
-        if ( Tailor[ object ].hasOwnProperty( name ) ) {
-            return Tailor[ object ][ name ];
-        }
-
-        if ( type ) {
-            name = getName( type );
-            if ( Tailor[ object ].hasOwnProperty( name ) ) {
-                return Tailor[ object ][ name ];
-            }
-        }
-        return Tailor[ object ].Default;
-    };
-
-    app.on( 'start', function( options ) {
-
-        // Load modules
-        app.module( 'module:library', require( './modules/library/library' ) );
-        app.module( 'module:templates', require( './modules/templates/templates' ) );
-        app.module( 'module:settings', require( './modules/settings/settings' ) );
-        app.module( 'module:history', require( './modules/history/history' ) );
-        app.module( 'module:sections', require( './modules/sections/sections' ) );
-        app.module( 'module:panels', require( './modules/panels/panels' ) );
-        app.module( 'module:modal', require( './modules/modal/modal' ) );
-        app.module( 'module:dialog', require( './modules/dialog/dialog' ) );
-        app.module( 'module:notification', require( './modules/notifications/notifications' ) );
-        
-        // Initialize preview
-        require( './preview' );
-        
-        $doc.on( 'heartbeat-send', function( e, data ) {
-            data['tailor_post_id'] = window.post.id;
-        } );
-
-        wp.heartbeat.interval( 60 );
-        wp.heartbeat.connectNow();
-
-        $win
-
-            /**
-             * Warns the user if they attempt to navigate away from the page without saving changes.
-             *
-             * @since 1.0.0
-             */
-            .on( 'beforeunload.tailor', function( e ) {
-                if ( app.hasUnsavedChanges() ) {
-                    return window._l10n.confirmPage;
-                }
-            } )
-
-            /**
-             * Unlocks the post when the user navigates away from the page.
-             *
-             * @since 1.0.0
-             */
-            .on( 'unload.tailor', function( e ) {
-                window.ajax.send( 'tailor_unlock_post', {
-                    data : {
-                        post_id : options.postId,
-                        nonce : options.nonces.unlockPost
-                    }
-                } );
-            } );
-    } );
-
-    $doc.ready( function() {
-        
-        // Start the app
-        app.start( {
-            postId : window.post.id,
-            nonces : window._nonces,
-            l10n : window._l10n || [],
-            library : window._library || [],
-            templates : window._templates || [],
-            panels : window._panels || [],
-            sections : window._sections || [],
-            settings : window._settings || [],
-            controls : window._controls || []
-        } );
-
-        /**
-         * Fires when the sidebar is initialized.
-         *
-         * @since 1.0.0
-         *
-         * @param app
-         */
-        app.channel.trigger( 'sidebar:initialize', app );
-    } );
-    
-} ( window, Backbone.$ ) );
-},{"../shared/components/api/setting":1,"../shared/components/behaviors/draggable":2,"../shared/utility/ajax":3,"../shared/utility/notify":4,"../shared/utility/polyfills/classlist":5,"../shared/utility/polyfills/raf":6,"../shared/utility/polyfills/transitions":7,"./app":8,"./components/behaviors/panel":9,"./components/behaviors/resizable":10,"./components/controls/button-group":12,"./components/controls/checkbox":13,"./components/controls/code":14,"./components/controls/colorpicker":15,"./components/controls/editor":16,"./components/controls/gallery":17,"./components/controls/icon":18,"./components/controls/image":19,"./components/controls/link":20,"./components/controls/list":23,"./components/controls/radio":24,"./components/controls/range":25,"./components/controls/select":27,"./components/controls/select-multi":26,"./components/controls/style":28,"./components/controls/switch":29,"./components/controls/text":30,"./components/controls/textarea":31,"./components/controls/video":32,"./components/panels/panel-default":33,"./components/panels/panel-empty":34,"./components/sections/section-default":35,"./entities/models/element":48,"./entities/models/element-container":46,"./entities/models/element-wrapper":47,"./modules/dialog/dialog":54,"./modules/dialog/dialog-region":53,"./modules/history/history":56,"./modules/library/library":58,"./modules/modal/modal":61,"./modules/modal/modal-region":60,"./modules/notifications/notifications":69,"./modules/panels/panels":70,"./modules/sections/sections":75,"./modules/settings/settings":77,"./modules/templates/templates":80,"./preview":81}]},{},[82]);
+},{}]},{},[8]);

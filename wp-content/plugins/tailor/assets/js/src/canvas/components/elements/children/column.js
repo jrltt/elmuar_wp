@@ -1,5 +1,11 @@
-var ContainerView = require( './../element-container' ),
-	ColumnView;
+var $ = window.jQuery,
+	ContainerView = require( './../element-container' ),
+	ColumnView,
+	cssModule;
+
+app.channel.on( 'module:css:stylesheets:ready', function( module ) {
+	cssModule = module;
+} );
 
 ColumnView = ContainerView.extend( {
 
@@ -23,7 +29,11 @@ ColumnView = ContainerView.extend( {
      * @since 1.0.0
      */
     onRenderCollection : function() {
-        this.updateClassName( this.model.get( 'atts' ).width );
+
+	    if ( 'undefined' != typeof cssModule ) {
+		    this.updateCSS( this.model.get( 'id' ), this.model.get( 'atts' ) );
+	    }
+
         this.$el
             .attr( 'draggable', true )
             .prepend(
@@ -42,13 +52,30 @@ ColumnView = ContainerView.extend( {
      */
 	onResize : function( e ) {
 		var columnView = this;
-		var model = columnView.model;
-		var nextModel = model.collection.findWhere( {
-            parent : model.get( 'parent' ),
-            order : model.get( 'order' ) + 1 }
-        );
+	    var device = app.channel.request( 'sidebar:device' );
+	    var setting = ( 'desktop' == device ) ? 'width' : ( 'width_' + device );
 
-        var originalWidth = model.get( 'atts' ).width;
+	    var model = columnView.model;
+	    var nextModel = model.collection.findWhere( {
+		    parent : model.get( 'parent' ),
+		    order : model.get( 'order' ) + 1
+	    } );
+
+	    var atts = model.get( 'atts' );
+	    var nextAtts = nextModel.get( 'atts' );
+
+	    var width = parseFloat( atts[ setting ] || atts.width );
+	    var nextWidth = parseFloat( nextAtts[ setting ] || nextAtts.width );
+	    var columnsWidth = width + nextWidth;
+	    
+	    var column = columnView.el.getBoundingClientRect();
+
+	    // Add visual indicators
+	    var $first = $( '<span class="tailor-column__width tailor-column__width--right">' + width + '%</span>' );
+	    var $second = $( '<span class="tailor-column__width tailor-column__width--left">' + nextWidth + '%</span>' );
+
+	    $first.prependTo( columnView.$el );
+	    $second.prependTo( columnView.$el.next() );
 
 	    /**
 	     * Handles the resizing of columns.
@@ -61,41 +88,45 @@ ColumnView = ContainerView.extend( {
 			document.body.classList.add( 'is-resizing' );
 			document.body.style.cursor = 'col-resize';
 
-			var rect = columnView.el.getBoundingClientRect();
-            var atts = _.clone( model.get( 'atts' ) );
-            var nextAtts = _.clone( nextModel.get( 'atts' ) );
-			var width = parseInt( atts.width );
-            var nextWidth = parseInt( nextAtts.width );
-			var newWidth = Math.round( ( e.clientX - rect.left ) / ( rect.width ) * width );
-			if ( newWidth < 1 || ( newWidth + 1 ) > ( width + nextWidth ) || newWidth == width ) {
-				return;
-			}
+		    var columnWidth = Math.min( columnsWidth - 10, Math.max( 10, Math.round( parseFloat( ( ( e.clientX - column.left ) / column.width ) * width ) * 10 ) / 10 ) );
+		    var nextColumnWidth = Math.round( parseFloat( columnsWidth - columnWidth ) * 10 ) / 10;
 
-            atts.width = newWidth;
-            nextAtts.width =  nextWidth - ( newWidth - width );
+		    columnWidth += '%';
+		    nextColumnWidth += '%';
 
-            model.set( 'atts', atts, { silent : true } );
-            nextModel.set( 'atts', nextAtts, { silent : true } );
+		    // Update the UI
+		    $first.html( columnWidth );
+		    $second.html( nextColumnWidth );
 
-            model.trigger( 'change:width', model, atts.width );
-		    nextModel.trigger( 'change:width', nextModel, nextAtts.width );
+		    // Update the attributes
+		    var atts = _.clone( model.get( 'atts' ) );
+		    var nextAtts = _.clone( nextModel.get( 'atts' ) );
+		    atts[ setting ] = columnWidth;
+		    nextAtts[ setting ] = nextColumnWidth;
+		    model.set( 'atts', atts, { silent : true } );
+		    nextModel.set( 'atts', nextAtts, { silent : true } );
+
+		    // Trigger change events on the models
+		    model.trigger( 'change:width', model, atts );
+		    nextModel.trigger( 'change:width', nextModel, nextAtts );
         }
 
 	    /**
 	     * Maybe update the widths of affected columns after resizing ends.
 	     *
 	     * @since 1.0.0
-	     *
-	     * @param e
 	     */
-		function onResizeEnd( e ) {
+		function onResizeEnd() {
 			document.removeEventListener( 'mousemove', onResize, false );
 			document.removeEventListener( 'mouseup', onResizeEnd, false );
-
             document.body.classList.remove( 'is-resizing' );
             document.body.style.cursor = 'default';
 
-            if ( originalWidth != model.get( 'atts' ).width ) {
+		    $first.remove();
+		    $second.remove();
+
+		    var atts = model.get( 'atts' );
+            if ( width != atts[ setting ] ) {
 
                 /**
                  * Fires after the column has been resized.
@@ -123,35 +154,53 @@ ColumnView = ContainerView.extend( {
      * Updates the column class name when the width changes.
      *
      * @since 1.0.0
-     *
-     * @param model
-     * @param width
      */
-	onChangeWidth : function( model, width ) {
-        this.updateClassName( width );
+	onChangeWidth : function( model, atts ) {
+	    this.updateCSS( model.get( 'id' ), atts );
 
 	    /**
 	     * Fires after the column width has changed.
 	     *
-	     * @since 1.0.0
+	     * @since 1.7.5
 	     */
-	    this.triggerAll( 'element:parent:change', this );
+	    this.triggerAll( 'element:refresh', this );
 	},
 
-    /**
-     * Updates the class name following a change to the column width.
-     *
-     * @since 1.0.0
-     *
-     * @param width
-     */
-    updateClassName : function( width ) {
-        this.$el.removeClass( function( index, css ) {
-            return ( css.match( /(^|\s)columns-\S+/g) || [] ).join( ' ' );
-        } );
+	updateCSS : function( elementId, atts ) {
+		var ruleSet = {};
+		var width = atts['width'];
+		var tabletWidth = atts['width_tablet'] || atts['width'];
+		var mobileWidth = atts['width_mobile'] || atts['width'];
 
-        this.el.classList.add( 'columns-' + width );
-    }
+		// Desktop width
+		ruleSet['desktop'] = {};
+		ruleSet['desktop'][ elementId ] = [ {
+			selectors: [],
+			declarations:  { 'width' : width },
+			setting: 'width'
+		} ];
+
+		// Tablet width
+		ruleSet['tablet'] = {};
+		ruleSet['tablet'][ elementId ] = [ {
+			selectors: [ '.mobile-columns &', '.tablet-columns &' ],
+			declarations:  { 'width' : tabletWidth },
+			setting: 'width_tablet'
+		} ];
+
+		// Mobile width
+		ruleSet['mobile'] = {};
+		ruleSet['mobile'][ elementId ] = [ {
+			selectors: [ '.mobile-columns &' ],
+			declarations:  { 'width' : mobileWidth },
+			setting: 'width_mobile'
+		} ];
+
+		cssModule.deleteRules( elementId, 'width' );
+		cssModule.deleteRules( elementId, 'width_tablet' );
+		cssModule.deleteRules( elementId, 'width_mobile' );
+		cssModule.addRules( ruleSet );
+	}
 
 } );
 

@@ -17,20 +17,34 @@ defined( 'ABSPATH' ) or die(); ?>
 	        <?php
 	        $post = get_post();
 	        if ( false == get_post_meta( $post->ID, '_tailor_layout', true ) ) {
+		        echo '<button class="button button-primary save" id="tailor-save">';
 		        if ( 'publish' == get_post_status( $post->ID ) ) {
-			        echo '<button class="button button-primary save" id="tailor-save">' . __( 'Save & Publish', 'tailor' ) . '</button>';
+			        _e( 'Save & Publish', 'tailor' );
 		        }
 		        else {
-			        echo '<button class="button button-primary save" id="tailor-save">' . __( 'Save', 'tailor' ) . '</button>';
+			        _e( 'Save', 'tailor' );
 		        }
+		        echo '</button>';
 	        }
 	        else {
 		        echo '<button class="button button-primary save" id="tailor-save" disabled >' . __( 'Saved', 'tailor' ) . '</button>';
 	        } ?>
 
 	        <span class="spinner"></span>
+	        
+	        <?php
+	        
+	        // Get the return link
+	        $referer = wp_get_referer();
+	        $excluded_referer_basenames = array( 'customize.php', 'wp-login.php' );
+	        if ( $referer && ! in_array( basename( parse_url( $referer, PHP_URL_PATH ) ), $excluded_referer_basenames, true ) ) {
+		        $return_url = $referer;
+	        }
+	        else {
+		        $return_url = get_edit_post_link();
+	        } ?>
 
-	        <a class="tailor-sidebar__control" href="<?php echo esc_url_raw( get_edit_post_link() ); ?>" tabindex="0">
+	        <a class="tailor-sidebar__control" href="<?php echo esc_url_raw( $return_url ); ?>" tabindex="0">
 		        <?php echo tailor_screen_reader_text( __( 'Close', 'tailor' ) ); ?>
 	        </a>
         </div>
@@ -40,29 +54,22 @@ defined( 'ABSPATH' ) or die(); ?>
 	    <div class="tailor-sidebar__footer">
 
 		    <?php
-		    $device_sizes = tailor_get_previewable_devices();
-
-		    if ( ! empty( $device_sizes ) ) {
-
-			    echo '<div class="devices">';
-
-			    $format = '<button type="button" class="preview-%1$s" aria-pressed="false" data-device="%1$s">' .
-			                '<span class="screen-reader-text">%1$s</span>' .
-			              '</button>';
-
-			    foreach ( $device_sizes as $device_name => $device ) {
-					printf( $format, $device_name, $device['label'] );
-			    }
-
-			    echo '</div>';
+		    echo '<div class="devices">';
+		    foreach ( tailor_get_media_queries() as $query_id => $query_label ) {
+			    printf(
+				    '<button type="button" class="preview-%1$s" aria-pressed="false" data-device="%1$s">%2$s</button>',
+				    $query_id,
+				    tailor_screen_reader_text( sprintf( __( 'Enter %s preview mode', 'tailor' ), $query_label ) )
+			    );
 		    }
-		    ?>
+		    echo '</div>';
 		    
-		    <button type="button" class="collapse-sidebar" id="tailor-collapse" aria-expanded="true" aria-label="<?php _e( 'Collapse Sidebar', 'tailor' ); ?>">
+		    $collapse_label = __( 'Collapse Sidebar', 'tailor' ); ?>
+		    
+		    <button type="button" class="collapse-sidebar" id="tailor-collapse" aria-expanded="true" aria-label="<?php esc_attr( $collapse_label ); ?>">
 			    <span class="collapse-sidebar-arrow"></span>
-			    <span class="collapse-sidebar-label"><?php _e( 'Collapse', 'tailor' ); ?></span>
+			    <span class="collapse-sidebar-label"><?php esc_attr( $collapse_label ); ?></span>
 		    </button>
-
 	    </div>
     </div>
 

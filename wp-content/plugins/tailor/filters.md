@@ -34,6 +34,9 @@
 | tailor_enable_element\_control\_**{$id}** | Allow developers to prevent an element control from being displayed | bool |
 | tailor_element_active | Allow developers to prevent an element from being displayed as active | bool $active <br> Tailor_Element $element |
 | tailor_excerpt_length | Applies to the entry excerpt length | int $excerpt_length |
+| tailor_shortcode_default_atts_**{$tag}** | Applies to the default attributes passed to the shortcode rendering function | array $default_atts |
+| tailor_shortcode_html_attributes | Applies to the HTML attributes for the element (ID, classes, data) | array $html_atts <br> array $atts <br> string $tag |
+| tailor_shortcode_html | Applies to the rendered HTML for the element | string $html <br> string $outer_html <br> string $inner_html <br> string $html_atts <br> array $atts <br> string $content <br> string $tag |
 
 ## Model filters
 
@@ -43,6 +46,7 @@
 | tailor_get_sanitized_models | Applies to the collection of sanitized models | array $sanitized_models <br> int $post_id |
 | tailor_sanitize_model | Applies to the a sanitized model | array $sanitized_model |
 | tailor_get_default_models | Applies to the collection of default models | array $default_models <br> int $post_id |
+| tailor_save_content_as_html | Allows developers to control whether content is saved as HTML or shortcodes | bool |
 
 ## Sidebar filters
 
@@ -82,7 +86,6 @@
 | tailor_custom_js_key | Applies to the key used to store custom JavaScript as post meta | string $key |
 | tailor_get_custom_js | Applies to the custom page JavaScript retrieved from post meta | string $custom_page_js <br> int $post_id |
 | tailor_enable_custom_js | Allow developers to prevent custom page JavaScript from being printed | bool |
-
 
 ## Template filters
 

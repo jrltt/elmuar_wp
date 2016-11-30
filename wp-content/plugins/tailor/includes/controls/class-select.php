@@ -53,12 +53,20 @@ if ( class_exists( 'Tailor_Control' ) && ! class_exists( 'Tailor_Select_Control'
          */
         protected function render_template() { ?>
 
-            <select>
-                <% for ( var choice in choices ) { %>
-                <option value="<%= choice %>" <% if ( choice === value ) { %>selected="selected"<% } %>>
-                    <%= choices[ choice ] %>
-                </option>
+            <select name="<%= media %>">
+
+                <% _.each( choices, function( label, key ) { %>
+                <% if ( _.isObject( label ) ) { %>
+                <optgroup label="<%= key %>">
+                    <% _.each( label, function( subLabel, subKey ) { %>
+                    <option value="<%= subKey %>" <%= selected( media, subKey ) %>><%= subLabel %></option>
+                    <% } ) %>
+                </optgroup>
+                <% } else { %>
+                <option value="<%= key %>" <%= selected( media, key ) %>><%= label %></option>
                 <% } %>
+                <% } ) %>
+
             </select>
 
             <?php

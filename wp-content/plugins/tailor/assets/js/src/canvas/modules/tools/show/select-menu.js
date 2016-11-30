@@ -10,12 +10,16 @@ SelectMenuView = Marionette.CompositeView.extend( {
 	childViewContainer : '.select__menu',
 
 	ui : {
+		'add' : '.js-add',
 		'edit' : '.js-edit',
+		'copy' : '.js-copy',
 		'delete' : '.js-delete'
 	},
 
     events : {
+        'click @ui.add' : 'addElement',
         'click @ui.edit' : 'editElement',
+        'click @ui.copy' : 'copyElement',
         'click @ui.delete' : 'deleteElement'
     },
 
@@ -38,6 +42,7 @@ SelectMenuView = Marionette.CompositeView.extend( {
      */
     serializeData : function() {
         var data = Backbone.Marionette.CompositeView.prototype.serializeData.apply( this, arguments );
+        data.type = this.model.get( 'type' );
         data.siblings = this.collection.where( { parent : this.model.get( 'parent' ) } ).length;
         return data;
     },
@@ -81,10 +86,54 @@ SelectMenuView = Marionette.CompositeView.extend( {
         var thisRect = this.el.parentNode.getBoundingClientRect();
         var thatRect = this._view.el.getBoundingClientRect();
 
-        this.el.style.top = thatRect.top - thisRect.top + 'px';
-        this.el.style.left = thatRect.left - thisRect.left + 'px';
-        this.el.style.width = thatRect.width + 'px';
-        this.el.style.height = thatRect.height + 'px';
+        var style = getComputedStyle( this._view.el, null );
+        var borderTop = parseInt( style.getPropertyValue( 'border-top-width' ), 10 );
+        var borderRight = parseInt( style.getPropertyValue( 'border-right-width' ), 10 );
+        var borderBottom = parseInt( style.getPropertyValue( 'border-bottom-width' ), 10 );
+        var borderLeft = parseInt( style.getPropertyValue( 'border-left-width' ), 10 );
+
+        var top = Math.round( parseFloat( thatRect.top - parseFloat( thisRect.top ) ) ) + borderTop;
+        var left = Math.max( -1, Math.round( parseFloat( thatRect.left ) - parseFloat( thisRect.left ) ) + borderLeft );
+        var right = Math.min( window.innerWidth + 1, Math.round( parseFloat( thatRect.left ) + parseFloat( thatRect.width ) ) - borderRight );
+        var width = right - left;
+        var height = Math.round( parseFloat( thatRect.height ) ) - borderTop - borderBottom;
+        
+        this.el.style.top = top + 'px';
+        this.el.style.left = left + 'px';
+        this.el.style.width = width + 'px';
+        this.el.style.height = height + 'px';
+
+        var controls = this.el.querySelector( '.select__controls' );
+        var menu = this.el.querySelector( '.select__menu' );
+
+        if ( menu && controls ) {
+            var menuRect = menu.getBoundingClientRect();
+            var controlsRect = controls.getBoundingClientRect();
+            if ( ( menuRect.width + controlsRect.width ) > parseInt( this.el.style.width, 10 ) ) {
+                this.el.classList.add( 'is-minimal' );
+            }
+        }
+    },
+
+	/**
+     * Adds a child to the container element.
+     *
+     * @since 1.7.3
+     */
+    addElement : function() {
+        var child = this.model.collection.createChild( this.model );
+        
+        // Set the collection to library to ensure the history snapshot is created
+        child.set( 'collection', 'library', { silent : true } );
+
+        /**
+         * Fires when a child element is added.
+         *
+         * @since 1.7.3
+         *
+         * @param this.model
+         */
+        app.channel.trigger( 'element:add', child );
     },
 
     /**
@@ -100,6 +149,24 @@ SelectMenuView = Marionette.CompositeView.extend( {
          * @since 1.0.0
          */
         app.channel.trigger( 'modal:open', this.model );
+    },
+
+	/**
+	 * Copies the target element and creates a duplicate immediately below it.
+     *
+     * @since 1.6.2
+     */
+    copyElement : function() {
+        this.model.copyAfter( this._view, this._view );
+
+        /**
+         * Fires when an element is copied.
+         *
+         * @since 1.6.2
+         *
+         * @param this.model
+         */
+        app.channel.trigger( 'element:copy', this.model );
     },
 
     /**

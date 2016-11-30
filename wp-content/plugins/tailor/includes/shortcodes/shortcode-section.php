@@ -11,7 +11,7 @@
 if ( ! function_exists( 'tailor_shortcode_section' ) ) {
 
     /**
-     * Defines the shortcode rendering function for the Row element.
+     * Defines the shortcode rendering function for the Section element.
      *
      * @since 1.0.0
      *
@@ -22,38 +22,70 @@ if ( ! function_exists( 'tailor_shortcode_section' ) ) {
      */
     function tailor_shortcode_section( $atts, $content = null, $tag ) {
 
-	    $atts = shortcode_atts( array(
-		    'id'                        =>  '',
-		    'class'                     =>  '',
-		    'horizontal_alignment'      =>  '',
-		    'vertical_alignment'        =>  '',
-		    'background_image'          =>  '',
-		    'parallax'                  =>  1,
-	    ), $atts, $tag );
-
-	    $id = ( '' !== $atts['id'] ) ? 'id="' . esc_attr( $atts['id'] ) . '"' : '';
-	    $class = trim( esc_attr( "tailor-element tailor-section {$atts['class']}" ) );
-
-	    if ( ! empty( $atts['horizontal_alignment'] ) ) {
-		    $class .= esc_attr( " u-text-{$atts['horizontal_alignment']}" );
-	    }
-
-	    if ( ! empty( $atts['vertical_alignment'] ) ) {
-		    $class .= esc_attr( " u-align-{$atts['vertical_alignment']}" );
-	    }
-
-	    $data = '';
-	    $section_content = '<div class="tailor-section__content">' . do_shortcode( $content ) . '</div>';
+	    /**
+	     * Filter the default shortcode attributes.
+	     *
+	     * @since 1.6.6
+	     *
+	     * @param array
+	     */
+	    $default_atts = apply_filters( 'tailor_shortcode_default_atts_' . $tag, array() );
+	    $atts = shortcode_atts( $default_atts, $atts, $tag );
 	    
-	    if ( ( $atts['background_image'] && 1 == $atts['parallax'] ) ) {
-		    $class .= ' is-parallax';
-		    $section_content .= '<div class="tailor-section__background"></div>';
-		    $data = ' ' . tailor_get_attributes( array( 'ratio' => '0.5' ), 'data-' );
+	    $class = explode( ' ', "tailor-element tailor-section {$atts['class']}" );
+	    $data = array();
+
+	    // Default background
+	    $section_background = '';
+
+	    // Parallax image background
+	    if ( $atts['background_image'] && 1 == $atts['parallax'] ) {
+		    $class[] = 'is-parallax';
+		    $section_background = '<div class="tailor-section__background"></div>';
+		    $data = array( 'ratio' => '0.5' );
 	    }
 	    
-	    return  '<div ' . trim( "{$id} class=\"{$class}\"" ) . "{$data}>" .
-	                $section_content .
-	            '</div>';
+	    $html_atts = array(
+		    'id'            =>  empty( $atts['id'] ) ? null : $atts['id'],
+		    'class'         =>  $class,
+		    'data'          =>  array_filter( $data ),
+	    );
+
+	    /**
+	     * Filter the HTML attributes for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param array $html_attributes
+	     * @param array $atts
+	     * @param string $tag
+	     */
+	    $html_atts = apply_filters( 'tailor_shortcode_html_attributes', $html_atts, $atts, $tag );
+	    $html_atts['class'] = implode( ' ', (array) $html_atts['class'] );
+	    $html_atts = tailor_get_attributes( $html_atts );
+	    
+	    $outer_html = "<div {$html_atts}>%s</div>";
+	    $inner_html = '<div class="tailor-section__content">%s</div>' .
+	                  $section_background;
+	    $content = do_shortcode( $content );
+	    $html = sprintf( $outer_html, sprintf( $inner_html, $content ) );
+
+	    /**
+	     * Filter the HTML for the element.
+	     *
+	     * @since 1.7.0
+	     *
+	     * @param string $html
+	     * @param string $outer_html
+	     * @param string $inner_html
+	     * @param string $html_atts
+	     * @param array $atts
+	     * @param string $content
+	     * @param string $tag
+	     */
+	    $html = apply_filters( 'tailor_shortcode_html', $html, $outer_html, $inner_html, $html_atts, $atts, $content, $tag );
+
+	    return $html;
     }
 
     add_shortcode( 'tailor_section', 'tailor_shortcode_section' );

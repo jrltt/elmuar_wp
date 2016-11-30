@@ -13,8 +13,8 @@ ElementModule = Marionette.Module.extend( {
      */
 	onBeforeStart : function( options ) {
         var module = this;
-
-        this.collection = new ElementCollection( options.elements, { silent: false } );
+        
+        this.collection = new ElementCollection( options.elements );
 
         var api = {
 
@@ -107,7 +107,6 @@ ElementModule = Marionette.Module.extend( {
                             app.channel.trigger( 'before:elements:restore' );
                             app.channel.trigger( 'canvas:reset' );
 
-                            module.collection.reset( null );
                             module.collection.reset( models );
 
                             /**

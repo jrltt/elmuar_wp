@@ -324,7 +324,7 @@ add_action( 'widgets_init', 'elmuar_widgets_init' );
 function elmuar_scripts() {
 	wp_enqueue_style( 'elmuar-style', get_stylesheet_uri() );
 
-	wp_enqueue_style( 'featherlight', get_template_directory_uri() . '/stylesheets/featherlight.min.css' );
+	// wp_enqueue_style( 'featherlight', get_template_directory_uri() . '/stylesheets/featherlight.min.css' );
 
 	wp_enqueue_script( 'classie', get_template_directory_uri() . '/js/classie.js', array(), '20151215', true );
 
@@ -336,7 +336,7 @@ function elmuar_scripts() {
 	
 	// wp_enqueue_script( 'unveil', get_template_directory_uri() . '/js/jquery.unveil.js', array(), '20162510', true );
 
-	// wp_enqueue_script( 'lazy-load', get_template_directory_uri() . '/js/lazyload.js', array(), '20162510', true );
+	wp_enqueue_script( 'lazy-load', get_template_directory_uri() . '/js/imagesloaded.pkgd.js', array(), '20162510', true );
 
 	wp_enqueue_script( 'elmuar-flickity', get_template_directory_uri() . '/js/flickity.pkgd.min.js', array(), '20160110', true );
 
@@ -378,5 +378,5 @@ require get_template_directory() . '/inc/jetpack.php';
 /**
  * Disabled Contact form 7 load css & js
  */
-// add_filter( 'wpcf7_load_js', '__return_false' );
-// add_filter( 'wpcf7_load_css', '__return_false' );
+add_filter( 'wpcf7_load_js', '__return_false' );
+add_filter( 'wpcf7_load_css', '__return_false' );

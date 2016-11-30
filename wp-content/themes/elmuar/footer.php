@@ -27,8 +27,6 @@
 	</footer><!-- #colophon -->
 	</div><!-- #content -->
 </div><!-- #page -->
-<script src="https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js"></script>
-
 <?php wp_footer(); ?>
 </body>
 </html>

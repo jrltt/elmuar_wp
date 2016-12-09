@@ -177,6 +177,11 @@
 
 .menu {
   &.projects__menu {
+    @include media ('screen', '<=phone') {
+      margin-top: 6rem;
+    }
+
     margin-top: 5rem;
+
   }
 }

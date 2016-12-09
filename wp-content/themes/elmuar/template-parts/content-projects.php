@@ -41,7 +41,7 @@
 
 					$content .= '<img class="lazy table__projects--image"  src="blank.gif" data-src="' . $image[0] . '" size="' . wp_get_attachment_image_sizes($image_url->ID) . '" srcset="'.wp_get_attachment_image_srcset($image_url->ID). '" height="50">';
 					$content .= '</div>';
-					if (get_field('white-space', $image_url->ID)) {
+					if (get_field('white-space', $image_url->ID) && (!$detect->isMobile() && $detect->isTablet())) {
 						$whiteProjects = get_field('white-space', $image_url->ID);
 						for ($i=0; $i < $whiteProjects; $i++) { 
 							$content .= '<div class="table__projects--child zoomTarget white--child" data-targetsize="' . $targetSize . '"></div>';

@@ -20,10 +20,17 @@
         $(this).delay(100*i).fadeIn(250);
       });
     });
-    // $('.table__projects--child').each(function (i) {
-    //   $(this).delay(100*i).fadeIn(450);
-    // });
   }, 3000);
+  
+  var $container = $( '.carousel' );
+  var $caption = $('.caption');
+  $container.on( 'select.flickity', function() {
+    var flkty = $container.data('flickity');
+    if (flkty.selectedElement !== undefined) {
+    $caption.text( $(flkty.selectedElement).children()[0].alt );
+    }
+  });
+
 })(jQuery);
 
 var body = document.querySelector('body');

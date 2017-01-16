@@ -1,4 +1,4 @@
-/*! Flickity v2.0.4
+/*! Flickity v2.0.5
 http://flickity.metafizzy.co
 ---------------------------------------------- */
 
@@ -47,8 +47,8 @@ http://flickity.metafizzy.co
 .flickity-prev-next-button {
   position: absolute;
   top: 50%;
-  width: 44px;
-  height: 44px;
+  width: 30px;
+  height: 30px;
   border: none;
   border-radius: 50%;
   background: white;
@@ -57,6 +57,20 @@ http://flickity.metafizzy.co
   /* vertically center */
   -webkit-transform: translateY(-50%);
           transform: translateY(-50%);
+  padding: 0;
+}
+
+.carousel {
+  &:hover {
+    .flickity-prev-next-button {
+      opacity: 1;
+    }
+  }
+
+  .flickity-prev-next-button {
+    opacity: 0;
+    transition: opacity 500ms cubic-bezier(0.22, 0.61, 0.36, 1), background 450ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
 }
 
 .flickity-prev-next-button:hover { background: white; }
@@ -102,15 +116,14 @@ http://flickity.metafizzy.co
 /* ---- page dots ---- */
 
 .flickity-page-dots {
-  display: none;
-  /*position: absolute;
+  position: absolute;
   width: 100%;
   bottom: -25px;
   padding: 0;
   margin: 0;
   list-style: none;
   text-align: center;
-  line-height: 1;*/
+  line-height: 1;
 }
 
 .flickity-rtl .flickity-page-dots { direction: rtl; }
@@ -130,17 +143,8 @@ http://flickity.metafizzy.co
   opacity: 1;
 }
 
-/* smaller, dark, rounded square */
-.flickity-prev-next-button {
-  width: 30px;
-  height: 30px;
-  border-radius: 5px;
-  background: transparent;
-  box-shadow: none;
-}
 .flickity-prev-next-button:hover {
   background: transparent;
-  box-shadow: none;
 }
 /* arrow color */
 .flickity-prev-next-button .arrow {
@@ -148,21 +152,6 @@ http://flickity.metafizzy.co
 }
 .flickity-prev-next-button.no-svg {
   color: black;
-}
-/* position outside */
-.flickity-prev-next-button.previous {
-  left: -40px;
-
-  @include media('screen', '<tablet') {
-    left: -25px;
-  }
-}
-.flickity-prev-next-button.next {
-  right: -40px;
-
-  @include media('screen', '<tablet') {
-    right: -25px;
-  }
 }
 /* hide disabled button */
 .flickity-prev-next-button:disabled {

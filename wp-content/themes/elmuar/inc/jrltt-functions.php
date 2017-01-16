@@ -63,20 +63,21 @@ function build_gallery($size = 'default')
 	// $gallery = get_post_gallery_images( $post );
 	$gallery = get_attached_media( 'image' );
 	?>
-	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": true }'>
-	<?php foreach( $gallery as $key => $value ) { ?>
+
+<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}'>
+ 		<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
-				<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="nope">
-				<?php if (is_single()): ?>
+				<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="<?php echo $value->post_title ."\n". $value->post_excerpt; ?>">
+				<?php /*if (is_single()): ?>
 				<div class="gallery-cell--metadata">
 					<?php if ($value->post_title) : ?>
-					<h4 class="gallery-cell--metadata__title"><?php echo $value->post_title ?></h4>
+					<h4 class="gallery-cell--metadata__title"><?php echo $value->post_title; ?></h4>
 					<?php endif; ?>
 					<?php if ($value->post_excerpt) : ?>
 					<p class="gallery-cell--metadata__excerpt"><?php echo $value->post_excerpt; ?></p>
 					<?php endif; ?>
 				</div>
-				<?php endif; ?>
+				<?php endif; */?>
 			</div>
 		<?php
 	}
@@ -84,6 +85,9 @@ function build_gallery($size = 'default')
 	// $content .= $image_list;
 	?>
 	</div>
+	<?php if (is_single()): ?>
+		<div class="caption">&nbsp;</div>
+	<?php endif; ?>
 	<?php
 	// print_r($content);
 }

@@ -94,7 +94,7 @@ gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 gulp.task('serve', ['styles', 'scripts'], () => {
   browserSync({
     notify: false,
-    proxy: "http://elmuar.dev/",
+    proxy: "http://elmuar.test/",
     // server: {
     //   baseDir: ['.tmp', '/'],
     //   routes: {

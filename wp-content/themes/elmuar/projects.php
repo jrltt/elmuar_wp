@@ -16,9 +16,9 @@ get_header(); ?>
 
 			<?php
 			$args = array(
-				'post_type'					=>		'project',
-				'order'							=> 		'DESC',
-				'orderby'						=>		'date',
+				'post_type'				=>		'project',
+				'order'					=> 		'DESC',
+				'orderby'				=>		'date',
 				'posts_per_page'		=>		-1
 			);
 			$loop = new WP_Query($args);

@@ -24,7 +24,9 @@
       width: 820px;
     }
   }
+}
 
+.site-main {
   &.two-columns {
     .type-edtromp__header {
       padding: 0 $padding__size-for-box;
@@ -40,10 +42,6 @@
         @include media('screen', '>tablet') {
           flex: 0 0 50%;
           padding: 0 $padding__size-for-box 6.92308rem;
-        }
-
-        img {
-          max-height: $max_height_images;
         }
       }
     }

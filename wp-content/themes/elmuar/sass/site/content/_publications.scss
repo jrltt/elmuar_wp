@@ -29,16 +29,13 @@
   &__meta {
     color: $color__link-visited;
   }
+}
 
+.entry--header {
   &__img-wrapper {
-    // display: flex;
-    // @include justify-content(flex-end);
-    // @include flex-direction(column);
     height: auto;
 
     @include media('screen','>tablet') {
-      max-height: $max_height_images;
-
       .single & {
         max-height: $max_height_images_single;
       }
@@ -46,7 +43,14 @@
     
     .wp-post-image {
       width: auto;
-      max-height: $max_height_images;
+
+      .one-column & {
+        max-height: $max_height_images--one-column;
+      } 
+      
+      .two-columns & {
+        max-height: $max_height_images--two-columns;
+      }
 
       .single & {
         max-height: $max_height_images_single;
@@ -108,7 +112,6 @@
   }
 
   @include media('screen', '>tablet') {
-    min-height: $max_height_images;
     .single & {
       max-height: $max_height_images_single;
     }

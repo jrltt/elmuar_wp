@@ -11,16 +11,13 @@
 get_header(); ?>
 
 	<div id="primary" class="content-area">
-		<?php
-		$columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns';
-		?>
+		<?php $columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns'; ?>
 		<main id="main" class="site-main <?php echo $columnStyle; ?>" role="main">
-
 			<?php
 			$args = array(
 				'post_type'					=>		'comission',
-				'order'							=> 		'DESC',
-				'orderby'						=>		'date',
+				'order'						=> 		'DESC',
+				'orderby'					=>		'date',
 				'posts_per_page'			=>		-1
 			);
 			$loop = new WP_Query($args);

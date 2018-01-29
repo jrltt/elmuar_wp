@@ -67,7 +67,9 @@ function build_gallery($size = 'default')
 <div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}'>
  		<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
-				<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="<?php echo $value->post_title ."\n". $value->post_excerpt; ?>">
+				<div class="flex-align-center">
+					<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="<?php echo $value->post_title ."\n". $value->post_excerpt; ?>">
+				</div>
 				<?php /*if (is_single()): ?>
 				<div class="gallery-cell--metadata">
 					<?php if ($value->post_title) : ?>

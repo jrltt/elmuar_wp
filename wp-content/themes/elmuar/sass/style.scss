@@ -153,14 +153,18 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
   width: 100%;
   min-height: 385px;
   margin-right: 10px;
-  // background: #8C8;
-  /* flex-box */
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
 
   @include media('screen', '>tablet') {
-    min-height: $max_height_images;
+    .one-column & {
+      max-height: $max_height_images--one-column;
+    }
+
+    .two-columns & {
+      max-height: $max_height_images--two-columns;
+    }
 
     .single & {
       max-height: $max_height_images_single;
@@ -210,4 +214,13 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
   max-width: 100%;
   max-height: 100%;
   background: #333;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.flex-align-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }

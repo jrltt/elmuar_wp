@@ -25,15 +25,15 @@ $classTypeArticle = has_gallery();
 	</header>
 	<div class="entry--content">
 		<div class="entry--content__text">
-			<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
-				<?php the_title( '<h1 class="entry-title entry--content__title">', '</h1>' ); ?>
-			</a>
+			<h1 class="entry-title entry--content__title">
+				<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>"><?=  get_the_title(); ?></a>
+			</h1>
 		</div>
 		<div class="entry--content__custom">
 			<?php echo get_field('custom_content', $post->ID); ?>
 		</div>
 		<div class="entry--content__meta">
-			<?php echo build_category_year(); ?>
+			<p><?= build_category_year(); ?></p>
 		</div>
 	</div>
 	<footer class="entry-footer">

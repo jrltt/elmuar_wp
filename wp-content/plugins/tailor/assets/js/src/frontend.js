@@ -86,6 +86,7 @@ window.Tailor = {
 			var $data = $el.data() || {};
 			var options = {
 				autoplay : $data.autoplay || false,
+				autoplaySpeed : $data.autoplaySpeed || 3000,
 				arrows : $data.arrows || false,
 				draggable : true
 			};
@@ -132,6 +133,6 @@ window.Tailor.Components.Toggles = require( './shared/components/ui/toggles' );
 require( './frontend/components/ui/carousel' );
 
 // Initialize elements when the document is ready
-$( document ).ready( function() {
+$( function() {
 	window.Tailor.initElements();
 } );

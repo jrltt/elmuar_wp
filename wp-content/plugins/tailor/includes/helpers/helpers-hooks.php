@@ -199,7 +199,7 @@ if ( ! function_exists( 'tailor_content_editor_link' ) ) {
 				'id'    => 'edit-with-tailor',
 				'title' => sprintf( __( 'Tailor this %s', 'tailor' ), $post_type_object->labels->singular_name ),
 			);
-			echo vsprintf( '<a href="%s" id="%s" class="button">%s</a>', $link );
+			echo vsprintf( '<a href="%s" id="%s" class="button button-primary">%s</a>', $link );
 		}
 	}
 
@@ -217,7 +217,7 @@ if ( ! function_exists( 'tailor_kses_allowed_html' ) ) {
 	 * @return array $tags
 	 */
 	function tailor_kses_allowed_html( $tags, $context ) {
-		if ( ! array_key_exists( 'input', $tags ) ) {
+		if ( is_array( $tags ) && ! array_key_exists( 'input', $tags ) ) {
 			$tags['input'] = array(
 				'autocomplete'      =>  1,
 				'autofocus'         =>  1,

@@ -1,10 +1,10 @@
 === Tailor Page Builder ===
-Contributors: andrew.worsfold
-Donate link: http://gettailor.com/donate/
+Contributors: enclavely,essamamdani,andrew.worsfold, munirkamal
+Donate link: http://www.tailorwp.com/
 Tags: page, layout, builder, frontend, content, page builder, drag and drop builder, home page builder, landing page builder, layout builder, frontend builder, frontend editor, responsive, visual composer, beaver builder
-Stable tag: 1.7.6
+Stable tag: 1.8.2
 Requires at least: 4.3
-Tested up to: 4.7
+Tested up to: 4.9
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl.html
 
@@ -16,15 +16,13 @@ Build beautiful layouts for your content faster and easier than ever before usin
 
 [youtube https://www.youtube.com/watch?v=tfMyLMuaXjI]
 
-> <strong>New extension!</strong><br>
-> Check out the [Advanced Features extension](https://wordpress.org/plugins/tailor-advanced/) for new elements and features. Like Tailor, it's absolutely free!
+> Check out the <strong>[Advanced Features extension](https://wordpress.org/plugins/tailor-advanced/)</strong> for new elements and features. Like Tailor, it's absolutely free!
 
 To get started:
 
 - [Read the user documentation](https://support.gettailor.com/hc/en-us/categories/202586427).
-- [Read the overview of features and elements](https://github.com/andrew-worsfold/tailor/blob/master/readme.md).
+- [Read the overview of features and elements](https://github.com/Enclavely/tailor/blob/master/readme.md).
 - [Keep up-to-date with the blog](https://medium.com/@tailorwp).
-- [Watch videos on YouTube](https://www.youtube.com/channel/UCiFGt6qqPwN1ruuEnjlVOqA).
 
 = Easy to use =
 
@@ -51,22 +49,22 @@ Because Tailor works with any theme, choosing one that you like is now the harde
 
 Tailor is open source and built based on WordPress' coding standards and best practices.  Everything from the code base to the user interface integrate perfectly with WordPress. The plugin features:
 
-- A comprehensive set of [actions](https://github.com/andrew-worsfold/tailor/blob/master/actions.md) and [filters](https://github.com/andrew-worsfold/tailor/blob/master/filters.md).
+- A comprehensive set of [actions](https://github.com/Enclavely/tailor/blob/master/actions.md) and [filters](https://github.com/Enclavely/tailor/blob/master/filters.md).
 - An API for adding, changing or removing elements.
 - An API for adding, changing or removing settings and controls.
-- A [REST API](https://github.com/andrew-worsfold/tailor/blob/master/api.md) to manage elements, templates and models.
+- A [REST API](https://github.com/Enclavely/tailor/blob/master/api.md) to manage elements, templates and models.
 
 = Need more information? =
 
-- Check out our example of how to extend Tailor [using a theme](https://github.com/andrew-worsfold/tailor-sample-theme).
-- Check out our example of how to extend Tailor [using a plugin](https://github.com/andrew-worsfold/tailor-sample-extension).
+- Check out our example of how to extend Tailor [using a theme](https://github.com/Enclavely/tailor-sample-theme).
+- Check out our example of how to extend Tailor [using a plugin](https://github.com/Enclavely/tailor-sample-extension).
 - [Read the developer documentation](https://support.gettailor.com/hc/en-us/categories/203117247).
 
 = Want to help? =
 
 - Contribute to the [WordPress Translation project](https://translate.wordpress.org/projects/wp-plugins/tailor).
-- Provide your feedback and suggestions through [Facebook](https://www.facebook.com/tailorwp/), [Twitter](https://twitter.com/tailorwp) or the [Forum](https://support.gettailor.com/hc/en-us/community/topics).
-- Get involved in the [GitHub project](https://github.com/andrew-worsfold/tailor).
+- Provide your feedback and suggestions through [Facebook](https://www.facebook.com/tailorwp/) or [Twitter](https://twitter.com/tailorwp).
+- Get involved in the [GitHub project](https://github.com/Enclavely/tailor).
 - If you like the plugin, please [submit a review](https://wordpress.org/support/view/plugin-reviews/tailor?rate=5#postform).
 
 == Installation ==
@@ -138,45 +136,87 @@ Yes.  Tailored pages can be migrated like any other type of page using the [dupl
 Yes, however, users should be directed to the WordPress plugin repository to install the latest version of the plugin.  Consider using a tool like [TGM Plugin Activation](http://tgmpluginactivation.com/) to guide users through the installation process.
 
 == Changelog ==
+= 1.8.2 =
+* Fixed - Color Picker Issue in WP Version 4.9 [GitHub 160](https://github.com/Enclavely/tailor/pull/160)
+* Fixed - Add higher priority on generating element regex [GitHub 143](https://github.com/Enclavely/tailor/pull/143).
+
+= 1.8.1 =
+* Added - The ability to modify the default media query sizes.
+* Improved - Frontend CSS is automatically recompiled from project SCSS files when Customizer settings are updated.
+* Improved - The performance of the tailor_modify_colorpicker function.
+* Fixed - Element CSS not loading when restoring the "Initialized" history snapshot.
+* Fixed - Notice of undefined index [body_class] displayed on the Gutenberg edit screen [GitHub 134](https://github.com/Enclavely/tailor/issues/134).
+* Fixed - Certain character sets are not being encoded properly [GitHub 137](https://github.com/Enclavely/tailor/issues/137).
+* Fixed - Custom elements are not being correctly extracted from saved HTML content [GitHub 138](https://github.com/Enclavely/tailor/issues/138).
+
+= 1.8.0 =
+* Added - The ability to edit content within Content elements in the editor and have these changes appear within Tailor.
+* Improved - The overall performance of Tailor.
+* Improved - Synchronized preview window width with device preview selection from Edit modal.
+* Fixed - History snapshots not being restored properly [GitHub 131](https://github.com/Enclavely/tailor/issues/131).
+* Fixed - List and Box images have no alt text [GitHub 133](https://github.com/Enclavely/tailor/issues/133).
+
+= 1.7.10 =
+* Fixed - Missing flexbox -ms- prefixes for Internet Explorer 10 [GitHub 90](https://github.com/Enclavely/tailor/issues/90).
+* Fixed - Console error "this.getElementDefinitions(...) is undefined" [GitHub 115](https://github.com/Enclavely/tailor/issues/115).
+* Fixed - Show post meta data when only one item is selected [GitHub 125](https://github.com/Enclavely/tailor/pull/125).
+* Fixed - Not empty check for box images [GitHub 99](https://github.com/Enclavely/tailor/pull/99).
+* Fixed - Removed deprecated jQuery 'ready' event.
+* Improved - Expose $args in tailor_partial filter and tailor_partial_* action [GitHub 117](https://github.com/Enclavely/tailor/pull/117).
+
+= 1.7.9 =
+* Added - Instant undo/redo functionality with keyboard controls.
+* Added - Portuguese translation [GitHub 93](https://github.com/Enclavely/tailor/pull/93).
+* Added - Autoplay speed setting to carousel and slideshow-based layouts [GitHub 87](https://github.com/Enclavely/tailor/pull/87).
+* Improved - Allow unlimited images in Gallery elements [GitHub 86](https://github.com/Enclavely/tailor/pull/86).
+* Improved - Sidebar styles to match the Customizer.
+* Changed - Default placeholder text for Content elements.
+* Fixed - tailor_get_users() query retrieves unnecessary information [GitHub 94](https://github.com/Enclavely/tailor/pull/94).
+* Fixed - Sidebar styles affecting search field within WordPress Media Modal [GitHub 98](https://github.com/Enclavely/tailor/issues/98).
+
+= 1.7.8 =
+* Fixed - Various PHP notices being displayed in the logs.
+* Fixed - Grid element border style too specific to be overridden by border style setting.
+
+= 1.7.7 =
+* Improved - Positioning of menu for selected elements, to accommodate elements that expand below the confines of the content area.
+* Improved - HTML markup for canvas tools, to avoid conflicts with themes that style link tags in unexpected ways.
 
 = 1.7.6 =
 * Added - Element label when hovering over an element in the preview window.
 * Improved - Columns now use percentage widths, instead of a 12 column grid system.
 * Improved - Up to six columns can now be added to a single row instead of four (and of course you can still nest rows).
-* Improved - Background image parallax effect [GitHub 60](https://github.com/andrew-worsfold/tailor/issues/60).
+* Improved - Background image parallax effect [GitHub 60](https://github.com/Enclavely/tailor/issues/60).
 * Improved - Dynamic element CSS rules now supports SCSS-like syntax (e.g., :, :: and & special characters);
-* Fixed - General color settings appear in the Tailor colors Customizer section for some themes [GitHub 73](https://github.com/andrew-worsfold/tailor/issues/73).
-* Fixed - An error message is displayed if get_current_screen() is not defined [GitHub PR 74](https://github.com/andrew-worsfold/tailor/pull/74).
-* Fixed - Elements are loaded too early, causing an issue with the New User Approve plugin [GitHub 75](https://github.com/andrew-worsfold/tailor/issues/75).
+* Fixed - General color settings appear in the Tailor colors Customizer section for some themes [GitHub 73](https://github.com/Enclavely/tailor/issues/73).
+* Fixed - An error message is displayed if get_current_screen() is not defined [GitHub PR 74](https://github.com/Enclavely/tailor/pull/74).
+* Fixed - Elements are loaded too early, causing an issue with the New User Approve plugin [GitHub 75](https://github.com/Enclavely/tailor/issues/75).
 * Fixed - Graphic color not being displayed correctly when upgrading from early versions of Tailor.
 * Fixed - Some units (for example "vw" and "vh" when setting minimum width and height) not being accepted in preview.
 * Fixed - Masonry-enabled elements do not refresh when their parent element changes.
 * Removed - Maximum 75rem width (CSS property) for Section content (use maximum width setting instead, if required).
 
-> <strong>New extension!</strong><br>
-> Check out the [Advanced Features extension](https://wordpress.org/plugins/tailor-advanced/) for new elements and features. Like Tailor, it's absolutely free!
-
 = 1.7.5 =
-* Added - Option to delete the Tailor layout for a given post [GitHub 44](https://github.com/andrew-worsfold/tailor/issues/44).
+* Added - Option to delete the Tailor layout for a given post [GitHub 44](https://github.com/Enclavely/tailor/issues/44).
 * Added - Abstract component for easily building custom UI components.
 * Improved - UI components now extend the new, faster abstract component.
-* Improved - iFrames can now be added using the Content element editor [GitHub 71](https://github.com/andrew-worsfold/tailor/issues/71).
-* Fixed - Maximum width setting defaulting to zero if an empty value is provided [GitHub 69](https://github.com/andrew-worsfold/tailor/issues/69).
+* Improved - iFrames can now be added using the Content element editor [GitHub 71](https://github.com/Enclavely/tailor/issues/71).
+* Fixed - Maximum width setting defaulting to zero if an empty value is provided [GitHub 69](https://github.com/Enclavely/tailor/issues/69).
 * Fixed - Column width not correctly specified for new columns in row with two or more existing columns.
-* Fixed - Changes made using the Text tab of the editor do not update the element [GitHub 72](https://github.com/andrew-worsfold/tailor/issues/72).
+* Fixed - Changes made using the Text tab of the editor do not update the element [GitHub 72](https://github.com/Enclavely/tailor/issues/72).
 * Fixed - Live preview for background color setting.
 
 = 1.7.4 =
-* Added - Nested rows and columns [GitHub 49](https://github.com/andrew-worsfold/tailor/issues/49) [Read more](https://medium.com/@tailorwp/columns-on-steroids-df5a5a957d89).
-* Added - Tablet and mobile-specific widths for columns [GitHub 47](https://github.com/andrew-worsfold/tailor/issues/47) [Read more](https://medium.com/@tailorwp/columns-are-now-more-responsive-1e2cf793b11f).
+* Added - Nested rows and columns [GitHub 49](https://github.com/Enclavely/tailor/issues/49) [Read more](https://medium.com/@tailorwp/columns-on-steroids-df5a5a957d89).
+* Added - Tablet and mobile-specific widths for columns [GitHub 47](https://github.com/Enclavely/tailor/issues/47) [Read more](https://medium.com/@tailorwp/columns-are-now-more-responsive-1e2cf793b11f).
 * Improved - Appearance of element controls in preview window for narrow elements.
-* Fixed - Responsive setting buttons appear over fields when the control title is too long [GitHub 67](https://github.com/andrew-worsfold/tailor/issues/67).
+* Fixed - Responsive setting buttons appear over fields when the control title is too long [GitHub 67](https://github.com/Enclavely/tailor/issues/67).
 
 = 1.7.3 =
 * Added - Add button to container elements (e.g., Carousels, Grids, Lists, Tabs and Toggles).
-* Added - Support for vh and vw units [GitHub #65](https://github.com/andrew-worsfold/tailor/issues/65).
+* Added - Support for vh and vw units [GitHub #65](https://github.com/Enclavely/tailor/issues/65).
 * Added - Ability for third-party extensions to override live CSS rule generation for all default elements.
-* Fixed - Grid Item padding custom CSS selectors are not specific enough to override default styles [GitHub #64](https://github.com/andrew-worsfold/tailor/issues/64).
+* Fixed - Grid Item padding custom CSS selectors are not specific enough to override default styles [GitHub #64](https://github.com/Enclavely/tailor/issues/64).
 * Fixed - Incorrect validation being performed for border-style setting.
 * Developer - Moved SCSS folder to assets folder.
 
@@ -187,7 +227,7 @@ Yes, however, users should be directed to the WordPress plugin repository to ins
 * Added - Custom color palettes for colorpickers and the color selector within the Content element editor. [Read more](https://medium.com/@tailorwp/easy-color-management-f33f4255b29b).
 * Added - Live previews for a variety of Button, Box, List Item, Grid, Tab and Toggle settings.
 * Added - Ability to force re-render of element during live preview update.
-* Improved - Priority ordering for panels, sections and controls [GitHub PR #62](https://github.com/andrew-worsfold/tailor/pull/62).
+* Improved - Priority ordering for panels, sections and controls [GitHub PR #62](https://github.com/Enclavely/tailor/pull/62).
 * Improved - Standard input fields now update settings on blur (cf. change/input).
 * Improved - Custom CSS rule generation logic for a variety of settings.
 * Improved - Allow horizontal and vertical alignment of grid items with a minimum height even when the grid has collapsed.
@@ -221,7 +261,7 @@ Yes, however, users should be directed to the WordPress plugin repository to ins
 * Removed - Deprecated tailor_get_preview_sizes() function.
 * Removed - French translation files (as the language pack is now available).
 
-To browse all available actions and filters, please refer to the published [action](https://github.com/andrew-worsfold/tailor/blob/master/actions.md) and [filter](https://github.com/andrew-worsfold/tailor/blob/master/filters.md) lists.
+To browse all available actions and filters, please refer to the published [action](https://github.com/Enclavely/tailor/blob/master/actions.md) and [filter](https://github.com/Enclavely/tailor/blob/master/filters.md) lists.
 
 = 1.6.7 =
 * Added - Filter to modify the default attributes of a given element while rendering.
@@ -256,9 +296,9 @@ To browse all available actions and filters, please refer to the published [acti
 = 1.6.1 =
 * Improved - Reduced the amount of layout meta information saved to the post.
 * Improved - The selector for element child containers can now be specified when registering the element.
-* Fixed - Live updates to Button do not target correct DOM node [GitHub #50](https://github.com/andrew-worsfold/tailor/issues/50).
-* Fixed - Cannot add multiple custom class names to an element [GitHub PR #51](https://github.com/andrew-worsfold/tailor/pull/51).
-* Fixed - Fields added to the widget form by third-party plugins are not handled correctly [GitHub PR #52](https://github.com/andrew-worsfold/tailor/pull/52).
+* Fixed - Live updates to Button do not target correct DOM node [GitHub #50](https://github.com/Enclavely/tailor/issues/50).
+* Fixed - Cannot add multiple custom class names to an element [GitHub PR #51](https://github.com/Enclavely/tailor/pull/51).
+* Fixed - Fields added to the widget form by third-party plugins are not handled correctly [GitHub PR #52](https://github.com/Enclavely/tailor/pull/52).
 
 = 1.6.0 =
 * Added - Native support for WordPress and third-party widgets.  Please refer to the associated upgrade notice.
@@ -269,26 +309,26 @@ To browse all available actions and filters, please refer to the published [acti
 * Removed - Deprecated column and grid styles.
 
 = 1.5.7 =
-* Added - Translation for Brazilian Portuguese [GitHub PR #45](https://github.com/andrew-worsfold/tailor/pull/45).
-* Added - Check for whether a Tailor layout exists for a given post [GitHub #43](https://github.com/andrew-worsfold/tailor/issues/43).
+* Added - Translation for Brazilian Portuguese [GitHub PR #45](https://github.com/Enclavely/tailor/pull/45).
+* Added - Check for whether a Tailor layout exists for a given post [GitHub #43](https://github.com/Enclavely/tailor/issues/43).
 * Added - Filter to allow content to be saved as shortcodes instead of HTML.
 * Improved - Closing Tailor will return the user to their original location.
-* Improved - Allow HTMl within admin notices [GitHub PR #38](https://github.com/andrew-worsfold/tailor/pull/38).
-* Fixed - Global SCSS primary color variable not used for carousel navigation [GitHub PR #39](https://github.com/andrew-worsfold/tailor/pull/39).
+* Improved - Allow HTMl within admin notices [GitHub PR #38](https://github.com/Enclavely/tailor/pull/38).
+* Fixed - Global SCSS primary color variable not used for carousel navigation [GitHub PR #39](https://github.com/Enclavely/tailor/pull/39).
 * Fixed - It is possible to Customize and Tailor posts at the same time.
 
 = 1.5.6 =
 * Added - Support for input HTML tags in content.
 * Added - Filter for control arguments by control type (e.g., colorpicker).
-* Fixed - Template custom post type is public [GitHub #37](https://github.com/andrew-worsfold/tailor/issues/37).
-* Fixed - Frontend element initialization function is not globally accessible [GitHub #31](https://github.com/andrew-worsfold/tailor/issues/31).
+* Fixed - Template custom post type is public [GitHub #37](https://github.com/Enclavely/tailor/issues/37).
+* Fixed - Frontend element initialization function is not globally accessible [GitHub #31](https://github.com/Enclavely/tailor/issues/31).
 * Fixed - Custom style formats defined by themes and plugins not being displayed in the editor.
 * Fixed - Excerpts are displayed for password protected posts.
 
 = 1.5.5 =
-* Added - Filter for empty content placeholder text [GitHub #33](https://github.com/andrew-worsfold/tailor/issues/33).
-* Fixed - User permission check being called too early, resulting in a warning message [GitHub #30](https://github.com/andrew-worsfold/tailor/issues/30).
-* Fixed - Fuzzy spinner image [GitHub #34](https://github.com/andrew-worsfold/tailor/issues/34).
+* Added - Filter for empty content placeholder text [GitHub #33](https://github.com/Enclavely/tailor/issues/33).
+* Fixed - User permission check being called too early, resulting in a warning message [GitHub #30](https://github.com/Enclavely/tailor/issues/30).
+* Fixed - Fuzzy spinner image [GitHub #34](https://github.com/Enclavely/tailor/issues/34).
 
 = 1.5.4 =
 * Added - 'Tailor this ..' button above the content editor.
@@ -344,7 +384,7 @@ To browse all available actions and filters, please refer to the published [acti
 * Improved - Posts in the Trash cannot be Tailored.
 * Improved - Users that can modify options or edit the current post type can Tailor pages if they don't have a restricted role type.
 * Improved - Set default Card background color to transparent.
-* Improved - Added, changed and removed various [actions](https://github.com/andrew-worsfold/tailor/blob/master/actions.md) and [filters](https://github.com/andrew-worsfold/tailor/blob/master/filters.md) for consistency and to accommodate new REST API.
+* Improved - Added, changed and removed various [actions](https://github.com/Enclavely/tailor/blob/master/actions.md) and [filters](https://github.com/Enclavely/tailor/blob/master/filters.md) for consistency and to accommodate new REST API.
 * Fixed - Save button label indicates that the page will be published when Tailoring a draft post.
 * Fixed - Errors displayed when the Jetpack Publicize module is active.
 
@@ -426,12 +466,12 @@ To browse all available actions and filters, please refer to the published [acti
 * Removed - 'Tailor this ..' Admin Bar link from archive pages (credit: BinaryMoon).
 
 = 1.2.0 =
-* Improved - Container behaviour so that they do not collapse when only one child element remains (excludes row/column layouts). [Learn more about this change](http://www.andrewworsfold.com/2016/06/26/working-with-containers/).
+* Improved - Container behaviour so that they do not collapse when only one child element remains (excludes row/column layouts).
 * Fixed - Custom CSS is not appearing within template previews.
 * Fixed - Tabs break after a tab is renamed.
 
 = 1.1.3 =
-* Improved - Device preview and media query settings to be in line with the WordPress Customizer (i.e., Desktop, Tablet and Mobile sizes).  [Learn more about this change](http://www.andrewworsfold.com/2016/06/25/device-previews/).
+* Improved - Device preview and media query settings to be in line with the WordPress Customizer (i.e., Desktop, Tablet and Mobile sizes).
 
 = 1.1.2 =
 * Added - Notification and UI styles to help instruct new users to drag elements and templates onto the page.

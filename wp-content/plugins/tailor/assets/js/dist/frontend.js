@@ -87,6 +87,7 @@ window.Tailor = {
 			var $data = $el.data() || {};
 			var options = {
 				autoplay : $data.autoplay || false,
+				autoplaySpeed : $data.autoplaySpeed || 3000,
 				arrows : $data.arrows || false,
 				draggable : true
 			};
@@ -133,7 +134,7 @@ window.Tailor.Components.Toggles = require( './shared/components/ui/toggles' );
 require( './frontend/components/ui/carousel' );
 
 // Initialize elements when the document is ready
-$( document ).ready( function() {
+$( function() {
 	window.Tailor.initElements();
 } );
 },{"./frontend/components/ui/carousel":2,"./shared/components/ui/abstract":3,"./shared/components/ui/lightbox":4,"./shared/components/ui/map":5,"./shared/components/ui/masonry":6,"./shared/components/ui/parallax":7,"./shared/components/ui/slideshow":8,"./shared/components/ui/tabs":9,"./shared/components/ui/toggles":10,"./shared/utility/polyfills/classlist":11,"./shared/utility/polyfills/raf":12,"./shared/utility/polyfills/transitions":13}],2:[function(require,module,exports){
@@ -179,6 +180,7 @@ Carousel.prototype = {
         slidesToShow : 1,
         slidesToScroll : 1,
         autoplay : false,
+        autoplaySpeed : 3000,
         arrows : false,
         dots : false,
         fade : false,
@@ -1680,6 +1682,7 @@ Slideshow = Components.create( {
             slidesToShow : 1,
             slidesToScroll : 1,
             autoplay : false,
+            autoplaySpeed : 3000,
             arrows : false,
             dots : false,
             fade : true

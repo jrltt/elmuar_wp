@@ -30,7 +30,6 @@ var SnapshotCollection = Backbone.Collection.extend( {
      */
 	initialize: function() {
         this.addEventListeners();
-
 	},
 
     /**
@@ -41,7 +40,6 @@ var SnapshotCollection = Backbone.Collection.extend( {
     addEventListeners : function() {
         this.listenTo( this, 'add', this.checkLength );
         this.listenToOnce( app.channel, 'canvas:initialize', function() {
-            this.elements = app.channel.request( 'canvas:elements' );
             this.save( window._l10n.initialized );
         } );
     },
@@ -63,10 +61,18 @@ var SnapshotCollection = Backbone.Collection.extend( {
             }
         }
 
+        var models = app.channel.request( 'canvas:elements' );
+        var templates = app.channel.request( 'canvas:templates' );
+        var css = app.channel.request( 'canvas:css' );
+
+        console.log( models, templates, css );
+
         // Add the new entry to the collection
         var entry = this.add( {
             label : label || '',
-            elements : this.elements ? this.elements.toJSON() : [],
+            elements : models ? models.toJSON() : [],
+            templates: templates,
+            css: css,
             time : this.getTime(),
             timestamp : _.now()
         } );
@@ -117,6 +123,8 @@ var SnapshotCollection = Backbone.Collection.extend( {
 
         this.setActive( entry );
         var elements = entry.get( 'elements' );
+        var templates = entry.get( 'templates' );
+        var css = entry.get( 'css' );
 
         /**
          * Fires when the element collection is reset.
@@ -125,7 +133,7 @@ var SnapshotCollection = Backbone.Collection.extend( {
          *
          * @param elements
          */
-        app.channel.trigger( 'elements:reset', elements );
+        app.channel.trigger( 'elements:reset', elements, templates, css );
     },
 
     /**
@@ -154,6 +162,10 @@ var SnapshotCollection = Backbone.Collection.extend( {
             return;
         }
 
+        if ( 0 === this.indexOf( this.getActive() ) ) {
+            return;
+        }
+        
         var entry = this.at( this.indexOf( this.getActive() ) - 1 );
 
         if ( entry ) {

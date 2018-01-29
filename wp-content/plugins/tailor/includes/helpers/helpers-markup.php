@@ -80,6 +80,7 @@ if ( ! function_exists( 'tailor_filter_allowed_html' ) ) {
 		if ( 'post' == $context ) {
 			$allowed['div']['data-slides'] = true;
 			$allowed['div']['data-autoplay'] = true;
+			$allowed['div']['data-autoplay-speed'] = true;
 			$allowed['div']['data-arrows'] = true;
 			$allowed['div']['data-dots'] = true;
 			$allowed['div']['data-fade'] = true;
@@ -146,8 +147,9 @@ if ( ! function_exists( 'tailor_partial' ) ) {
 		 * @param string $partial
 		 * @param string $slug
 		 * @param string $name
+		 * @param array $args
 		 */
-		$partial = apply_filters( 'tailor_partial', $partial, $slug, $name );
+		$partial = apply_filters( 'tailor_partial', $partial, $slug, $name, $args );
 
 		if ( $partial ) {
 
@@ -159,8 +161,9 @@ if ( ! function_exists( 'tailor_partial' ) ) {
 			 * @param string $partial
 			 * @param string $slug
 			 * @param string $name
+			 * @param array $args
 			 */
-			do_action( "tailor_partial_{$slug}", $partial, $slug, $name );
+			do_action( "tailor_partial_{$slug}", $partial, $slug, $name, $args );
 
 			if ( $args && is_array( $args ) ) {
 				extract( $args );

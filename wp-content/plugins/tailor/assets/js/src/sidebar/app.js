@@ -7,6 +7,8 @@ var $ = Backbone.$,
 
 SidebarApplication = Marionette.Application.extend( {
 
+    _initialized: false,
+    
 	el : document.querySelector( '#tailor' ),
 
     /**
@@ -14,7 +16,7 @@ SidebarApplication = Marionette.Application.extend( {
      *
      * @since 1.0.0
      */
-	initialize : function() {
+	onBeforeStart : function() {
         this._collapsed = false;
         this._unsavedChanges = false;
         this.saveButton = document.querySelector( '#tailor-save' );
@@ -46,6 +48,10 @@ SidebarApplication = Marionette.Application.extend( {
         ];
 
         this.addEventListeners();
+    },
+    
+    onStart: function() {
+        this._initialized = true;
     },
 
     /**
@@ -182,42 +188,28 @@ SidebarApplication = Marionette.Application.extend( {
 
         sidebar.listenTo( sidebar.channel, 'canvas:handshake', sidebar.registerRemoteChannel );
 
-        /**
-         * Restores the next history snapshot, if available.
-         *
-         * @since 1.0.0
-         */
         $doc.on( 'keydown', function( e ) {
-            if ( e.ctrlKey && 89 == e.keyCode ) {
-                if ( ! _.contains( [ 'INPUT', 'SELECT', 'TEXTAREA' ], e.target.tagName ) ) {
+            if ( _.contains( [ 'INPUT', 'SELECT', 'TEXTAREA' ], e.target.tagName ) ) {
+                return;
+            }
 
-                    /**
-                     * Fires when a "CTRL-Y" is pressed.
-                     *
-                     * @since 1.0.0
-                     */
+            if ( e.ctrlKey ) {
+                if ( 89 == e.keyCode ) {
                     sidebar.channel.trigger( 'history:redo' );
                 }
-            }
-        } );
-
-	    /**
-         * Restores the previous history snapshot, if available.
-         *
-         * @since 1.0.0
-         */
-        $doc.on( 'keydown', function( e ) {
-            if ( e.ctrlKey && 90 == e.keyCode ) {
-                if ( ! _.contains( [ 'INPUT', 'SELECT', 'TEXTAREA' ], e.target.tagName ) ) {
-
-                    /**
-                     * Fires when a "CTRL-Z" is pressed.
-                     *
-                     * @since 1.0.0
-                     */
+                else if ( 90 == e.keyCode ) {
                     sidebar.channel.trigger( 'history:undo' );
                 }
             }
+            else if ( e.metaKey && 90 == e.keyCode ) {
+                if ( e.shiftKey ) {
+                    sidebar.channel.trigger( 'history:redo' );
+                }
+                else {
+                    sidebar.channel.trigger( 'history:undo' );
+                }
+            }
+
         } );
     },
 
@@ -238,10 +230,28 @@ SidebarApplication = Marionette.Application.extend( {
              *
              * @since 1.0.0
              */
-            app.channel.reply( 'canvas:elements', function( id ) {
-                return remoteChannel.request( 'canvas:elements', id );
+            app.channel.reply( 'canvas:elements', function() {
+                return remoteChannel.request( 'canvas:elements' );
             } );
 
+            /**
+             * Returns the element templates from the remote window.
+             *
+             * @since 1.7.9
+             */
+            app.channel.reply( 'canvas:templates', function() {
+                return remoteChannel.request( 'canvas:templates' );
+            } );
+
+            /**
+             * Returns the element CSS from the remote window.
+             *
+             * @since 1.7.9
+             */
+            app.channel.reply( 'canvas:css', function() {
+                return remoteChannel.request( 'canvas:css' );
+            } );
+            
             /**
              * Returns the selected element (if any) from the remote window.
              *
@@ -256,6 +266,15 @@ SidebarApplication = Marionette.Application.extend( {
 
             app.el.classList.add( 'is-initialized' );
             app.el.querySelector( '.tailor-preview__viewport' ).classList.add( 'is-loaded' );
+            
+            /**
+             * Fires when the sidebar is initialized.
+             *
+             * @since 1.0.0
+             *
+             * @param app
+             */
+            app.channel.trigger( 'sidebar:initialize', app );
         }
     },
 

@@ -479,6 +479,7 @@ html {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
   flex-direction: column;
 }
 
@@ -509,6 +510,7 @@ html {
 }
 
 [dir=rtl] .tailor-ui .tailor-row {
+  -ms-flex-direction: row-reverse;
   flex-direction: row-reverse;
 }
 
@@ -718,6 +720,7 @@ html {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
   flex-direction: column;
 }
 
@@ -922,6 +925,7 @@ html {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
+    -ms-flex-direction: column;
     flex-direction: column;
   }
   .tailor-ui .tablet-columns .tailor-column > :last-child {
@@ -1126,6 +1130,7 @@ html {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
+    -ms-flex-direction: column;
     flex-direction: column;
   }
   .tailor-ui .desktop-columns .tailor-column > :last-child {
@@ -1322,6 +1327,7 @@ html {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
   flex-direction: column;
 }
 
@@ -1890,7 +1896,6 @@ html {
   border: 1px none #efefef;
   border-radius: 0;
   box-shadow: none;
-  overflow: hidden;
 }
 
 .tailor-ui .tailor-section__content {
@@ -1898,9 +1903,11 @@ html {
   z-index: 2;
   margin: 0 auto;
   width: 100%;
+  max-width: 100%;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
   flex-direction: column;
 }
 
@@ -1921,7 +1928,7 @@ html {
   transform: translatez(0);
 }
 
-.tailor-ui .tailor-section.is-parallax {
+.tailor-ui .tailor-section.is-parallax, .tailor-ui .tailor-section.has-background-image {
   overflow: hidden;
 }
 

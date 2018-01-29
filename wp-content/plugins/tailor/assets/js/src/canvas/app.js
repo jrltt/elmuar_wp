@@ -13,38 +13,20 @@ CanvasApplication = Marionette.Application.extend( {
 	 * @since 1.0.0
 	 */
     onBeforeStart : function() {
-        if ( window.location.origin !== window.parent.location.origin ) {
-            console.error( 'The Canvas has a different origin than the Sidebar' );
-            return;
-        }
-
-        if ( ! window.parent.app ) {
-            $( window.parent.document ).on( "DOMContentLoaded readystatechange load", this.registerRemoteChannel.bind( this ) );
-        }
-        else {
-            this.registerRemoteChannel();
-        }
-    },
-
-    /**
-     * Initializes the application.
-     *
-     * @since 1.0.0
-     */
-	onStart : function() {
 
         // White listed events from the remote channel
         this.allowableEvents = [
+            'sidebar:initialize',
 
             // Triggered when elements or templates are dragged from the sidebar
-	        'canvas:dragstart', 'canvas:drag', 'canvas:dragend',
+            'canvas:dragstart', 'canvas:drag', 'canvas:dragend',
 
             // Triggered when a template is loaded
             'template:load',
-            
+
             // Triggered when an element is edited
             'modal:apply',
-            
+
             // Triggered when a sidebar setting changes
             'sidebar:setting:change',
 
@@ -54,9 +36,16 @@ CanvasApplication = Marionette.Application.extend( {
             // Triggered when the element collection is reset (used by the History module)
             'elements:reset'
         ];
-        
+
         this.addEventListeners();
-	},
+
+        if ( window.location.origin !== window.parent.location.origin ) {
+            console.error( 'The Canvas has a different origin than the Sidebar' );
+            return;
+        }
+        
+        this.registerRemoteChannel();
+    },
 
     /**
      * Adds the required event listeners.
@@ -70,31 +59,26 @@ CanvasApplication = Marionette.Application.extend( {
         $( 'img' ).attr( { draggable : false } );
 
         $doc.on( 'keydown', function( e ) {
-
             if ( _.contains( [ 'INPUT', 'SELECT', 'TEXTAREA' ], e.target.tagName ) ) {
                 return;
             }
 
-            if ( e.ctrlKey && 90 == e.keyCode ) {
-
-                /**
-                 * Fires when a "CTRL-Z" is pressed.
-                 *
-                 * @since 1.0.0
-                 */
-                canvas.channel.trigger( 'history:undo' );
+            if ( e.ctrlKey ) {
+                if ( 89 == e.keyCode ) {
+                    canvas.channel.trigger( 'history:redo' );
+                }
+                else if ( 90 == e.keyCode ) {
+                    canvas.channel.trigger( 'history:undo' );
+                }
             }
-
-            else if ( e.ctrlKey && 89 == e.keyCode ) {
-
-                /**
-                 * Fires when a "CTRL-Y" is pressed.
-                 *
-                 * @since 1.0.0
-                 */
-                canvas.channel.trigger( 'history:redo' );
+            else if ( e.metaKey && 90 == e.keyCode ) {
+                if ( e.shiftKey ) {
+                    canvas.channel.trigger( 'history:redo' );
+                }
+                else {
+                    canvas.channel.trigger( 'history:undo' );
+                }
             }
-
             else if ( 8 == e.keyCode ) {
                 var selectedElement = canvas.channel.request( 'canvas:element:selected' );
                 if ( selectedElement ) {
@@ -162,7 +146,7 @@ CanvasApplication = Marionette.Application.extend( {
 
         // Forward allowable events from the remote channel
 	    this.listenTo( remoteChannel, 'all', this.forwardRemoteEvent );
-
+        
         /**
          * Fires when the remote channel is registered.
          *

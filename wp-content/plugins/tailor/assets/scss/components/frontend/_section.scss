@@ -34,13 +34,13 @@ $section-box-shadow: none !default;
 		border: $section-border-width $section-border-style $section-border-color;
 		border-radius: $section-border-radius;
 		box-shadow: $section-box-shadow;
-		overflow: hidden;
 
 		&__content {
 			position: relative;
 			z-index: 2;
 			margin: 0 auto;
 			width: 100%;
+			max-width: $global-section-width;
 
 			@include flex( column );
 		}
@@ -64,7 +64,8 @@ $section-box-shadow: none !default;
 		}
 
 		// Variations
-		&.is-parallax {
+		&.is-parallax,
+		&.has-background-image {
 			overflow: hidden;
 		}
 

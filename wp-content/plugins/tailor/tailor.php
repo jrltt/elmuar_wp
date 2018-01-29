@@ -4,13 +4,15 @@
  * Plugin Name: Tailor
  * Plugin URI: http://www.gettailor.com
  * Description: Build beautiful page layouts quickly and easily using your favourite theme.
- * Version: 1.7.6
- * Author: Andrew Worsfold
- * Author URI:  http://www.andrewworsfold.com
+ * Version: 1.8.2
+ * Author: The Tailor Team
+ * Author URI:  http://www.gettailor.com
  * Text Domain: tailor
  *
  * @package Tailor
  */
+
+use Leafo\ScssPhp\Compiler;
 
 defined( 'ABSPATH' ) or die();
 
@@ -147,6 +149,7 @@ if ( ! class_exists( 'Tailor' ) ) {
 
             add_action( 'plugins_loaded', array( $this, 'init' ) );
 	        add_action( 'admin_init', array( $this, 'admin_init' ) );
+	        add_action( 'customize_save_after', array( $this, 'customize_save_after' ) );
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ), 99 );
@@ -157,6 +160,64 @@ if ( ! class_exists( 'Tailor' ) ) {
 	        add_action( 'wp_ajax_tailor_save', array( $this, 'save' ) );
 	        add_filter( 'heartbeat_received', array( $this, 'lock_post' ), 10, 2 );
 	        add_action( 'wp_ajax_tailor_unlock_post', array( $this, 'unlock_post' ) );
+        }
+
+        /**
+         * Initializes the plugin.
+         *
+         * @since 1.0.0
+         */
+        public function init() {
+	        
+            load_plugin_textdomain( 'tailor', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
+	        add_filter( 'body_class', array( $this, 'body_class' ) );
+	        add_filter( 'the_content', array( $this, 'remove_html_comments' ) );
+	        add_filter( 'the_editor_content', array( $this, 'remove_html_comments' ) );
+
+	        $this->load_directory( 'shortcodes' );
+	        $this->load_directory( 'helpers' );
+	        $this->load_directory( 'api' );
+
+	        if ( is_admin() ) {
+		        $this->load_directory( 'admin/helpers' );
+		        $this->load_files( array(
+			        'admin/class-compatibility',
+			        'admin/class-revisions',
+			        'admin/class-edit-page',
+			        'admin/class-settings-page',
+			        'class-icons',
+			        'class-tinymce',
+		        ) );
+	        }
+
+	        $this->load_directory( 'controls' );
+	        $this->load_files( array(
+		        'class-compatibility',
+		        'abstract-manager',
+		        'class-panels',
+		        'class-models',
+		        'class-elements',
+		        'class-templates',
+		        'class-sidebar',
+		        'class-canvas',
+		        'class-customizer',
+		        'class-widgets',
+		        'class-custom-css',
+		        'class-custom-js',
+		        'class-icons',
+		        'class-tinymce',
+	        ) );
+
+
+	        /**
+	         * Fires after all files have been loaded.
+	         *
+	         * @since 1.0.0
+	         *
+	         * @param Tailor
+	         */
+	        do_action( 'tailor_init', $this );
         }
 
 	    /**
@@ -172,60 +233,29 @@ if ( ! class_exists( 'Tailor' ) ) {
 		    return $classes;
 	    }
 
-        /**
-         * Initializes the plugin.
-         *
-         * @since 1.0.0
-         */
-        public function init() {
-	        
-            load_plugin_textdomain( 'tailor', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	    /**
+	     * Removes comments from HTML content.
+	     *
+	     * @since 1.8.0
+	     *
+	     * @param $content
+	     *
+	     * @return mixed
+	     */
+	    public function remove_html_comments( $content ) {
 
-	        add_filter( 'body_class', array( $this, 'body_class' ) );
+		    // No <p> around HTML comment
+		    if ( strpos( $content, '<!-' ) !== false ) {
+			    $content = preg_replace( '|<p>\s*<\!-|', '<!-', $content );
 
-	        $this->load_directory( 'shortcodes' );
-	        $this->load_directory( 'helpers' );
-	        $this->load_files( array(
-		        'class-compatibility',
-		        'class-custom-css',
-		        'class-custom-js',
-		        'class-icons',
-		        'class-revisions',
-		        'api/class-api',
-	        ) );
+			    // Remove the tailing paragraph if this paragraph starts as a comment.
+			    if ( 0 === strpos( $content, '<!-' ) ) {
+				    $content = preg_replace( '|\-->\s*</p>|', '-->', $content );
+			    }
+		    }
 
-	        if ( is_admin() ) {
-		        $this->load_files( array(
-			        'admin/class-admin',
-			        'admin/class-settings',
-			        'admin/helpers/helpers-general',
-		        ) );
-	        }
-
-	        $this->load_directory( 'controls' );
-
-	        $this->load_files( array(
-		        'abstract-manager',
-		        'class-panels',
-		        'class-models',
-		        'class-elements',
-		        'class-templates',
-		        'class-sidebar',
-		        'class-canvas',
-		        'class-tinymce',
-		        'class-customizer',
-		        'class-widgets',
-	        ) );
-	        
-	        /**
-	         * Fires after all files have been loaded.
-	         *
-	         * @since 1.0.0
-	         *
-	         * @param Tailor
-	         */
-	        do_action( 'tailor_init', $this );
-        }
+		    return $content;
+	    }
 
         /**
          * Records the editor styles registered by the theme for use in the front end.
@@ -237,6 +267,72 @@ if ( ! class_exists( 'Tailor' ) ) {
         public function admin_init() {
 	        $this->apply_editor_styles();
         }
+
+	    /**
+	     * (Re)Compiles plugin SCSS using the new setting values.
+	     *
+	     * @since 1.8.0
+	     */
+	    public function customize_save_after() {
+		    include_once tailor()->plugin_dir() . '/lib/scssphp/scss.inc.php';
+
+		    $scss = new Compiler();
+		    $scss->setImportPaths( tailor()->plugin_dir() . '/assets/scss' );
+
+		    $section_width = get_theme_mod( 'tailor_section_width', '100%' );
+		    $horizontal_spacing = get_theme_mod( 'tailor_column_spacing', '1rem' );
+		    $vertical_spacing = get_theme_mod( 'tailor_element_spacing', '1rem' );
+		    $mobile_breakpoint = intval( get_theme_mod( 'tailor_mobile_breakpoint', 320 ) );
+		    $tablet_breakpoint = intval( get_theme_mod( 'tailor_tablet_breakpoint', 720 ) );
+
+		    $scss->setVariables( array(
+			    'global-class-prefix'               =>  'tailor-',
+			    'global-section-width'              =>  $section_width,
+			    'global-spacing-vertical'           =>  $vertical_spacing,
+			    'global-spacing-horizontal'         =>  $horizontal_spacing,
+			    'global-transition-duration'        =>  '150ms',
+			    'global-font-family'                =>  '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif',
+			    'global-font-size'                  =>  '1em',
+			    'global-line-height'                =>  1.5,
+			    'global-primary-color'              =>  '#0f95ee',
+			    'global-secondary-color'            =>  '#a0a5aa',
+			    'global-text-color'                 =>  '#404040',
+			    'global-background-color'           =>  '#fdfdfd',
+			    'global-white-color'                =>  '#fff',
+			    'global-success-color'              =>  '#7ad03a',
+			    'global-warning-color'              =>  '#ffba00',
+			    'global-error-color'                =>  '#dd3d36',
+			    'global-border-width'               =>  '1px',
+			    'global-border-style'               =>  'solid',
+			    'global-border-color'               =>  '#efefef',
+			    'global-border-radius'              =>  '2px',
+			    'global-box-shadow'                 =>  '0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 rgba(0, 0, 0, 0.05)',
+			    'text-color'                        =>  '#404040',
+			    'background-color'                  =>  '#fdfdfd',
+			    'border-color'                      =>  '#efefef',
+			    'mobile'                            =>  "only screen and (max-width: {$mobile_breakpoint}px)",
+			    'tablet'                            =>  "only screen and (min-width: " . ( $mobile_breakpoint + 1 ) . "px) and (max-width: {$tablet_breakpoint}px)",
+			    'tablet-up'                         =>  'only screen and (min-width: ' . ( $mobile_breakpoint + 1 ) . 'px)',
+			    'desktop'                           =>  'only screen and (min-width: ' . ( $tablet_breakpoint + 1 ) . 'px)',
+		    ) );
+
+		    // Generate the CSS
+		    $scss->setFormatter( 'Leafo\ScssPhp\Formatter\Expanded' );
+		    $css = $scss->compile( file_get_contents( tailor()->plugin_dir() . 'assets/scss/frontend.scss' ) );
+		    $scss->setFormatter( 'Leafo\ScssPhp\Formatter\Compressed' );
+		    $css_min = $scss->compile( file_get_contents( tailor()->plugin_dir() . 'assets/scss/frontend.scss' ) );
+
+		    // Maybe create the directory
+		    $wp_upload_dir = wp_upload_dir( null, false );
+		    $tailor_css_dir = "{$wp_upload_dir['basedir']}/tailor/css";
+		    if ( ! is_dir( $tailor_css_dir ) ) {
+			    tailor_create_dir( $tailor_css_dir );
+		    }
+
+		    // Create the CSS files
+		    tailor_create_file( "{$tailor_css_dir}/frontend.css", $css );
+		    tailor_create_file( "{$tailor_css_dir}/frontend.min.css", $css_min );
+	    }
 
 	    /**
 	     * Applies custom Tailor styles to the editor.
@@ -364,9 +460,15 @@ if ( ! class_exists( 'Tailor' ) ) {
 	         */
 	        if ( is_singular() && apply_filters( 'tailor_enable_frontend_styles', true ) ) {
 
+		        $wp_upload_dir = wp_upload_dir( null, false );
+
+		        // Enqueue frontend styles
+		        $file_name = 'frontend' . ( SCRIPT_DEBUG ? '.css' : '.min.css' );
+		        $stylesheet_path = @file_exists( "{$wp_upload_dir['basedir']}/tailor/css/{$file_name}" ) ? "{$wp_upload_dir['baseurl']}/tailor/css/{$file_name}" : $this->plugin_url() . "assets/css/{$file_name}";
+		        
 		        wp_enqueue_style(
 			        'tailor-styles',
-			        $this->plugin_url() . 'assets/css/frontend' . ( SCRIPT_DEBUG ? '.css' : '.min.css' ),
+			        $stylesheet_path,
 			        array(),
 			        $this->version()
 		        );
@@ -854,20 +956,6 @@ if ( ! class_exists( 'Tailor' ) ) {
 		    return '<a href="' . $this->get_edit_url( $post_id ) . '">' . $edit_label . '</a>';
 	    }
 
-        /**
-         * Returns true if this is a Tailor page load.
-         *
-         * @since 1.0.0
-         *
-         * @return bool
-         */
-        public function is_tailoring() {
-	        if ( $this->doing_AJAX() ) {
-		        return ( isset( $_POST['tailor'] ) && 1 == $_POST['tailor'] );
-	        }
-            return ( isset( $_GET['tailor'] ) && 1 == $_GET['tailor'] );
-        }
-
 	    /**
 	     * Returns true if the given post has a Tailor layout.
 	     *
@@ -879,6 +967,20 @@ if ( ! class_exists( 'Tailor' ) ) {
 	    public function is_tailored( $post_id = null ) {
 			$post = get_post( $post_id );
 		    return $post && false != get_post_meta( $post->ID, '_tailor_layout', true );
+	    }
+
+	    /**
+	     * Returns true if this is a Tailor page load.
+	     *
+	     * @since 1.0.0
+	     *
+	     * @return bool
+	     */
+	    public function is_tailoring() {
+		    if ( $this->doing_AJAX() ) {
+			    return ( isset( $_POST['tailor'] ) && 1 == $_POST['tailor'] );
+		    }
+		    return ( isset( $_GET['tailor'] ) && 1 == $_GET['tailor'] );
 	    }
 
 	    /**

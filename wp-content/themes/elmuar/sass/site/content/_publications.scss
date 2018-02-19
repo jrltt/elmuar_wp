@@ -38,6 +38,7 @@
     @include media('screen','>tablet') {
       .single & {
         max-height: $max_height_images_single;
+        margin-bottom: 2rem;
       }
     }
     
@@ -59,6 +60,14 @@
   }
 }
 
+.single {
+  .entry--header__img-wrapper {
+    .caption {
+      font-size: .8rem;
+      margin-top: .8rem;
+    }
+  }
+}
 .entry--content {
   padding: 0 $padding__size;
   

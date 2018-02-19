@@ -58,40 +58,43 @@ function has_post_gallery()
 	return (count($gallery) >= 0);
 }
 
-function build_gallery($size = 'default')
+function get_match( $regex, $content ) {
+	preg_match($regex, $content, $matches);
+	return $matches[1];
+} 
+function build_gallery($size = 'default', $post_content = null)
 {
-	// $gallery = get_post_gallery_images( $post );
-	$gallery = get_attached_media( 'image' );
+	// https://wordpress.stackexchange.com/questions/80408/how-to-get-page-post-gallery-attachment-images-in-order-they-are-set-in-backend
+	// Extract the shortcode arguments from the $page or $post
+	$shortcode_args = shortcode_parse_atts(get_match('/\[gallery\s(.*)\]/isU', $post_content));
+	// get the ids specified in the shortcode call
+	$ids = $shortcode_args['ids'];
+	// get the attachments specified in the "ids" shortcode argument
+	$gallery = get_posts(
+		array(
+			'include' => $ids, 
+			'post_status' => 'inherit', 
+			'post_type' => 'attachment', 
+			'post_mime_type' => 'image', 
+			'order' => 'menu_order ID', 
+			'orderby' => 'post__in', //required to order results based on order specified the "include" param
+		)
+	);
 	?>
 
-<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}'>
- 		<?php foreach( $gallery as $key => $value ) { ?>
+	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}'>
+		<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
 				<div class="flex-align-center">
 					<img class="box wp-post-image" data-flickity-lazyload="<?php echo $value->guid; ?>" alt="<?php echo $value->post_title ."\n". $value->post_excerpt; ?>">
 				</div>
-				<?php /*if (is_single()): ?>
-				<div class="gallery-cell--metadata">
-					<?php if ($value->post_title) : ?>
-					<h4 class="gallery-cell--metadata__title"><?php echo $value->post_title; ?></h4>
-					<?php endif; ?>
-					<?php if ($value->post_excerpt) : ?>
-					<p class="gallery-cell--metadata__excerpt"><?php echo $value->post_excerpt; ?></p>
-					<?php endif; ?>
-				</div>
-				<?php endif; */?>
 			</div>
-		<?php
-	}
-	// $image_list .= '</div>';
-	// $content .= $image_list;
-	?>
+		<?php } ?>
 	</div>
 	<?php if (is_single()): ?>
 		<div class="caption">&nbsp;</div>
 	<?php endif; ?>
 	<?php
-	// print_r($content);
 }
 
 function jrltt_posted_on_simple()

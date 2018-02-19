@@ -12,7 +12,7 @@
 	<header class="entry-header">
 		<?php 
 		if ( has_post_gallery() ) {
-			build_gallery('full');
+			build_gallery('full', $post->post_content);
 		} else if ( has_post_thumbnail() ) {
 			the_post_thumbnail('full', array('class' => 'img-responsive'));
 		} else {

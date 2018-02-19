@@ -22,3 +22,4 @@ wp-content/themes/elmuar/style.css
 wp-content/plugins/wpml-*
 wp-content/plugins/sitepress-multilingual-cms
 wp-snapshots/*
+.eslintrc.json

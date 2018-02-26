@@ -12,7 +12,7 @@ get_header(); ?>
 
 	<div id="primary" class="content-area ">
 		<!-- zoomViewport -->
-		<main id="main" class="site-main projects  zoomContainer" role="main">
+		<main id="main" class="site-main projects" role="main">
 
 			<?php
 			$args = array(

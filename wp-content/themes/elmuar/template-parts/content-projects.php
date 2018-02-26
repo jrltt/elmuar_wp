@@ -27,7 +27,7 @@
 				$styleChild = 'carousel-cell';
 			} else {
 				$classParent = 'class="table__projects other"';
-				$styleChild = 'table__projects--child zoomTarget';
+				$styleChild = 'table__projects--child';
 				$targetSize = ($detect->isTablet()) ? '0.30' : '0.45';
 			}
 
@@ -39,7 +39,7 @@
 					$image = wp_get_attachment_image_src($image_url->ID, 'project');
 					$content .= '<div class="' . $styleChild . '" data-targetsize="' . $targetSize . '">';
 
-					$content .= '<img class="lazy table__projects--image"  src="blank.gif" data-src="' . $image[0] . '" size="' . wp_get_attachment_image_sizes($image_url->ID) . '" srcset="'.wp_get_attachment_image_srcset($image_url->ID). '" height="50">';
+					$content .= '<img class="table__projects--image"  src="' . $image[0] . '" height="50">';
 					$content .= '</div>';
 					if (get_field('white-space', $image_url->ID) && (!$detect->isMobile() && $detect->isTablet())) {
 						$whiteProjects = get_field('white-space', $image_url->ID);

@@ -13,14 +13,6 @@
       }
     }
   });
-
-  setTimeout(function() {
-    $('.table__projects').each(function () {
-      $(this).children('.table__projects--child').each(function (i) {
-        $(this).delay(100*i).fadeIn(250);
-      });
-    });
-  }, 3000);
   
   var $container = $('.carousel' );
   var $caption = $('.caption');

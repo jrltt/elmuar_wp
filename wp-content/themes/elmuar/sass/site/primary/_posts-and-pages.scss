@@ -1,0 +1,60 @@
+.sticky {
+	display: block;
+}
+
+.hentry {
+  width: 100%;
+	margin: 0 0 3.5em;
+  
+  .page-template-projects & {
+    margin-bottom: 0;
+  }
+}
+
+.byline,
+.updated:not(.published){
+	display: none;
+}
+
+.single .byline,
+.group-blog .byline {
+	display: inline;
+}
+
+.page-content,
+.entry-content,
+.entry-summary {
+	margin: 0;
+}
+
+.page-links {
+	clear: both;
+	margin: 0 0 1.5em;
+}
+
+.posted-on {
+  font-size: .9rem;
+  color: grey;
+}
+
+/*.blog {
+  .type-post {
+    .entry-header {
+      img {
+        max-height: 638px;
+      }
+    }
+  }
+}*/
+
+.single {
+  .type {
+    &-publication,
+    &-comission,
+    &-edtromp {
+      @include media('screen', '>tablet') {
+        min-height: 48rem;
+      }
+    }
+  }
+}

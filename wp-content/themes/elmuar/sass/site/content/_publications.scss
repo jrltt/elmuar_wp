@@ -1,0 +1,157 @@
+.entry--header {
+  &__link {
+    text-decoration: none;
+
+    &:hover {
+      .entry--header {
+        &__title,
+        &__meta {
+          @include transition(ease-in-out .35s);
+          color: lighten(black,10%);
+        }
+      }
+    }
+  }
+
+  &__text {
+    padding: 0 $padding__size;
+    margin-top: .8rem;
+
+    @include media('screen', '>tablet') {
+      padding: 0;
+    }
+  }
+
+  &__title {
+    font-size: 1.2rem;
+  }
+
+  &__meta {
+    color: $color__link-visited;
+  }
+}
+
+.entry--header {
+  &__img-wrapper {
+    height: auto;
+
+    @include media('screen','>tablet') {
+      .single & {
+        max-height: $max_height_images_single;
+        margin-bottom: 2rem;
+      }
+    }
+    
+    .wp-post-image {
+      width: auto;
+
+      .one-column & {
+        max-height: $max_height_images--one-column;
+      } 
+      
+      .two-columns & {
+        max-height: $max_height_images--two-columns;
+      }
+
+      .single & {
+        max-height: $max_height_images_single;
+      }
+    }
+  }
+}
+
+.single {
+  .entry--header__img-wrapper {
+    .caption {
+      font-size: .8rem;
+      margin-top: .8rem;
+    }
+  }
+}
+.entry--content {
+  padding: 0 $padding__size;
+  
+  @include media('screen', '>tablet') {
+    padding: 0;
+  }
+
+  &__text {
+    margin-top: .8rem;
+
+    &-link {
+      text-decoration: none;
+
+      .entry-title {
+
+      }
+    }
+  }
+
+  &__title {
+    font-size: 1.2rem;
+    font-weight: 100; 
+  }
+
+  &__meta {
+    color: $color__link-visited;
+  }
+}
+
+.entry--content__text-link {
+  &:after {
+    content: "\21A9";
+    color: white;
+    font-size: 1rem;
+    margin-left: .5rem;
+    display: inline-block;
+    @include transition(all 0.5s);
+    @include transform(translate(-20px,0));
+    opacity: 0;
+  }
+
+  &:hover {    
+    &:after {
+      color: black;
+      @include transform(translate(5px,0));
+      opacity: 1;
+    }
+  }
+}
+.entry--content__custom {
+  p {
+    @include font-size(.9);
+    line-height: 23px;;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+.entry-header {
+  @include media('screen', '<tablet') {
+    margin-left: -$padding__size;
+    margin-right: -$padding__size;
+  }
+
+  @include media('screen', '>tablet') {
+    .single & {
+      max-height: $max_height_images_single;
+    }
+
+    .page-template-projects & {
+      min-height: 0;
+    }
+  }
+}
+
+.image__type {
+  &--default,
+  &--thumbnail {
+    .entry-header {
+      display: flex;
+      
+      .entry--header__img-wrapper {
+        align-self: flex-end;
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+.page-template-parcour {
+  .tailor-toggles {
+    .tailor-toggle {
+      .tailor-element {
+        > ul {
+          margin-left: 0;
+          padding-left: 0;
+        }
+
+        ul {
+          li {
+            list-style: none;
+            margin-bottom: 1rem;
+            
+            strong {
+              float: left;
+              clear: left;
+              margin-right: .5rem;
+            }
+            
+            > ul {
+              margin-left: 5.2rem;
+            }
+
+            ul {
+              li {
+                margin-bottom: .25rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

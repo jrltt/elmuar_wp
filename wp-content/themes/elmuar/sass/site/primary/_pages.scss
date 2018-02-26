@@ -1,0 +1,123 @@
+.site-main {
+  max-width: 85rem;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  margin: -1rem auto;
+
+  .blog & {
+    flex-flow: column wrap;
+  }
+
+  .page-template-projects & {
+    max-width: none;
+  }
+}
+
+.site-main {
+  &.one-column {
+    width: 100%;
+    padding-left: $padding__size;
+    padding-right: $padding__size;
+    
+    @include media('screen', '>desktop') {
+      width: 820px;
+    }
+  }
+}
+
+.site-main {
+  &.two-columns {
+    .type-edtromp__header {
+      padding: 0 $padding__size-for-box;
+    }
+
+    .type {
+      &-edtromp,
+      &-publication,
+      &-comission {
+        transition: all 200ms ease;
+        flex: 0 0 auto;
+
+        @include media('screen', '>tablet') {
+          flex: 0 0 50%;
+          padding: 0 $padding__size-for-box 4rem;
+        }
+      }
+    }
+  }
+
+  &.projects {
+    padding-left: $padding__size-for-box;
+  }
+}
+
+.page-template-default {
+  .site-main {
+    .type-page {
+      @include flex(1);
+      padding: 0;
+    }
+  }
+}
+
+.site {
+  overflow: hidden;
+}
+
+.site-content {
+  width: 100%;
+  margin-top: 6.5rem;
+
+  // .page-template-projects & {
+  //   margin-top: 0;
+  //   position: absolute;
+  //   top: 6.5rem;
+  // }
+}
+
+.site-content,
+.site-footer {
+  @include transition(margin-left 200ms ease-in);
+  
+  &.cbp-spmenu-push-toright {
+    margin-left: 320px;
+  }
+}
+
+.site-main {
+  .entry-content {
+    p {
+      margin-top: 0;
+    }
+  }
+}
+
+.site-layer {
+  display: none;
+  background-color: rgba(grey,0.2);
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  @include transition(all 190ms ease);
+
+  &.active {
+    display: block;
+    z-index: 99;
+  }
+}
+
+.one-column {
+  width: 100%;
+  padding-left: $padding__size;
+  padding-right: $padding__size;
+  
+  @include media('screen', '>tablet') {
+    width: 550px;
+    margin: 0 auto;
+  }
+
+  @include media('screen', '>desktop') {
+    width: 820px;
+  }
+}

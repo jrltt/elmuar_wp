@@ -1,0 +1,27 @@
+// @import "../layout/content-sidebar";
+// @import "../layout/sidebar-content";
+/*--------------------------------------------------------------
+## Posts and pages
+--------------------------------------------------------------*/
+@import "primary/posts-and-pages";
+@import "primary/pages";
+/*--------------------------------------------------------------
+## header
+--------------------------------------------------------------*/
+@import "primary/header";
+/*--------------------------------------------------------------
+## Asides
+--------------------------------------------------------------*/
+@import "primary/asides";
+
+/*--------------------------------------------------------------
+## Comments
+--------------------------------------------------------------*/
+@import "primary/comments";
+
+@import "content/publications";
+@import "content/information";
+@import "content/parcours";
+@import "content/projects";
+
+@import "secondary/footer";

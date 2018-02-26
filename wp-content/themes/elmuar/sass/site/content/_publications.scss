@@ -98,25 +98,9 @@
 }
 
 .entry--content__text-link {
-  &:after {
-    content: "\21A9";
-    color: white;
-    font-size: 1rem;
-    margin-left: .5rem;
-    display: inline-block;
-    @include transition(all 0.5s);
-    @include transform(translate(-20px,0));
-    opacity: 0;
-  }
-
-  &:hover {    
-    &:after {
-      color: black;
-      @include transform(translate(5px,0));
-      opacity: 1;
-    }
-  }
+  @include symbol-inside();
 }
+
 .entry--content__custom {
   p {
     @include font-size(.9);

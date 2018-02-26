@@ -47,6 +47,17 @@
   }
 }
 
+.main-navigation--custom  {
+  .menu-item {
+    @include symbol-inside();
+    
+    &.current-menu-item {
+      a {
+        font-weight: 600;
+      }
+    }
+  }
+}
 .main-navigation {
   position: fixed;
   top: 0;

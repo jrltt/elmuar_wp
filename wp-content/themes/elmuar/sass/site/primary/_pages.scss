@@ -17,9 +17,12 @@
 .site-main {
   &.one-column {
     width: 100%;
-    padding-left: $padding__size;
-    padding-right: $padding__size;
     
+    @include media('screen', '>tablet') {
+      padding-left: $padding__size;
+      padding-right: $padding__size;
+    }
+
     @include media('screen', '>desktop') {
       width: 820px;
     }
@@ -109,15 +112,24 @@
 
 .one-column {
   width: 100%;
-  padding-left: $padding__size;
-  padding-right: $padding__size;
   
   @include media('screen', '>tablet') {
+    padding-left: $padding__size;
+    padding-right: $padding__size;
     width: 550px;
     margin: 0 auto;
   }
 
   @include media('screen', '>desktop') {
     width: 820px;
+  }
+}
+
+.one-column {
+  @include media('screen', '>tablet') {
+    .image__type--gallery {
+      padding-bottom: 56px;
+      margin-bottom: 64px;
+    }
   }
 }

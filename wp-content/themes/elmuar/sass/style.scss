@@ -151,11 +151,14 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
 
 .gallery-cell {
   width: 100%;
-  min-height: 385px;
   margin-right: 10px;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
+  
+  @include media('screen', '<tablet') {
+    min-height: $max_height_images--two-columns_default;
+  }
 
   @include media('screen', '>tablet') {
     .one-column & {
@@ -171,8 +174,8 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
       min-height: auto;
     }
   }
-  
 }
+
 .gallery-cell--metadata {
   position: absolute;
   left: 0;

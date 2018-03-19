@@ -17,7 +17,7 @@
     padding-right: 1rem;
 
     li {
-      margin-bottom: 1.3rem;
+      margin-bottom: 1rem;
       list-style: none;
 
     }
@@ -49,8 +49,6 @@
 
 .main-navigation--custom  {
   .menu-item {
-    @include symbol-inside();
-    
     &.current-menu-item {
       a {
         font-weight: 600;

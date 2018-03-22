@@ -24,25 +24,28 @@ $classTypeArticle = has_gallery();
 		</div>
 	</header>
 
-	<div class="entry-content">
+	<div class="entry-content entry--content">
 		<?php if (!is_single()) : ?>
-		<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
-			<?php the_title( '<h2 class="entry-title entry--content__title">', '</h2>' );?>
-		</a>
+		<h2 class="entry-title entry--content__title">
+			<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>"><?php the_title();?></a>
+		</h2>
 		<?php else: ?>
 			<?php the_title( '<h2 class="entry-title entry--content__title">', '</h2>' );?>
 		<?php endif; ?>
-		<?php
-			
-			echo get_field('custom_content', $post->ID);
+		<div class="entry--content__custom">
+			<?php
+				
+				echo get_field('custom_content', $post->ID);
 
-			wp_link_pages( array(
-				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),
-				'after'  => '</div>',
-			) );
-		?>
+				wp_link_pages( array(
+					'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),
+					'after'  => '</div>',
+				) );
+			?>
+		</div>
 	</div>
 	<div class="entry-meta">
-		<?php jrltt_posted_on_simple(); ?>
+		<?php $type = (is_single() && custom_singular_type()) ? 'Y': 'F, Y'; ?>
+		<time class="entry-date"><?php jrltt_posted_on_simple($type); ?></time>
 	</div>
 </article>

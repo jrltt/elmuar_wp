@@ -23,3 +23,4 @@ wp-content/plugins/wpml-*
 wp-content/plugins/sitepress-multilingual-cms
 wp-snapshots/*
 .eslintrc.json
+wp-content/languages

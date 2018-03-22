@@ -89,8 +89,10 @@
     }
   }
 }
+
 .entry--content {
   padding: 0 $padding__size;
+  margin-bottom: 1.25rem;
   
   @include media('screen', '>tablet') {
     padding: 0;
@@ -101,10 +103,7 @@
 
     &-link {
       text-decoration: none;
-
-      .entry-title {
-
-      }
+      font-weight: 700;
     }
   }
 

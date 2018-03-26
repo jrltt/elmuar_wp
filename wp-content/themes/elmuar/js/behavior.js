@@ -1,4 +1,138 @@
 'use strict';
+var lightbox = {
+  config : {
+    gallery              : '.gallery',          // class of gallery
+    galleryImage         : '.image',            // class of image within gallery
+    lightboxID           : '#lightbox',         // id of lighbox to be created
+    lightboxIDCustom     : '',
+    lightboxEnabledClass : 'lightbox-enabled',  // class of body when lighbox is enabled
+    buttonsExit          : true,                // include exit div?
+    buttonsNavigation    : true,                // include navigation divs?
+    containImgMargin     : 0                    // margin top and bottom to contain img
+  },
+  init : function(config) {
+    // merge config defaults with init config
+    $.extend(lightbox.config, config);
+    // on click
+    console.log('lightbox.config.gallery:::', lightbox.config.gallery);
+    
+    $(lightbox.config.gallery).find('a').on('click', function(event) {
+      event.preventDefault();
+      console.log($(this));
+      
+      lightbox.createLightbox($(this));
+    });
+  },
+  // create lightbox
+  createLightbox : function($element) {
+    console.log('createLightbox::::', $element.closest('.gallery')[0].getAttribute('data-gallery-id'));
+    lightbox.config.lightboxIDCustom = '#' + $element.closest('.gallery')[0].getAttribute('data-gallery-id');
+    // add body class
+    $('body').addClass(lightbox.config.lightboxEnabledClass);
+    // remove lightbox if exists
+    if ($(lightbox.config.lightboxIDCustom).length) { 
+      $(lightbox.config.lightboxIDCustom).remove(); 
+    }
+
+    // add new lightbox
+    $('body').append('<div id="' + lightbox.config.lightboxIDCustom.substring(1) +'"  class="lightbox"><div class="slider"></div></div>');
+
+    // add exit div if required
+    if (lightbox.config.buttonsExit) {
+      $(lightbox.config.lightboxIDCustom).append('<div class="exit"></div>');
+    }
+
+    // add navigation divs if required
+    if (lightbox.config.buttonsNavigation) {
+      $(lightbox.config.lightboxIDCustom).append('<div class="prev"></div><div class="next"></div>');
+    }
+    
+    // now populate lightbox
+    lightbox.populateLightbox($element);
+    
+  },
+  
+  // populate lightbox
+  populateLightbox: function($element) {
+    var thisgalleryImage = $element.closest(lightbox.config.galleryImage);
+    var thisIndex = thisgalleryImage.index();
+    // add slides
+    console.log('*******', thisgalleryImage);
+    
+    console.log('lightbox.config.gallery::', lightbox.config.gallery, '\nlightbox.config.galleryImage::::',lightbox.config.galleryImage);
+    $("[data-gallery-id=" + lightbox.config.lightboxIDCustom.substring(1) + "]").children(lightbox.config.galleryImage).each(function(index, value) {
+      console.log('lightbox.config.lightboxIDCustom', lightbox.config.lightboxIDCustom);
+
+      $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img src="' + $(this).find('a').attr('href') + '"></div></div></div>');
+    });
+    
+    // now initalise flickity
+    lightbox.initFlickity(thisIndex);
+    
+  },
+  
+  // initalise flickity
+  initFlickity : function(thisIndex) {
+    console.log($(lightbox.config.lightboxIDCustom).find('.slider'));
+    
+    $(lightbox.config.lightboxIDCustom).find('.slider').flickity({ // more options: https://flickity.metafizzy.co
+      cellAlign: 'left',
+      resize: true,
+      wrapAround: true,
+      prevNextButtons: false,
+      pageDots: false,
+      initialIndex: thisIndex
+    });
+    
+    // make sure image isn't too tall
+    lightbox.containImg();
+    
+    // on window resize make sure image isn't too tall
+    $(window).on('resize', function() {
+      lightbox.containImg();
+    });
+    
+    // buttons
+    var $slider = $(lightbox.config.lightboxIDCustom).find('.slider').flickity();
+    
+    $(lightbox.config.lightboxIDCustom).find('.exit').on('click', function() {
+      $('body').removeClass('lightbox-enabled');
+      setTimeout(function() {
+        $slider.flickity('destroy');
+        $(lightbox.config.lightboxIDCustom).remove();
+      }, 0);
+    });
+    
+    $(lightbox.config.lightboxIDCustom).find('.prev').on('click', function() {
+      $slider.flickity('previous');
+    });
+    
+    $(lightbox.config.lightboxIDCustom).find('.next').on('click', function() {
+      $slider.flickity('next');
+    });
+    
+    // keyboard
+    $(document).keyup(function(event) {
+      if ($('body').hasClass('lightbox-enabled')) {
+        switch (event.keyCode) {
+          case 27:
+            $(lightbox.config.lightboxIDCustom).find('.exit').click();
+            break;
+          case 37:
+            $(lightbox.config.lightboxIDCustom).find('.prev').click();
+            break;
+          case 39:
+            $(lightbox.config.lightboxIDCustom).find('.next').click();
+            break;
+        }
+      }
+    });
+  },
+  // contain lightbox images
+  containImg : function() {
+    $(lightbox.config.lightboxIDCustom).find('img').css('maxHeight', ($(document).height() - lightbox.config.containImgMargin));
+  }
+};
 
 (function($) {
   $('.menu-item a[href*="#"]:not([href="#"])').click(function() {

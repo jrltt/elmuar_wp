@@ -26,32 +26,36 @@
 				$classParent = 'class="carousel" data-flickity';
 				$styleChild = 'carousel-cell';
 			} else {
-				$classParent = 'class="table__projects other"';
+				$classParent = 'class="table__projects other gallery"';
 				$styleChild = 'table__projects--child';
-				$targetSize = ($detect->isTablet()) ? '0.30' : '0.45';
 			}
 
 			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
  				$gallery = get_attached_media( $post );
-				$content = '<div '.$classParent.'>';
+				$content = '<div data-gallery-id="gallery-'. $post->ID .'" '.$classParent.'>';
 
 				foreach( $gallery as $key => $image_url ) {
-					$image = wp_get_attachment_image_src($image_url->ID, 'project');
-					$content .= '<div class="' . $styleChild . '" data-targetsize="' . $targetSize . '">';
+					$smallImage = wp_get_attachment_image_src($image_url->ID, 'project');
+					$fullImage = wp_get_attachment_image_src($image_url->ID, 'full');
+					$content .= '<div class="image ' . $styleChild . '">';
 
-					$content .= '<img class="table__projects--image"  src="' . $image[0] . '" height="50">';
+					$content .= '<a  href="' . $fullImage[0] . '">';
+					$content .= '<img class="table__projects--image"  src="' . $smallImage[0] . '" height="50">';
+					$content .= '</a>';
+
 					$content .= '</div>';
 					if (get_field('white-space', $image_url->ID) && (!$detect->isMobile() && $detect->isTablet())) {
 						$whiteProjects = get_field('white-space', $image_url->ID);
 						for ($i=0; $i < $whiteProjects; $i++) { 
-							$content .= '<div class="table__projects--child zoomTarget white--child" data-targetsize="' . $targetSize . '"></div>';
+							$content .= '<div class="table__projects--child zoomTarget white--child"></div>';
 						}
 					}
 				}
 				if (get_field('custom_content', $post->ID)) {
-					$content .= '<div class="custom--content-box ' . $styleChild . '" data-targetsize="' . $targetSize . '">';
-		 			$content .= '<p class="custom--content__excerpt">' . wp_trim_words( get_field('custom_content', $post->ID), 25, null) . '<br/><a class="custom--content__link" href="#" data-featherlight="#mylightbox">Leer más</a></p>';
-					$content .= '<div id="mylightbox" class="custom--content__text">'. get_field('custom_content', $post->ID) . '</div>';
+					$projectTitle = lcfirst(str_replace(' ', '', $post->post_title));
+					$content .= '<div class="custom--content-box ' . $styleChild . '">';
+		 			$content .= '<p class="custom--content__excerpt">' . wp_trim_words( get_field('custom_content', $post->ID), 25, null) . '<br/><a class="custom--content__link" href="#" data-featherlight="#'. $projectTitle .'">Leer más</a></p>';
+					$content .= '<div id="'. $projectTitle .'" class="custom--content__text">'. get_field('custom_content', $post->ID) . '</div>';
 					$content .= '</div>';
 				}
 

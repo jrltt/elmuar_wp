@@ -60,7 +60,7 @@ var lightbox = {
     $("[data-gallery-id=" + lightbox.config.lightboxIDCustom.substring(1) + "]").children(lightbox.config.galleryImage).each(function(index, value) {
       console.log('lightbox.config.lightboxIDCustom', lightbox.config.lightboxIDCustom);
 
-      $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img src="' + $(this).find('a').attr('href') + '"></div></div></div>');
+      $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img data-flickity-lazyload="' + $(this).find('a').attr('href') + '"></div></div></div>');
     });
     
     // now initalise flickity
@@ -77,7 +77,9 @@ var lightbox = {
       wrapAround: false,
       prevNextButtons: true,
       pageDots: false,
-      initialIndex: thisIndex
+      initialIndex: thisIndex,
+      imagesLoaded: true,
+      lazyLoad: 1
     });
     
     // make sure image isn't too tall

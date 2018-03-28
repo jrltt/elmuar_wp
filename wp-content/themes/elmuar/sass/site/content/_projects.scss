@@ -90,6 +90,27 @@
   }
 }
 
+.custom--content-box {
+  &.slide {
+    widows: 100%;
+  }
+}
+
+.custom--content__excerpt {
+  .slide & {
+    width: 100%;
+  }
+}
+
+.custom--content {
+  &__link,
+  &__excerpt {
+    .slide & {
+      font-size: 1rem;
+    }
+  }
+}
+
 .page-template-projects {
   .featherlight {
     &:last-of-type {
@@ -161,22 +182,7 @@
       justify-content: center;
 	
 			.frame {
-				// width: 66%;
-				// height: 66%;
-
-//				table-layout: fixed;
-				
 				.valign {
-				// 	width: 100%;
-				// 	height: 100%;
-        //     			display: flex;
-        // align-items:center;
-        // justify-content: center;
-					//display: table-cell;
-					//text-align: center;
-//					vertical-align: middle;
-					// line-height: 0;
-
           img {
             max-width: 100%;
             height: auto;

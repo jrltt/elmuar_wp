@@ -3,6 +3,7 @@ var lightbox = {
   config : {
     gallery              : '.gallery',          // class of gallery
     galleryImage         : '.image',            // class of image within gallery
+    contentBox           : '.custom--content-box',
     lightboxID           : '#lightbox',         // id of lighbox to be created
     lightboxIDCustom     : '',
     lightboxEnabledClass : 'lightbox-enabled',  // class of body when lighbox is enabled
@@ -51,30 +52,29 @@ var lightbox = {
     lightbox.populateLightbox($element);
     
   },
-  
   // populate lightbox
   populateLightbox: function($element) {
-    var thisgalleryImage = $element.closest(lightbox.config.galleryImage);
-    var thisIndex = thisgalleryImage.index();
+    var thisGalleryImage = $element.closest(lightbox.config.galleryImage);
+    var thisIndex = thisGalleryImage.index();
+    var currentGallery = "[data-gallery-id=" + lightbox.config.lightboxIDCustom.substring(1) + "]";
     // add slides
-    $("[data-gallery-id=" + lightbox.config.lightboxIDCustom.substring(1) + "]").children(lightbox.config.galleryImage).each(function(index, value) {
+    $(currentGallery).children(lightbox.config.galleryImage).each(function(index, value) {
       console.log('lightbox.config.lightboxIDCustom', lightbox.config.lightboxIDCustom);
 
       $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img data-flickity-lazyload="' + $(this).find('a').attr('href') + '"></div></div></div>');
     });
-    
+    var contentClone = document.querySelector(currentGallery + ' ' + lightbox.config.contentBox).cloneNode(true);
+    contentClone.classList.add('slide');
+    $(lightbox.config.lightboxIDCustom + ' .slider').append($(contentClone));
     // now initalise flickity
-    lightbox.initFlickity(thisIndex);
-    
+    lightbox.initFlickity(thisIndex);  
   },
-  
   // initalise flickity
   initFlickity : function(thisIndex) {
     console.log($(lightbox.config.lightboxIDCustom).find('.slider'));
     
     $(lightbox.config.lightboxIDCustom).find('.slider').flickity({ // more options: https://flickity.metafizzy.co
       resize: true,
-      wrapAround: false,
       prevNextButtons: true,
       pageDots: false,
       initialIndex: thisIndex,
@@ -100,15 +100,7 @@ var lightbox = {
         $(lightbox.config.lightboxIDCustom).remove();
       }, 0);
     });
-    
-    $(lightbox.config.lightboxIDCustom).find('.prev').on('click', function() {
-      $slider.flickity('previous');
-    });
-    
-    $(lightbox.config.lightboxIDCustom).find('.next').on('click', function() {
-      $slider.flickity('next');
-    });
-    
+        
     // keyboard
     $(document).keyup(function(event) {
       if ($('body').hasClass('lightbox-enabled')) {
@@ -146,7 +138,7 @@ var lightbox = {
     }
   });
   
-  var $container = $('.carousel' );
+  var $container = $('.carousel');
   var $caption = $('.caption');
   $container.on('select.flickity', function() {
     var flkty = $container.data('flickity');

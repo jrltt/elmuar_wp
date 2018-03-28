@@ -136,7 +136,6 @@
 	.flickity-slider {
 		position: absolute;
 		width: 100%;
-		height: 100%;
 	}
 }
 
@@ -153,27 +152,32 @@
 	.slider {
 		width: 100%;
 		height: 100%;
+    display: flex;
+    justify-content: center;
 		
 		.slide {
-			width: 66%;
-			height: 100%;
+			width: 50%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 	
 			.frame {
-				width: 66%;
-				height: 66%;
+				// width: 66%;
+				// height: 66%;
 
 //				table-layout: fixed;
 				
 				.valign {
-					width: 100%;
-					height: 100%;
-            			display: flex;
-        align-items:center;
-        justify-content: center;
+				// 	width: 100%;
+				// 	height: 100%;
+        //     			display: flex;
+        // align-items:center;
+        // justify-content: center;
 					//display: table-cell;
 					//text-align: center;
 //					vertical-align: middle;
-					line-height: 0;
+					// line-height: 0;
 
           img {
             max-width: 100%;

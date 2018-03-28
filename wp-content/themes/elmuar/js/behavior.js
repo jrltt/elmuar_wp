@@ -7,7 +7,7 @@ var lightbox = {
     lightboxIDCustom     : '',
     lightboxEnabledClass : 'lightbox-enabled',  // class of body when lighbox is enabled
     buttonsExit          : true,                // include exit div?
-    buttonsNavigation    : true,                // include navigation divs?
+    buttonsNavigation    : false,                // include navigation divs?
     containImgMargin     : 0                    // margin top and bottom to contain img
   },
   init : function(config) {
@@ -57,9 +57,6 @@ var lightbox = {
     var thisgalleryImage = $element.closest(lightbox.config.galleryImage);
     var thisIndex = thisgalleryImage.index();
     // add slides
-    console.log('*******', thisgalleryImage);
-    
-    console.log('lightbox.config.gallery::', lightbox.config.gallery, '\nlightbox.config.galleryImage::::',lightbox.config.galleryImage);
     $("[data-gallery-id=" + lightbox.config.lightboxIDCustom.substring(1) + "]").children(lightbox.config.galleryImage).each(function(index, value) {
       console.log('lightbox.config.lightboxIDCustom', lightbox.config.lightboxIDCustom);
 
@@ -76,10 +73,9 @@ var lightbox = {
     console.log($(lightbox.config.lightboxIDCustom).find('.slider'));
     
     $(lightbox.config.lightboxIDCustom).find('.slider').flickity({ // more options: https://flickity.metafizzy.co
-      cellAlign: 'left',
       resize: true,
-      wrapAround: true,
-      prevNextButtons: false,
+      wrapAround: false,
+      prevNextButtons: true,
       pageDots: false,
       initialIndex: thisIndex
     });
@@ -158,6 +154,9 @@ var lightbox = {
     }
   });
 
+  lightbox.init({
+    containImgMargin : 1
+  }); 
 })(jQuery);
 
 var body = document.querySelector('body');

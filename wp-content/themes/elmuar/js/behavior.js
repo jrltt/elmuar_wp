@@ -26,7 +26,7 @@ var lightbox = {
   },
   // create lightbox
   createLightbox : function($element) {
-    console.log('createLightbox::::', $element.closest('.gallery')[0].getAttribute('data-gallery-id'));
+    console.log('title::::', $element.closest('.gallery')[0].getAttribute('data-gallery-title'));
     lightbox.config.lightboxIDCustom = '#' + $element.closest('.gallery')[0].getAttribute('data-gallery-id');
     // add body class
     $('body').addClass(lightbox.config.lightboxEnabledClass);
@@ -48,6 +48,8 @@ var lightbox = {
       $(lightbox.config.lightboxIDCustom).append('<div class="prev"></div><div class="next"></div>');
     }
     
+    $(lightbox.config.lightboxIDCustom).prepend('<div class="project__title">'+$element.closest('.gallery')[0].getAttribute('data-gallery-title')+'</div>');
+
     // now populate lightbox
     lightbox.populateLightbox($element);
     
@@ -95,10 +97,12 @@ var lightbox = {
     
     $(lightbox.config.lightboxIDCustom).find('.exit').on('click', function() {
       $('body').removeClass('lightbox-enabled');
-      setTimeout(function() {
-        $slider.flickity('destroy');
-        $(lightbox.config.lightboxIDCustom).remove();
-      }, 0);
+      // $(lightbox.config.lightboxIDCustom).fadeOut(400, function () {
+        setTimeout(function() {
+          $slider.flickity('destroy');
+          $(lightbox.config.lightboxIDCustom).remove();
+        }, 0);
+      // });
     });
         
     // keyboard
@@ -117,12 +121,43 @@ var lightbox = {
         }
       }
     });
+
+    setTimeout(function() {
+      $('.project__title').fadeOut(600, function() {
+        console.log('chao');
+      });
+    }, 5000);
   },
   // contain lightbox images
   containImg : function() {
     $(lightbox.config.lightboxIDCustom).find('img').css('maxHeight', ($(document).height() - lightbox.config.containImgMargin));
   }
 };
+// window.onload = function() {
+//   var placeholders = document.querySelectorAll('.placeholder');
+//   for (var i = 0; i < placeholders.length; i++) {
+//     loadImage(placeholders[i]);
+//   }
+
+//   function loadImage(placeholder) {
+//     var small = placeholder.children[0];
+
+//     // 1: load small image and show it
+//     var img = new Image();
+//     img.src = small.src;
+//     img.onload = function() {
+//       small.classList.add('loaded');
+//     };
+
+//     // 2: load large image
+//     var imgLarge = new Image();
+//     imgLarge.src = placeholder.dataset.large;
+//     imgLarge.onload = function() {
+//       imgLarge.classList.add('loaded');
+//     };
+//     placeholder.appendChild(imgLarge);
+//   }
+// };
 
 (function($) {
   $('.menu-item a[href*="#"]:not([href="#"])').click(function() {

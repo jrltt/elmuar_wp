@@ -32,24 +32,22 @@
 
 			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
  				$gallery = get_attached_media( $post );
-				$content = '<div data-gallery-id="gallery-'. $post->ID .'" '.$classParent.'>';
+				$content = '<div data-gallery-id="gallery-'. $post->ID .'" data-gallery-title="' . $post->post_title . '" '.$classParent.'>';
 
 				foreach( $gallery as $key => $image_url ) {
+					$whiteProjects = 0;
 					$smallImage = wp_get_attachment_image_src($image_url->ID, 'project');
 					$fullImage = wp_get_attachment_image_src($image_url->ID, 'full');
 					$content .= '<div class="image ' . $styleChild . '">';
 
-					$content .= '<a  href="' . $fullImage[0] . '">';
-					$content .= '<img class="table__projects--image"  src="' . $smallImage[0] . '" height="50">';
+					if (get_field('white-space', $image_url->ID)) {
+						$whiteProjects = get_field('white-space', $image_url->ID);
+					}
+					$content .= '<a  href="' . $fullImage[0] . '" data-white-space="givemespace-'.$whiteProjects.'">';
+					$content .= '<img class="table__projects--image img-small"  src="' . $smallImage[0] . '" height="50">';
 					$content .= '</a>';
 
 					$content .= '</div>';
-					if (get_field('white-space', $image_url->ID) && (!$detect->isMobile() && $detect->isTablet())) {
-						$whiteProjects = get_field('white-space', $image_url->ID);
-						for ($i=0; $i < $whiteProjects; $i++) { 
-							$content .= '<div class="table__projects--child zoomTarget white--child"></div>';
-						}
-					}
 				}
 				if (get_field('custom_content', $post->ID)) {
 					$projectTitle = lcfirst(str_replace(' ', '', $post->post_title));

@@ -79,14 +79,6 @@
   // }
 }
 
-.site-content,
-.site-footer {
-  @include transition(margin-left 200ms ease-in);
-  
-  &.cbp-spmenu-push-toright {
-    margin-left: 320px;
-  }
-}
 
 .site-main {
   .entry-content {
@@ -98,7 +90,7 @@
 
 .site-layer {
   display: none;
-  background-color: rgba(grey,0.2);
+  background-color: rgba(249,249,249, 0.55);
   width: 100%;
   height: 100%;
   position: fixed;

@@ -40,7 +40,7 @@ var lightbox = {
 
     // add exit div if required
     if (lightbox.config.buttonsExit) {
-      $(lightbox.config.lightboxIDCustom).append('<div class="exit"></div>');
+      $(lightbox.config.lightboxIDCustom).append('<div class="exit is-active"><div class="burger-icon"></div></div>');
     }
 
     // add navigation divs if required
@@ -48,7 +48,7 @@ var lightbox = {
       $(lightbox.config.lightboxIDCustom).append('<div class="prev"></div><div class="next"></div>');
     }
     
-    $(lightbox.config.lightboxIDCustom).prepend('<div class="project__title">'+$element.closest('.gallery')[0].getAttribute('data-gallery-title')+'</div>');
+    $(lightbox.config.lightboxIDCustom).prepend('<div class="project__title entry--content__title">'+$element.closest('.gallery')[0].getAttribute('data-gallery-title')+'</div>');
 
     // now populate lightbox
     lightbox.populateLightbox($element);
@@ -121,12 +121,6 @@ var lightbox = {
         }
       }
     });
-
-    setTimeout(function() {
-      $('.project__title').fadeOut(600, function() {
-        console.log('chao');
-      });
-    }, 5000);
   },
   // contain lightbox images
   containImg : function() {

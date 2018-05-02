@@ -1,13 +1,13 @@
 .main-navigation--custom {
+  background-color: rgba(235,235,235, 0.9);
+  height: 100%;
+  left: 0;
+  margin: 0 0 0 -320px;
+  overflow-y: auto;
   position: fixed;
   top: 0;
-  left: 0;
   width: 320px;
-  height: 100%;
-  z-index: 100;
-  margin: 0 0 0 -320px;
-  background-color: lighten(grey,45%); // margin: 0 0 0 -220px;
-  overflow-y: auto;
+  z-index: 119;
   @include transition(all 200ms ease-in);
   
   .menu {

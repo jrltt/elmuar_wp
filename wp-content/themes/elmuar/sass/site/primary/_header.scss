@@ -5,6 +5,7 @@
   z-index: 120;
 }
 
+
 .site-branding {
   margin-top: .5rem;
   padding-left: 1.25rem;
@@ -49,6 +50,31 @@
   }
 }
 
+.site-branding {
+  // position: relative;
+
+  &:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 120px;
+    width: 100%;
+    background-size: 100%;
+    background: -webkit-linear-gradient(to top, rgba(255, 255, 255, 0) 0, #fff);
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 0, #fff);
+    pointer-events: none;
+    @include transition(all .5s linear);
+    z-index: -1;
+
+    @include media('>=tablet') {
+      content: none;
+    }
+  }
+}
+
+
 .site-title {
   margin-top: 0;
   margin-bottom: 0;
@@ -90,4 +116,9 @@
       color: $color__link-text__hover;
     }
   }
+}
+
+.header--leng,
+.header--title {
+  z-index: 1;
 }

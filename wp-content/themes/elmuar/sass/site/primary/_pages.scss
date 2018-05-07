@@ -125,3 +125,13 @@
     }
   }
 }
+
+.type-page {
+  padding-left: $padding__size;
+  padding-right: $padding__size;
+  
+  @include media('screen', '>tablet') {
+    padding-left: inherit;
+    padding-right: inherit;
+  }
+}

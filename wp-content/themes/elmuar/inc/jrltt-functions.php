@@ -97,20 +97,9 @@ function build_gallery($size = 'default', $post_content = null)
 	<?php
 }
 
-function jrltt_posted_on_simple()
+function jrltt_posted_on_simple($type = 'F, Y')
 {
-	$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
-	if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) {
-		$time_string = '<time class="entry-date published" datetime="%1$s">%2$s</time><time class="updated" datetime="%3$s">%4$s</time>';
-	}
-
-	$time_string = sprintf( $time_string,
-		esc_attr( get_the_date( 'c' ) ),
-		esc_html( get_the_date() ),
-		esc_attr( get_the_modified_date( 'c' ) ),
-		esc_html( get_the_modified_date() )
-	);
-	echo '<span class="posted-on">' . $time_string . '</span>';
+	echo '<span class="posted-on">' . get_the_date( $type ). '</span>';
 }
 
 function echo_first_image( $postID ) 
@@ -136,35 +125,35 @@ function echo_first_image( $postID )
 
 function custom_navigation_menu() 
 {
-		$args = array(
-			'sort_order' => 'asc',
-			'sort_column' => 'menu_order',
-			'post_type' => 'page',
-			'post_status' => 'publish'
-		); 
-		$pages = get_pages($args);
-		$html = '<ul class="projects__menu menu">';
-		foreach ($pages as $key => $value) {
-			if ($value->post_title == 'Projets') {
-			$html .= '<li class="menu-item"><a href="'. $value->guid . '" class="">'.$value->post_title; 
-			if (is_page_template('projects.php')) {
-				if ($value->ID == 10 && $value->post_title == 'Projets') {
-					$html .= get_projects_by_title();
-				}
-			}
-			$html .= '</a></li>';
+	$args = array(
+		'sort_order' => 'asc',
+		'sort_column' => 'menu_order',
+		'post_type' => 'page',
+		'post_status' => 'publish'
+	); 
+	$pages = get_pages($args);
+	$html = '<ul class="projects__menu menu">';
+	foreach ($pages as $key => $value) {
+		if ($value->post_title == 'Projets') {
+		$html .= '<li class="menu-item"><a href="'. $value->guid . '" class="">'.$value->post_title; 
+		if (is_page_template('projects.php')) {
+			if ($value->ID == 10 && $value->post_title == 'Projets') {
+				$html .= get_projects_by_title();
 			}
 		}
-		$html .= '</ul>';
+		$html .= '</a></li>';
+		}
+	}
+	$html .= '</ul>';
 	echo $html;
 }
 
 function get_projects_by_title() 
 {
 	$args = array(
-		'post_type'					=>	 	'project',
-		'order'							=> 		'DESC',
-		'orderby'						=>		'date',
+		'post_type'				=>	 	'project',
+		'order'					=> 		'DESC',
+		'orderby'				=>		'date',
 		'posts_per_page'		=>		-1
 	);
 	$loop = new WP_Query($args);
@@ -194,15 +183,15 @@ function languages_list_footer()
 {
 	$languages = icl_get_languages('skip_missing=0&orderby=code');
 	if(!empty($languages)){
-			echo '<ul class="header--leng__list">';
-			foreach($languages as $l){
-					echo '<li>';
-					if(!$l['active']) echo '<a href="'.$l['url'].'">';
-					echo icl_disp_language($l['native_name']);
-					if(!$l['active']) echo '</a>';
-					echo '</li>';
-			}
-			echo '</ul>';
+		echo '<ul class="header--leng__list">';
+		foreach($languages as $l){
+				echo '<li>';
+				if(!$l['active']) echo '<a href="'.$l['url'].'">';
+				echo icl_disp_language($l['native_name']);
+				if(!$l['active']) echo '</a>';
+				echo '</li>';
+		}
+		echo '</ul>';
 	}
 }
 
@@ -222,4 +211,8 @@ function jrltt_back_to()
 		}
 		return $url;
 	}
+}
+
+function custom_singular_type() {
+	return (is_singular('comission') || is_singular('publication') || is_singular('edtromp') || is_singular('project'));
 }

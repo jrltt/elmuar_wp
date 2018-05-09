@@ -1,13 +1,13 @@
 .main-navigation--custom {
+  background-color: rgba(235,235,235, 0.9);
+  height: 100%;
+  left: 0;
+  margin: 0 0 0 -320px;
+  overflow-y: auto;
   position: fixed;
   top: 0;
-  left: 0;
   width: 320px;
-  height: 100%;
-  z-index: 100;
-  margin: 0 0 0 -320px;
-  background-color: lighten(grey,45%); // margin: 0 0 0 -220px;
-  overflow-y: auto;
+  z-index: 119;
   @include transition(all 200ms ease-in);
   
   .menu {
@@ -17,7 +17,7 @@
     padding-right: 1rem;
 
     li {
-      margin-bottom: 1.3rem;
+      margin-bottom: 1rem;
       list-style: none;
 
     }
@@ -47,6 +47,15 @@
   }
 }
 
+.main-navigation--custom  {
+  .menu-item {
+    &.current-menu-item {
+      a {
+        font-weight: 600;
+      }
+    }
+  }
+}
 .main-navigation {
   position: fixed;
   top: 0;
@@ -115,11 +124,14 @@
     text-decoration: none;
     font-size: 1.15rem;
   }
+}
 
+.main-navigation--custom {
   .current_page_item > a,
   .current-menu-item > a,
   .current_page_ancestor > a,
   .current-menu-ancestor > a {
+    color: $color__link-text__hover;
   }
 }
 

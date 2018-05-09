@@ -41,20 +41,49 @@
         margin-bottom: 2rem;
       }
     }
-    
-    .wp-post-image {
-      width: auto;
+  }
+}
 
-      .one-column & {
+.entry--header__img-wrapper {
+  .wp-post-image {
+    width: auto;
+  }
+}
+
+.entry--header__img-wrapper {
+  .wp-post-image {   
+    max-height: $max_height_images--two-columns_default;
+    
+    .one-column & {
+      @include media('screen', '>tablet') { 
         max-height: $max_height_images--one-column;
-      } 
-      
-      .two-columns & {
+      }
+    } 
+    
+    .two-columns & {
+      max-height: $max_height_images--two-columns_default;
+      @include media('screen', '>tablet') { 
         max-height: $max_height_images--two-columns;
       }
+            
+      @include media('landscape', 'retina2x' , '>tablet') { 
+        max-height: 277px;
+      }
+    }
+  }
+}
 
-      .single & {
-        max-height: $max_height_images_single;
+.single {
+  .one-column {
+    .entry--header__img-wrapper {
+      .wp-post-image {
+        max-height: $max_height_images--two-columns_default;
+        @include media('screen', '>tablet') { 
+          max-height: $max_height_images--one-column;
+        }
+        @include media('screen', '>desktop') { 
+          max-height: 769px;
+        }
       }
     }
   }
@@ -65,14 +94,27 @@
     .caption {
       font-size: .8rem;
       margin-top: .8rem;
+      margin-bottom: 1rem;
+      padding-left: 3.1rem;
+      padding-right: 3.1rem;
+      height: 30px;
+
+      @include media('screen', '>=tablet') {
+        padding-left: 0;
+        padding-right: 0;
+      }
     }
   }
 }
+
 .entry--content {
   padding: 0 $padding__size;
-  
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+
   @include media('screen', '>tablet') {
     padding: 0;
+    margin-top: 0;
   }
 
   &__text {
@@ -80,15 +122,12 @@
 
     &-link {
       text-decoration: none;
-
-      .entry-title {
-
-      }
+      font-weight: 700;
     }
   }
 
   &__title {
-    font-size: 1.2rem;
+    @include font-size(1.2);
     font-weight: 100; 
   }
 
@@ -97,26 +136,6 @@
   }
 }
 
-.entry--content__text-link {
-  &:after {
-    content: "\21A9";
-    color: white;
-    font-size: 1rem;
-    margin-left: .5rem;
-    display: inline-block;
-    @include transition(all 0.5s);
-    @include transform(translate(-20px,0));
-    opacity: 0;
-  }
-
-  &:hover {    
-    &:after {
-      color: black;
-      @include transform(translate(5px,0));
-      opacity: 1;
-    }
-  }
-}
 .entry--content__custom {
   p {
     @include font-size(.9);
@@ -153,5 +172,13 @@
         align-self: flex-end;
       }
     }
+  }
+}
+
+.entry-meta {
+  padding: 0 $padding__size;
+
+  @include media('screen', '>=tablet') {
+    padding: 0;
   }
 }

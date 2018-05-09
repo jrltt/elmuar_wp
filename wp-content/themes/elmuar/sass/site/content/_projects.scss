@@ -1,3 +1,5 @@
+$menu-top: 75px;
+
 .table__projects {
   display: flex;
   flex-direction: row;
@@ -11,7 +13,7 @@
   }
 
   &--child {
-    display: none;
+    // display: none;
     &.one-space {
       width: 56.38px;
     }
@@ -26,25 +28,14 @@
   }
 }
 
-.content-area {
+/*.content-area {
   // Needs latest Compass, add '@import "compass"' to your scss
   // Permalink - use to edit and share this gradient:
   // http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&1+0,0+100;White+to+Transparent
-  // @include background(linear-gradient(to right, white, #dddddd));
- }
-
-.zoomTarget {
-  .noScroll {
-    .type-project:after {
-      background: transparent;
-    }
-  }
-}
-.zoomNotClickable {
-  .type-project {
-    position: relative;
-    
-    &:after {
+  &:after {
+    // content: '';
+    // @include background(linear-gradient(to left, white, transparent));
+    // &:after {
       content: "";
       display: block;
       position: absolute;
@@ -57,7 +48,35 @@
       background: linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
       pointer-events: none;
       @include transition(all .5s linear);
+    // }
+
+  }
+}*/
+
+.zoomTarget {
+  .noScroll {
+    .type-project:after {
+      background: transparent;
     }
+  }
+}
+
+.type-project {
+  position: relative;
+  
+  &:after {
+    content: "";
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 53px;
+    height: 52px;
+    width: 15%;
+    background-size: 100%;
+    background: -webkit-linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
+    pointer-events: none;
+    @include transition(all .5s linear);
   }
 }
 
@@ -65,7 +84,6 @@
   &-box {
     width: 60px;
     line-height: 2;
-    text-align: center;
   }
 
   &__link,
@@ -90,13 +108,257 @@
   }
 }
 
-.page-template-projects {
-  .featherlight {
-    &:last-of-type {
-      background: rgba(255,255,255,.8);
-    }
-    &-content {
-      width: 670px;
+.custom--content-box {
+  &.slide {
+    widows: 100%;
+  }
+}
+
+.custom--content__excerpt {
+  .slide & {
+    width: 620px;
+    max-width: 620px;
+  }
+}
+
+.custom--content {
+  &__link,
+  &__excerpt {
+    .slide & {
+      font-size: 1rem;
     }
   }
 }
+
+.page-template-projects {
+  .featherlight {
+    text-align: left;
+    white-space: inherit;
+
+    &:last-of-type {
+      background: rgba(255,255,255, 1);
+      position: fixed;
+      top: 75px;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      overflow: hidden;
+      z-index: 101;
+    }
+
+    &:before {
+      content: none;
+    }
+
+    .featherlight-content {
+      background: rgba(255,255,255, 1);
+      display: flex;
+      height: 100%;
+      justify-content: flex-start;
+      margin-left: 0;
+      margin-right: 0;
+      overflow: auto;
+      padding: 0;
+      position: relative;
+      text-align: inherit;
+      vertical-align: inherit;
+      white-space: inherit;
+      width: 100%;
+    }
+
+    .featherlight-close-icon {
+      cursor: pointer;
+      @include font-size(1.3);
+      padding: 10px 0;
+      position: absolute;
+      right: 1.45rem;
+      top: -5px;
+    }
+    
+    .featherlight-inner {
+      @include one-column();
+    }
+
+    .custom--content__text {
+      h6 {
+        @include font-size(.9);
+        margin-top: 0;
+        margin-bottom: 0;
+
+        &:last-of-type {
+          margin-bottom: 1rem;
+        }
+      }
+      
+      p {
+        @include font-size(.9);
+        margin-top: 0;
+        margin-bottom: 0.85rem;
+      }
+    }
+  }
+}
+
+@include media('screen', '>=tablet') {
+  .page-template-projects {
+    .flickity-enabled {
+      position: relative;
+      
+      &:focus { 
+        outline: none;
+      }
+      
+      &.flickity-enabled.is-draggable {
+        user-select: none; 
+        
+        .flickity-viewport {
+          cursor: move;
+          cursor: -webkit-grab;
+          cursor: grab;
+        }
+        
+        .flickity-viewport.is-pointer-down {
+          cursor: grabbing;
+        }
+      }
+      
+      .flickity-viewport {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        height: 100% !important;
+      }
+      
+      .flickity-slider {
+        position: absolute;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.lightbox {
+	background: rgba(255,255,255, 1);
+  position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+  left: 0;
+	overflow: hidden;
+  z-index: 100;
+  
+	.slider {
+		width: 100%;
+		height: 100%;
+    display: flex;
+    justify-content: center;
+		
+		.slide {
+			width: 50%;
+      height: 100%;
+      margin-left: 10rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      // &:nth-child(3) {
+      //   width: 50%;
+      //   margin-left: 35rem;
+      // }
+
+			.frame {
+        padding: 4rem;
+
+				.valign {
+          img {
+            max-width: 100%;
+            height: auto;
+          }
+				}
+			}
+		}
+	}
+  
+  // styling for lightbox
+	
+	.exit {
+		position: absolute;
+		top: $menu-top;
+		right: 1.55rem;
+    padding: 10px 0;
+    text-align: center;
+		cursor: pointer;
+  }
+  
+  .exit.is-active .burger-icon {
+    @include burger-to-cross;
+  }
+  	
+	.prev, .next {
+		position: absolute;
+		top: 50%;
+    margin-top: -22px;
+    padding: 10px 0;
+    text-align: center;
+    background: #ddd;
+		cursor: pointer;
+	}
+	
+	.prev {
+		left: 0;
+	}
+	
+	.next {
+		right: 0;
+	}
+}
+
+
+.slide img {
+  transition: opacity 0.4s;
+  opacity: 0;
+}
+
+.lightbox-enabled {
+  overflow: hidden;
+
+  .slide {
+    img {
+      &.flickity-lazyloaded,
+      &.flickity-lazyerror {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.lightbox .project__title {
+  position: absolute;
+  top: $menu-top;
+  left: 1.55rem;
+  z-index: 100;
+}
+
+// .placeholder {
+//   background-color: #f6f6f6;
+//   background-size: cover;
+//   background-repeat: no-repeat;
+//   position: relative;
+//   overflow: hidden;
+//  } 
+  
+//  .placeholder img {
+//   position: absolute; 
+//   opacity: 0;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   transition: opacity 1s linear;
+//  }
+//  .placeholder img.loaded {
+//   opacity: 1;
+//  }
+//  .img-small {
+//   filter: blur(50px);
+//  }

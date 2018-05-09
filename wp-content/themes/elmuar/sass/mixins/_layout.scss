@@ -1,0 +1,17 @@
+@mixin one-column($single: 'false') {
+  width: 100%;
+  
+  @include media('screen', '>tablet') {
+    padding-left: $padding__size;
+    padding-right: $padding__size;
+    // width: 550px;
+    width: 820px;
+    margin: 0 auto;
+  }
+
+  @if $single == 'true' {
+    @include media('screen', '>desktop') {
+      width: 1200px;
+    }
+  }
+}

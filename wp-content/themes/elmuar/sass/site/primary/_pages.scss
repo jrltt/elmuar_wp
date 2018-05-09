@@ -16,15 +16,10 @@
 
 .site-main {
   &.one-column {
-    width: 100%;
+    @include one-column();
     
-    @include media('screen', '>tablet') {
-      padding-left: $padding__size;
-      padding-right: $padding__size;
-    }
-
-    @include media('screen', '>desktop') {
-      width: 820px;
+    .single & {
+      @include one-column('true');
     }
   }
 }
@@ -51,7 +46,7 @@
   }
 
   &.projects {
-    padding-left: $padding__size-for-box;
+    padding-left: 1.55rem;
   }
 }
 
@@ -99,21 +94,6 @@
   &.active {
     display: block;
     z-index: 99;
-  }
-}
-
-.one-column {
-  width: 100%;
-  
-  @include media('screen', '>tablet') {
-    padding-left: $padding__size;
-    padding-right: $padding__size;
-    width: 550px;
-    margin: 0 auto;
-  }
-
-  @include media('screen', '>desktop') {
-    width: 820px;
   }
 }
 

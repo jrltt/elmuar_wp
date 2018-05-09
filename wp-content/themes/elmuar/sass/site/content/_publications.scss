@@ -81,6 +81,9 @@
         @include media('screen', '>tablet') { 
           max-height: $max_height_images--one-column;
         }
+        @include media('screen', '>desktop') { 
+          max-height: 769px;
+        }
       }
     }
   }
@@ -174,4 +177,8 @@
 
 .entry-meta {
   padding: 0 $padding__size;
+
+  @include media('screen', '>=tablet') {
+    padding: 0;
+  }
 }

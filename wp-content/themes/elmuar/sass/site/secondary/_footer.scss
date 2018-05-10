@@ -27,7 +27,7 @@
       @include font-size(0.675);
 
       @include media('screen', '>tablet') {
-        @include font-size(1);
+        @include font-size(.8);
       }
     }
   }

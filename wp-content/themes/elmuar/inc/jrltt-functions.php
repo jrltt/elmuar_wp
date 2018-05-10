@@ -82,7 +82,7 @@ function build_gallery($size = 'default', $post_content = null)
 	);
 	?>
 
-	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true, "adaptiveHeight": true}'>
+	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}'>
 		<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
 				<div class="flex-align-center">

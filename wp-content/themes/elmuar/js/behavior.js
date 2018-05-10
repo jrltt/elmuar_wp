@@ -182,42 +182,36 @@ var lightbox = {
   }); 
 })(jQuery);
 
-var body = document.querySelector('body');
-if (classie.hasClass(body, 'page-template-parcour')) {
-  var toggles = document.querySelector('div.tailor-toggles');
-  for (var i = 0; i <= 1; i++) {
-    classie.toggleClass(toggles.children[i].children[0], 'is-active');
-    classie.toggleClass(toggles.children[i].children[1], 'show--text');
-  }
-}
-
 var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),
     layer = document.getElementById( 'layer' ),
     showLeftPush = document.getElementById( 'showLeftPush' ),
-    body = document.getElementById( 'content' ),
-    menuButton = document.getElementById('menuButton');
+    content = document.getElementById( 'content' ),
+    menuButton = document.getElementById('menuButton'),
+    globalBody = document.body;
 
 showLeftPush.onclick = function(e) {
   e.preventDefault();
   classie.toggle( this, 'active' );
   classie.toggle( layer, 'active' );
-  classie.toggle( body, 'cbp-spmenu-push-toright' );
+  classie.toggle( content, 'cbp-spmenu-push-toright' );
   classie.toggle( menuLeft, 'cbp-spmenu-open' );
   classie.toggle( menuButton, 'is-active');
+  classie.toggle(globalBody, 'right-menu-open');
   disableOther( 'showLeftPush' );
 };
 
 layer.onclick = function(e) {
   e.preventDefault();
   classie.toggle( this, 'active' );
-  classie.toggle( body, 'cbp-spmenu-push-toright' );
+  classie.toggle( content, 'cbp-spmenu-push-toright' );
   classie.toggle( menuLeft, 'cbp-spmenu-open' );
   classie.toggle( menuButton, 'is-active');
+  classie.toggle(globalBody, 'right-menu-open');
   disableOther( 'showLeftPush' );
 };
 
 function disableOther( button ) {
-  if( button !== 'showLeftPush' ) {
+  if (button !== 'showLeftPush') {
     classie.toggle( showLeftPush, 'disabled' );
   }
 }

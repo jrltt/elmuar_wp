@@ -8,8 +8,8 @@
 
 .site-branding {
   margin-top: .5rem;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
+  padding-left: $padding__size;
+  padding-right: $padding__size;
 
   @include media(">tablet") {
     padding-left: $padding__size;
@@ -51,8 +51,6 @@
 }
 
 .site-branding {
-  // position: relative;
-
   &:after {
     content: "";
     display: block;
@@ -68,6 +66,10 @@
     @include transition(all .5s linear);
     z-index: -1;
 
+    .right-menu-open & {
+      content: none;
+    }
+    
     @include media('>=tablet') {
       content: none;
     }

@@ -22,5 +22,13 @@
     @include media('screen', '>tablet') {
       text-align: center;
     }
+
+    p {
+      @include font-size(0.675);
+
+      @include media('screen', '>tablet') {
+        @include font-size(1);
+      }
+    }
   }
 }

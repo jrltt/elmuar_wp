@@ -54,6 +54,10 @@
   .wp-post-image {   
     max-height: $max_height_images--two-columns_default;
     
+    @include media('portrait', '>=tablet') {
+      max-height: 512px;
+    }
+
     .one-column & {
       @include media('screen', '>tablet') { 
         max-height: $max_height_images--one-column;
@@ -62,6 +66,7 @@
     
     .two-columns & {
       max-height: $max_height_images--two-columns_default;
+
       @include media('screen', '>tablet') { 
         max-height: $max_height_images--two-columns;
       }
@@ -95,8 +100,8 @@
       font-size: .8rem;
       margin-top: .8rem;
       margin-bottom: 1rem;
-      padding-left: 3.1rem;
-      padding-right: 3.1rem;
+      padding-left: $padding__size;
+      padding-right: $padding__size;
       height: 30px;
 
       @include media('screen', '>=tablet') {
@@ -145,12 +150,29 @@
   }
 }
 
-.entry-header {
-  @include media('screen', '<tablet') {
-    margin-left: -$padding__size;
-    margin-right: -$padding__size;
+.page-template {
+  &-publications,
+  &-commandes,
+  &-editions-tromp {
+    .entry-header {
+      @include media('screen', '<tablet') {
+        margin-left: -$padding__size;
+        margin-right: -$padding__size;
+      }
+    }
   }
+}
 
+.blog {
+  .entry-header {
+    @include media('screen', '<tablet') {
+      margin-left: -$padding__size;
+      margin-right: -$padding__size;
+    }
+  }
+}
+  
+.entry-header {
   @include media('screen', '>tablet') {
     .single & {
       max-height: $max_height_images_single;

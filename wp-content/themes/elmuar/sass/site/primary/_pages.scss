@@ -81,6 +81,16 @@
       margin-top: 0;
     }
   }
+
+  .navigation {
+    padding-left: $padding__size;
+    padding-right: $padding__size;
+
+    @include media('screen', '>=tablet') {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
 }
 
 .site-layer {

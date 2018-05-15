@@ -6,13 +6,6 @@
  * @package Elisa_Murcia_Artengo
  */
 if (is_page('Contacto') || is_page('Contact')) {
-	if ( function_exists( 'wpcf7_enqueue_scripts' ) ) {
-		wpcf7_enqueue_scripts();
-	}
-
-	if ( function_exists( 'wpcf7_enqueue_styles' ) ) {
-		wpcf7_enqueue_styles();
-	}
 }
 get_header(); ?>
 

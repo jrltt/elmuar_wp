@@ -9,31 +9,24 @@
  */
 
 get_header(); ?>
-
 	<div id="primary" class="content-area">
-		<?php
-		$columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns';
-		?>
+		<?php $columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns'; ?>
 		<main id="main" class="site-main <?php echo $columnStyle; ?>" role="main">
-
 			<?php
 			$category = get_term_by('slug', 'editions-trompeloeil', 'category');
 			$args = array(
-				'post_type'					=>		'publication',
-				'order'							=> 		'DESC',
-				'orderby'						=>		'date',
-				'category__not_in'	=>		$category->term_id
+				'post_type' => 'publication',
+				'order' => 'DESC',
+				'orderby' => 'date',
+				'category__not_in'	=> $category->term_id,
+				'posts_per_page' => -1
 			);
 			$loop = new WP_Query($args);
 			while ( $loop->have_posts() ) : $loop->the_post();
-
 				get_template_part( 'template-parts/thumb', 'images' );
-
 			endwhile; // End of the loop.
 			?>
-
 		</main><!-- #main -->
 	</div><!-- #primary -->
-
 <?php
 get_footer();

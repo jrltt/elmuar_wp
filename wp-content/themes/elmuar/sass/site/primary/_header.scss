@@ -57,7 +57,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 120px;
+    height: 95px;
     width: 100%;
     background-size: 100%;
     background: -webkit-linear-gradient(to top, rgba(255, 255, 255, 0) 0, #fff);
@@ -110,12 +110,14 @@
     display: inline;
     list-style: none;
 
+    color: $color__link-text__hover;
+
     &:first-child {
       margin-right: .5rem;
     }
 
     a {
-      color: $color__link-text__hover;
+      font-weight: normal;
     }
   }
 }

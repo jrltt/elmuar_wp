@@ -1,0 +1,30 @@
+.cross-container {
+  display: inline-block;
+}
+.cross {
+  position: relative;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  display: block;
+  width: 20px;
+  height: 2px;
+
+  &::after,
+  &::before {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: #444;
+    outline: 1px solid transparent;
+  }
+  &::before {
+    transform: translateY(6px) rotate(45deg);
+      top: -6px;
+  } 
+  &::after {
+    transform: translateY(-6px) rotate(-45deg);
+      top: 6px;
+  }
+}

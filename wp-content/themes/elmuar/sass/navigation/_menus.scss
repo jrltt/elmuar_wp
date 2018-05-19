@@ -111,12 +111,7 @@
   }
   
   li {
-    // float: left;
     position: relative;
-
-    &:hover > a,
-    &.focus > a {
-    }
   }
   
   a {
@@ -194,6 +189,20 @@
     }
 
     margin-top: 5rem;
+  }
+}
 
+.navigation.back-to {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.45rem;
+  width: 100%;
+  
+  .site-main & {
+    padding-right: 0.6rem;
+
+    @include media('screen', '>tablet') {
+      padding-right: 0;
+    }
   }
 }

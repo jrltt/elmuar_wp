@@ -185,11 +185,11 @@ function languages_list_footer()
 	if(!empty($languages)){
 		echo '<ul class="header--leng__list">';
 		foreach($languages as $l){
-				echo '<li>';
-				if(!$l['active']) echo '<a href="'.$l['url'].'">';
-				echo icl_disp_language($l['native_name']);
-				if(!$l['active']) echo '</a>';
-				echo '</li>';
+			echo '<li>';
+			if(!$l['active']) echo '<a href="'.$l['url'].'">';
+			echo icl_disp_language($l['native_name']);
+			if(!$l['active']) echo '</a>';
+			echo '</li>';
 		}
 		echo '</ul>';
 	}

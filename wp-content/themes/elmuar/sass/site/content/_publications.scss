@@ -35,10 +35,13 @@
   &__img-wrapper {
     height: auto;
 
-    @include media('screen','>tablet') {
-      .single & {
-        max-height: $max_height_images_single;
+    .single & {
+      @include media('screen','>tablet') {
         margin-bottom: 2rem;
+      }
+      
+      @include media('screen','<=1280px') {
+        margin-bottom: 1rem;
       }
     }
   }
@@ -200,7 +203,7 @@
 .entry-meta {
   padding: 0 $padding__size;
 
-  @include media('screen', '>=tablet') {
+  @include media('screen', '>tablet') {
     padding: 0;
   }
 }

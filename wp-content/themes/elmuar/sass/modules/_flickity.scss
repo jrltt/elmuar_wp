@@ -81,12 +81,17 @@ https://flickity.metafizzy.co
 
 .flickity-prev-next-button {
   top: 50%;
-  width: 30px;
-  height: 30px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   /* vertically center */
   transform: translateY(-50%);
   padding: 0;
+
+  @include media('screen', '>=tablet') {
+    width: 23px;
+    height: 23px;
+  }
 }
 
 .flickity-prev-next-button.previous { 
@@ -95,12 +100,20 @@ https://flickity.metafizzy.co
   @include media('screen', '>=tablet') {
     left: 10px;
   }
+
+  .single & {
+    left: 10px;
+  }
 }
 .flickity-prev-next-button.next { 
   right: 40px; 
 
   @include media('screen', '>=tablet') {
     right: 10px;    
+  }
+
+  .single & {
+    right: 10px;
   }
 }
 /* right to left */

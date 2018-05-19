@@ -10,8 +10,12 @@
   }
 
   @if $single == 'true' {
-    @include media('screen', '>desktop') {
+
+    @include media('screen', '>1280px') {
       width: 1200px;
+    }
+    @include media('screen', '>1280px', 'retina2x') {
+      width: 820px;
     }
   }
 }

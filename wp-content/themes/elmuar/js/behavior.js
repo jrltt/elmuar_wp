@@ -65,9 +65,11 @@ var lightbox = {
     $(currentGallery).children(lightbox.config.galleryImage).each(function(index, value) {
       $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img data-flickity-lazyload="' + $(this).find('a').attr('data-href') + '"></div></div></div>');
     });
-    var contentClone = document.querySelector(currentGallery + ' ' + lightbox.config.contentBox).cloneNode(true);
-    contentClone.classList.add('slide');
-    $(lightbox.config.lightboxIDCustom + ' .slider').append($(contentClone));
+    if (document.querySelector(currentGallery + ' ' + lightbox.config.contentBox)) {
+      var contentClone = document.querySelector(currentGallery + ' ' + lightbox.config.contentBox).cloneNode(true);
+      contentClone.classList.add('slide');
+      $(lightbox.config.lightboxIDCustom + ' .slider').append($(contentClone));
+    }
 
     // now initalise flickity
     lightbox.initFlickity(thisIndex);

@@ -140,8 +140,32 @@ $menu-top: 75px;
 }
 
 .custom--content-box {
+  font-size: 2.2px;
+  flex-direction: column;
+
+  .custom--content__link-main {
+    font-weight: 300;
+
+    .lightbox-enabled & {
+      cursor: default;
+    }
+    
+    &:hover {
+      color: inherit;
+    }
+  }
+
   &.slide {
     widows: 100%;
+    font-size: 1rem;
+    
+    .lightbox .slider & {
+      align-items: flex-start;
+    }
+  }
+
+  p, h6 {
+    margin: 0;
   }
 }
 
@@ -210,6 +234,7 @@ $menu-top: 75px;
       @include one-column();
     }
 
+    .custom--content__text.featherlight-inner + .custom--content__text.featherlight-inner { display: none;}
     .custom--content__text {
       h6 {
         @include font-size(.9);

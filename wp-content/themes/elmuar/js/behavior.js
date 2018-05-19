@@ -15,19 +15,18 @@ var lightbox = {
     // merge config defaults with init config
     $.extend(lightbox.config, config);
     // on click
-    console.log('lightbox.config.gallery:::', lightbox.config.gallery);
-    
     $(lightbox.config.gallery).find('a').on('click', function(event) {
-      event.preventDefault();
-      console.log($(this));
-      
+      event.preventDefault(); 
       lightbox.createLightbox($(this));
     });
   },
   // create lightbox
   createLightbox : function($element) {
-    console.log('title::::', $element.closest('.gallery')[0].getAttribute('data-gallery-title'));
+    if (!$element.closest('.gallery')[0]) {
+      return;
+    }
     lightbox.config.lightboxIDCustom = '#' + $element.closest('.gallery')[0].getAttribute('data-gallery-id');
+    
     // add body class
     $('body').addClass(lightbox.config.lightboxEnabledClass);
     // remove lightbox if exists
@@ -52,44 +51,45 @@ var lightbox = {
 
     // now populate lightbox
     lightbox.populateLightbox($element);
-    
   },
   // populate lightbox
   populateLightbox: function($element) {
     var thisGalleryImage = $element.closest(lightbox.config.galleryImage);
-    var thisIndex = thisGalleryImage.index();
+    var totalItems = $element.closest('.gallery')[0].childNodes.length;
+    console.log('init', totalItems);
+    
+    var thisIndex = thisGalleryImage.index() !== -1 ? thisGalleryImage.index() : totalItems - 1;
+    
     var currentGallery = "[data-gallery-id=" + lightbox.config.lightboxIDCustom.substring(1) + "]";
     // add slides
     $(currentGallery).children(lightbox.config.galleryImage).each(function(index, value) {
-      console.log('lightbox.config.lightboxIDCustom', lightbox.config.lightboxIDCustom);
-
-      $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img data-flickity-lazyload="' + $(this).find('a').attr('href') + '"></div></div></div>');
+      $(lightbox.config.lightboxIDCustom + ' .slider').append('<div class="slide"><div class="frame"><div class="valign"><img data-flickity-lazyload="' + $(this).find('a').attr('data-href') + '"></div></div></div>');
     });
     var contentClone = document.querySelector(currentGallery + ' ' + lightbox.config.contentBox).cloneNode(true);
     contentClone.classList.add('slide');
     $(lightbox.config.lightboxIDCustom + ' .slider').append($(contentClone));
+
     // now initalise flickity
-    lightbox.initFlickity(thisIndex);  
+    lightbox.initFlickity(thisIndex);
   },
   // initalise flickity
   initFlickity : function(thisIndex) {
-    console.log($(lightbox.config.lightboxIDCustom).find('.slider'));
-    
     $(lightbox.config.lightboxIDCustom).find('.slider').flickity({ // more options: https://flickity.metafizzy.co
       resize: true,
       prevNextButtons: true,
       pageDots: false,
       initialIndex: thisIndex,
       imagesLoaded: true,
-      lazyLoad: 1
+      lazyLoad: 1,
+      adaptiveHeight: true
     });
     
     // make sure image isn't too tall
-    lightbox.containImg();
+    // lightbox.containImg();
     
     // on window resize make sure image isn't too tall
     $(window).on('resize', function() {
-      lightbox.containImg();
+      // lightbox.containImg();
     });
     
     // buttons
@@ -127,46 +127,9 @@ var lightbox = {
     $(lightbox.config.lightboxIDCustom).find('img').css('maxHeight', ($(document).height() - lightbox.config.containImgMargin));
   }
 };
-// window.onload = function() {
-//   var placeholders = document.querySelectorAll('.placeholder');
-//   for (var i = 0; i < placeholders.length; i++) {
-//     loadImage(placeholders[i]);
-//   }
 
-//   function loadImage(placeholder) {
-//     var small = placeholder.children[0];
-
-//     // 1: load small image and show it
-//     var img = new Image();
-//     img.src = small.src;
-//     img.onload = function() {
-//       small.classList.add('loaded');
-//     };
-
-//     // 2: load large image
-//     var imgLarge = new Image();
-//     imgLarge.src = placeholder.dataset.large;
-//     imgLarge.onload = function() {
-//       imgLarge.classList.add('loaded');
-//     };
-//     placeholder.appendChild(imgLarge);
-//   }
-// };
 
 (function($) {
-  $('.menu-item a[href*="#"]:not([href="#"])').click(function() {
-    if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname === this.hostname) {
-      var target = $(this.hash);
-      target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
-      if (target.length) {
-        $('html, body').animate({
-          scrollTop: target.offset().top
-        }, 1000);
-        return false;
-      }
-    }
-  });
-  
   var $container = $('.carousel');
   var $caption = $('.caption');
   $container.on('select.flickity', function() {
@@ -176,10 +139,54 @@ var lightbox = {
       $caption.text(image.alt);
     }
   });
+  
+  var mobileFlkt = false;
+  var desktopFlkt = true;
+  var body = document.querySelector('body');
 
-  lightbox.init({
-    containImgMargin : 1
-  }); 
+  $(window).resize(function () {
+    if (body.classList.contains('page-template-projects')) { 
+      if ($(window).width() <= 767) {
+        $('.gallery').removeClass('gallery');
+          $('.table__projects').flickity({ 
+            imagesLoaded: true,
+            prevNextButtons: true,
+            pageDots: false,
+            cellAlign: 'center',
+            lazyLoad: 1
+          });
+        mobileFlkt = true;
+        desktopFlkt = !desktopFlkt;
+      } else {
+        console.log('mobileFlkt', mobileFlkt, '\n *** desktopFlkt ', desktopFlkt);
+        if (mobileFlkt) {
+          $('.table__projects').flickity('destroy');
+          $('.table__projects').addClass('gallery');
+        }
+        var anchors = $('.table__projects--child a:not(".custom--content__link"):not(".custom--content__link-main")');
+        $(anchors).each(index => {
+          anchors[index].childNodes[0].src = anchors[index].dataset.href2;  
+        });
+        
+        lightbox.init({
+          containImgMargin : 1
+        });
+
+        desktopFlkt = true;
+        mobileFlkt = false;
+      }
+    }
+  }).resize();
+  // lightbox.init({
+  //   containImgMargin : 1
+  // }); 
+  // setTimeout(function() {
+  //   $('.table__projects').each(function () {
+  //     $(this).children('.table__projects--child').each(function (i) {
+  //       $(this).delay(100*i).fadeIn(250);
+  //     });
+  //   });
+  // }, 3000);
 })(jQuery);
 
 var menuLeft = document.getElementById( 'cbp-spmenu-s1' ),

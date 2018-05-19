@@ -210,28 +210,32 @@
 .projects__menu {
   .single-edtromp & {
     a[href*="editions-trompeloeil"] {
-      color: $color__link-text__hover;
+      color: #111;
+      font-weight: bold;
     }
   }
   
   .single-comission & {
     a[href*="encargos"],
     a[href*="commandes"] {
-      color: $color__link-text__hover;
+      color: #111;
+      font-weight: bold;
     }
   }
 
   .single-publication & {
     a[href*="publicaciones"],
     a[href*="publications"] {
-      color: $color__link-text__hover;
+      color: #111;
+      font-weight: bold;
     }
   }
   
   .single-post & {
     a[href*="novedades"],
     a[href*="nouvelles"] {
-      color: $color__link-text__hover;
+      color: #111;
+      font-weight: bold;
     }
   }
 }

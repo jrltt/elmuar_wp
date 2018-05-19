@@ -35,10 +35,13 @@
   &__img-wrapper {
     height: auto;
 
-    @include media('screen','>tablet') {
-      .single & {
-        max-height: $max_height_images_single;
+    .single & {
+      @include media('screen','>tablet') {
         margin-bottom: 2rem;
+      }
+      
+      @include media('screen','<=1280px') {
+        margin-bottom: 1rem;
       }
     }
   }
@@ -50,53 +53,14 @@
   }
 }
 
-.entry--header__img-wrapper {
-  .wp-post-image {   
-    max-height: $max_height_images--two-columns_default;
-    
-    .one-column & {
-      @include media('screen', '>tablet') { 
-        max-height: $max_height_images--one-column;
-      }
-    } 
-    
-    .two-columns & {
-      max-height: $max_height_images--two-columns_default;
-      @include media('screen', '>tablet') { 
-        max-height: $max_height_images--two-columns;
-      }
-            
-      @include media('landscape', 'retina2x' , '>tablet') { 
-        max-height: 277px;
-      }
-    }
-  }
-}
-
-.single {
-  .one-column {
-    .entry--header__img-wrapper {
-      .wp-post-image {
-        max-height: $max_height_images--two-columns_default;
-        @include media('screen', '>tablet') { 
-          max-height: $max_height_images--one-column;
-        }
-        @include media('screen', '>desktop') { 
-          max-height: 769px;
-        }
-      }
-    }
-  }
-}
-
 .single {
   .entry--header__img-wrapper {
     .caption {
       font-size: .8rem;
       margin-top: .8rem;
       margin-bottom: 1rem;
-      padding-left: 3.1rem;
-      padding-right: 3.1rem;
+      padding-left: $padding__size;
+      padding-right: $padding__size;
       height: 30px;
 
       @include media('screen', '>=tablet') {
@@ -145,12 +109,29 @@
   }
 }
 
-.entry-header {
-  @include media('screen', '<tablet') {
-    margin-left: -$padding__size;
-    margin-right: -$padding__size;
+.page-template {
+  &-publications,
+  &-commandes,
+  &-editions-tromp {
+    .entry-header {
+      @include media('screen', '<tablet') {
+        margin-left: -$padding__size;
+        margin-right: -$padding__size;
+      }
+    }
   }
+}
 
+.blog {
+  .entry-header {
+    @include media('screen', '<tablet') {
+      margin-left: -$padding__size;
+      margin-right: -$padding__size;
+    }
+  }
+}
+  
+.entry-header {
   @include media('screen', '>tablet') {
     .single & {
       max-height: $max_height_images_single;
@@ -178,7 +159,7 @@
 .entry-meta {
   padding: 0 $padding__size;
 
-  @include media('screen', '>=tablet') {
+  @include media('screen', '>tablet') {
     padding: 0;
   }
 }

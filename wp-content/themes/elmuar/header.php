@@ -47,7 +47,7 @@
 
 				$description = get_bloginfo( 'description', 'display' );
 				if ( $description || is_customize_preview() ) : ?>
-					<p class="site-description"><?php echo $description; /* WPCS: xss ok. */ ?></p>
+					<p style="display:none;" class="site-description"><?php echo $description; /* WPCS: xss ok. */ ?></p>
 				<?php
 				endif; ?>
 			</div>
@@ -57,8 +57,12 @@
 		</div><!-- .site-branding -->
 	</header><!-- #masthead -->
 		<nav id="cbp-spmenu-s1" class="main-navigation--custom" role="navigation">
-			<?php custom_navigation_menu(); ?>
-			<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_id' => 'single-menu' ) ); ?>
+			<?php wp_nav_menu( array( 
+				'theme_location' => 'primary', 
+				'menu_id' => 'single-menu',
+				'menu_class' => 'projects__menu menu'
+				)
+			); ?>
 		</nav><!-- #site-navigation -->
 	<div id="layer" class="site-layer"></div>
 	<div id="content" class="site-content">

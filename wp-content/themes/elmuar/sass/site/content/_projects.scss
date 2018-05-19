@@ -1,15 +1,44 @@
 $menu-top: 75px;
 
-.table__projects {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: no-wrap;
-  width: 2790px;
+.projects {
+  .entry-header {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.table__projects--child {
+  cursor: pointer;
+
+  @include media('screen', '<tablet') {
+    width: 66%;
+  }
+}
+
+.table__projects {  
+  @include media('screen', '<tablet') {
+    height: 500px;
+  }
+
+  @include media('screen', '>=tablet') {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: no-wrap;
+    width: 2790px;
+  }
+  .image img {
+    width: auto;
+    max-height: 500px;
+  }
 
   &--image {
-    height: 50px;
     padding-left: 0.2rem;
     padding-right: 0.2rem;
+    
+    @include media('screen', '>=tablet') {
+      height: 50px;
+      width: 50px;
+    }
   }
 
   &--child {
@@ -61,22 +90,24 @@ $menu-top: 75px;
   }
 }
 
-.type-project {
-  position: relative;
-  
-  &:after {
-    content: "";
-    display: block;
-    position: absolute;
-    right: 0;
-    top: 53px;
-    height: 52px;
-    width: 15%;
-    background-size: 100%;
-    background: -webkit-linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
-    pointer-events: none;
-    @include transition(all .5s linear);
+@include media('screen', '>=tablet') {
+  .type-project {
+    position: relative;
+    
+    &:after {
+      content: "";
+      display: block;
+      position: absolute;
+      right: 0;
+      top: 53px;
+      height: 52px;
+      width: 15%;
+      background-size: 100%;
+      background: -webkit-linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 0, #fff);
+      pointer-events: none;
+      @include transition(all .5s linear);
+    }
   }
 }
 
@@ -109,8 +140,32 @@ $menu-top: 75px;
 }
 
 .custom--content-box {
+  font-size: 2.2px;
+  flex-direction: column;
+
+  .custom--content__link-main {
+    font-weight: 300;
+
+    .lightbox-enabled & {
+      cursor: default;
+    }
+    
+    &:hover {
+      color: inherit;
+    }
+  }
+
   &.slide {
     widows: 100%;
+    font-size: 1rem;
+    
+    .lightbox .slider & {
+      align-items: flex-start;
+    }
+  }
+
+  p, h6 {
+    margin: 0;
   }
 }
 
@@ -179,6 +234,7 @@ $menu-top: 75px;
       @include one-column();
     }
 
+    .custom--content__text.featherlight-inner + .custom--content__text.featherlight-inner { display: none;}
     .custom--content__text {
       h6 {
         @include font-size(.9);
@@ -199,7 +255,7 @@ $menu-top: 75px;
   }
 }
 
-@include media('screen', '>=tablet') {
+@include media('screen', '>=767px') {
   .page-template-projects {
     .flickity-enabled {
       position: relative;
@@ -226,7 +282,14 @@ $menu-top: 75px;
         overflow: hidden;
         position: relative;
         width: 100%;
-        height: 100% !important;
+        // height: 100% !important;
+        @include media('screen', '>desktop') {
+          margin-top: 3.5rem;
+          max-height: 570px;
+        }
+        @include media('screen', '>1280px') {
+          max-height: 753px;
+        }
       }
       
       .flickity-slider {
@@ -240,10 +303,11 @@ $menu-top: 75px;
 .lightbox {
 	background: rgba(255,255,255, 1);
   position: fixed;
-	top: 0;
+  top: 0;
 	right: 0;
 	bottom: 0;
   left: 0;
+  padding-top: 85px;
 	overflow: hidden;
   z-index: 100;
   
@@ -252,6 +316,7 @@ $menu-top: 75px;
 		height: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
 		
 		.slide {
 			width: 50%;
@@ -260,11 +325,6 @@ $menu-top: 75px;
       display: flex;
       align-items: center;
       justify-content: center;
-      
-      // &:nth-child(3) {
-      //   width: 50%;
-      //   margin-left: 35rem;
-      // }
 
 			.frame {
         padding: 4rem;
@@ -272,7 +332,19 @@ $menu-top: 75px;
 				.valign {
           img {
             max-width: 100%;
-            height: auto;
+            max-height: 550px;
+            
+            @include media('screen', '>desktop') {
+              max-height: 620px;
+            }
+
+            @include media('screen', '>1280px') {
+              max-height: 780px;
+            }
+            
+            @include media('screen', '>1280px', 'retina2x') {
+              max-height: 550px;
+            }
           }
 				}
 			}

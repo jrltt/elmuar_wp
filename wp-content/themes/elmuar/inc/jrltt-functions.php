@@ -62,7 +62,7 @@ function get_match( $regex, $content ) {
 	preg_match($regex, $content, $matches);
 	return $matches[1];
 } 
-function build_gallery($size = 'default', $post_content = null)
+function build_gallery($size = 'default', $post_content = null, $autoplay = false)
 {
 	// https://wordpress.stackexchange.com/questions/80408/how-to-get-page-post-gallery-attachment-images-in-order-they-are-set-in-backend
 	// Extract the shortcode arguments from the $page or $post
@@ -80,9 +80,10 @@ function build_gallery($size = 'default', $post_content = null)
 			'orderby' => 'post__in', //required to order results based on order specified the "include" param
 		)
 	);
+	$flckty = ($autoplay) ? '{"adaptiveHeight": true, "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": 2, "autoPlay": 2500, "wrapAround": true, "pauseAutoPlayOnHover": false}' : '{"adaptiveHeight": true, "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}';
 	?>
 
-	<div class="carousel" data-flickity='{ "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}'>
+	<div class="carousel" data-flickity='<?= $flckty ?>'>
 		<?php foreach( $gallery as $key => $value ) { ?>
 			<div class="gallery-cell">
 				<div class="flex-align-center">
@@ -185,11 +186,11 @@ function languages_list_footer()
 	if(!empty($languages)){
 		echo '<ul class="header--leng__list">';
 		foreach($languages as $l){
-				echo '<li>';
-				if(!$l['active']) echo '<a href="'.$l['url'].'">';
-				echo icl_disp_language($l['native_name']);
-				if(!$l['active']) echo '</a>';
-				echo '</li>';
+			echo '<li>';
+			if(!$l['active']) echo '<a href="'.$l['url'].'">';
+			echo icl_disp_language($l['native_name']);
+			if(!$l['active']) echo '</a>';
+			echo '</li>';
 		}
 		echo '</ul>';
 	}

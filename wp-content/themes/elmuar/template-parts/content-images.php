@@ -24,16 +24,7 @@
 		<a class="entry--content__text-link" href="<?php echo get_the_permalink(); ?>">
 			<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 		</a>
-		<?php
-			// the_content();
-
-			echo get_field('custom_content');
-
-			wp_link_pages( array(
-				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),
-				'after'  => '</div>',
-			) );
-		?>
+		<?= get_field('custom_content'); ?>
 	</div>
 
 	<footer class="entry-footer">

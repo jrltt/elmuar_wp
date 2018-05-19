@@ -17,9 +17,8 @@
     padding-right: 1rem;
 
     li {
-      margin-bottom: 1rem;
+      margin-bottom: 0;
       list-style: none;
-
     }
 
     .sub-menu {
@@ -43,6 +42,7 @@
     a {
       font-size: 1.12rem;
       text-decoration: none;
+      font-weight: normal;
     }
   }
 }
@@ -111,12 +111,7 @@
   }
   
   li {
-    // float: left;
     position: relative;
-
-    &:hover > a,
-    &.focus > a {
-    }
   }
   
   a {
@@ -131,7 +126,7 @@
   .current-menu-item > a,
   .current_page_ancestor > a,
   .current-menu-ancestor > a {
-    color: $color__link-text__hover;
+    color: #111;
   }
 }
 
@@ -194,6 +189,53 @@
     }
 
     margin-top: 5rem;
+  }
+}
 
+.navigation.back-to {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.45rem;
+  width: 100%;
+  
+  .site-main & {
+    padding-right: 0.6rem;
+
+    @include media('screen', '>tablet') {
+      padding-right: 0;
+    }
+  }
+}
+
+.projects__menu {
+  .single-edtromp & {
+    a[href*="editions-trompeloeil"] {
+      color: #111;
+      font-weight: bold;
+    }
+  }
+  
+  .single-comission & {
+    a[href*="encargos"],
+    a[href*="commandes"] {
+      color: #111;
+      font-weight: bold;
+    }
+  }
+
+  .single-publication & {
+    a[href*="publicaciones"],
+    a[href*="publications"] {
+      color: #111;
+      font-weight: bold;
+    }
+  }
+  
+  .single-post & {
+    a[href*="novedades"],
+    a[href*="nouvelles"] {
+      color: #111;
+      font-weight: bold;
+    }
   }
 }

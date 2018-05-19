@@ -1,5 +1,5 @@
 .site-footer {
-  margin: 10% auto 0;
+  margin: 5% auto 0;
   width: 100%;
   // max-width: 85rem;
   // margin-top: 2rem;
@@ -21,6 +21,14 @@
   .site-info {
     @include media('screen', '>tablet') {
       text-align: center;
+    }
+
+    p {
+      @include font-size(0.675);
+
+      @include media('screen', '>tablet') {
+        @include font-size(.8);
+      }
     }
   }
 }

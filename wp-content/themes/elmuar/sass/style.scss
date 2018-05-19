@@ -156,23 +156,79 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
+  min-height: 249px;
   
-  @include media('screen', '<tablet') {
-    min-height: $max_height_images--two-columns_default;
-  }
-
-  @include media('screen', '>tablet') {
-    .one-column & {
-      max-height: $max_height_images--one-column;
-    }
-
-    .two-columns & {
-      max-height: $max_height_images--two-columns;
+  .one-column & {
+    @include media('screen', '>tablet') {
+      min-height: 579px;
     }
 
     .single & {
-      max-height: $max_height_images_single;
-      min-height: auto;
+      @include media('screen', '>tablet') {
+        min-height: 513px;
+      }
+      
+      @include media('screen', '>1280px') {
+        min-height: 770px;
+      }
+
+      @include media('screen', '>1280px', 'retina2x') {
+        min-height: 513px;
+      }
+    }
+  }
+
+  .two-columns & {
+    @include media('screen', '>tablet') {
+      min-height: 277px;
+    }
+
+    @include media('screen', '>=tablet', 'portrait') {
+      min-height: 512px;
+    }
+
+    @include media('screen', '>desktop') {
+      min-height: 389px;
+    }
+  }
+}
+
+.gallery-cell {
+  .wp-post-image {
+    max-height: 249px;
+    
+    .one-column & {
+      @include media('screen', '>=tablet') {
+        max-height: 579px;
+      }
+
+      .single & {
+        @include media('screen', '>tablet') {
+          max-height: 513px;
+        }
+
+        @include media('screen', '>1280px') {
+          max-height: 770px;
+        }
+
+        @include media('screen', '>1280px', 'retina2x') {
+          max-height: 513px;
+        }
+      }
+    }
+
+    .two-columns & {
+      @include media('screen', '>=tablet') {
+        max-height: 277px;
+      }
+
+      @include media('screen', '>=tablet', 'portrait') {
+        max-height: 512px;
+      }
+
+      @include media('screen', '>desktop') {
+        max-height: 389px;
+      }
     }
   }
 }
@@ -217,7 +273,7 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
   transition: opacity 0.4s;
   max-width: 100%;
   max-height: 100%;
-  background: #333;
+  background: transparent;
   margin-left: auto;
   margin-right: auto;
 }

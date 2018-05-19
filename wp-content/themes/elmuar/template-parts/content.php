@@ -33,15 +33,7 @@ $classTypeArticle = has_gallery();
 			<?php the_title( '<h2 class="entry-title entry--content__title">', '</h2>' );?>
 		<?php endif; ?>
 		<div class="entry--content__custom">
-			<?php
-				
-				echo get_field('custom_content', $post->ID);
-
-				wp_link_pages( array(
-					'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'elmuar' ),
-					'after'  => '</div>',
-				) );
-			?>
+			<?= get_field('custom_content', $post->ID); ?>
 		</div>
 	</div>
 	<div class="entry-meta">

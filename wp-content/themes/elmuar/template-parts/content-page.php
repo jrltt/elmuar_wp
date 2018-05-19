@@ -11,7 +11,14 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<div class="entry-content">
-		<?php the_content(); ?>
+		<?php 
+		if ( has_post_gallery() ) {
+			build_gallery('full', $post->post_content, true);
+		}
+		?>
+		<div class="entry--content__custom">
+			<?= get_field('custom_content', $post->ID); ?>
+		</div>
 	</div><!-- .entry-content -->
 
 	<footer class="entry-footer">

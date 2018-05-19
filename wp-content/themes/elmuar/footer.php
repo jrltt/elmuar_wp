@@ -18,7 +18,7 @@
 			&copy; <?php _e( 'Tous les droits sont réservés', 'elmuar' ); ?><br/>
 			<?php
 			    printf( __( '<a href="%1$s">Contacto</a>', 'elmuar' ),
-			        esc_url( (ICL_LANGUAGE_CODE == 'fr') ? '/fr/contact' : '/contacto' )
+			        esc_url( (ICL_LANGUAGE_CODE == 'fr') ? '/fr/contacto' : '/contacto' )
 			    );
 			?>
 			<span class="sep"> – </span>

@@ -15,13 +15,14 @@
 			<p><?php echo date(Y); ?>
 			<span class="sep"> – </span>
 			<?php bloginfo('name'); ?>
-			&copy; <?php _e( 'Tous les droits sont réservés', 'elmuar' ); ?><br/>
+			<span class="sep"> – </span>
 			<?php
 			    printf( __( '<a href="%1$s">Contacto</a>', 'elmuar' ),
 			        esc_url( (ICL_LANGUAGE_CODE == 'fr') ? '/fr/contacto' : '/contacto' )
 			    );
 			?>
-			<span class="sep"> – </span>
+			&copy; <?php _e( 'Tous les droits sont réservés', 'elmuar' ); ?>
+			<br/>
 			<?php printf( esc_html__( 'Website %1$s.', 'elmuar' ), '<a href="https://jrltt.net" rel="develop">jrltt</a>' ); ?></p>
 		</div><!-- .site-info -->
 	</footer><!-- #colophon -->

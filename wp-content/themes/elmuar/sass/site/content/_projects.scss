@@ -7,37 +7,43 @@ $menu-top: 75px;
   }
 }
 
+.project {
+  margin-bottom: 2rem; 
+  
+  @include media('screen', '>=tablet') {
+    margin-bottom: 0;
+  }
+}
+
 .table__projects--child {
   cursor: pointer;
 
   @include media('screen', '<tablet') {
-    width: 66%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
   }
 }
 
 .table__projects {  
-  @include media('screen', '<tablet') {
-    height: 500px;
-  }
-
   @include media('screen', '>=tablet') {
     display: flex;
     flex-direction: row;
     flex-wrap: no-wrap;
     width: 2790px;
   }
+
   .image img {
     width: auto;
     max-height: 500px;
   }
 
   &--image {
-    padding-left: 0.2rem;
-    padding-right: 0.2rem;
-    
     @include media('screen', '>=tablet') {
+      padding-left: 0.2rem;
+      padding-right: 0.2rem;
       height: 50px;
-      width: 50px;
     }
   }
 
@@ -82,10 +88,22 @@ $menu-top: 75px;
   }
 }*/
 
-.zoomTarget {
-  .noScroll {
-    .type-project:after {
-      background: transparent;
+.site-main.projects {
+  .entry-content {
+    @include media('screen', '<767px') {
+      margin-left: -1.55rem;
+    }
+
+    .flickity-viewport {
+      @include media('screen', '<767px') {
+        max-height: 414px;
+      }
+    }
+    .flickity-prev-next-button.previous {
+      left: 20px;
+    }
+    .flickity-prev-next-button.next {
+      right: 20px;
     }
   }
 }
@@ -112,20 +130,14 @@ $menu-top: 75px;
 }
 
 .custom--content {
-  &-box {
-    width: 60px;
-    line-height: 2;
-  }
-
   &__link,
   &__excerpt {
-    font-size: 2.2px;
+    @include font-size(.9);
     text-decoration: none;
-  }
-  &__excerpt {
-    width: 45px;
-    margin: 0 auto;
-    padding-top: 1rem;
+
+    @include media('screen', '>=tablet') {
+      font-size: 2.2px;
+    }
   }
 
   &__link {
@@ -140,8 +152,22 @@ $menu-top: 75px;
 }
 
 .custom--content-box {
-  font-size: 2.2px;
+  @include font-size(.9);
+  display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  line-height: 2;
+  padding-left: 1.55rem;
+  padding-right: 1.55rem;
+  
+  @include media('screen', '>=tablet') {
+    height: 50px;
+    width: 50px;
+    font-size: 2.2px;
+    padding-left: 0;
+    padding-right: 0;
+  }
 
   .custom--content__link-main {
     font-weight: 300;
@@ -189,42 +215,57 @@ $menu-top: 75px;
   .featherlight {
     text-align: left;
     white-space: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 
     &:last-of-type {
       background: rgba(255,255,255, 1);
       position: fixed;
-      top: 75px;
+      top: 0;
       right: 0;
       bottom: 0;
       left: 0;
       overflow: hidden;
       z-index: 101;
+      padding-top: 80px;
+
+      @include media('screen', '>tablet') {
+        top: 75px;
+        padding-top: 0;
+      }
     }
 
     &:before {
       content: none;
     }
-
+    
     .featherlight-content {
-      background: rgba(255,255,255, 1);
-      display: flex;
-      height: 100%;
-      justify-content: flex-start;
-      margin-left: 0;
-      margin-right: 0;
-      overflow: auto;
-      padding: 0;
-      position: relative;
-      text-align: inherit;
-      vertical-align: inherit;
-      white-space: inherit;
-      width: 100%;
+      @include media('screen', '<tablet') {
+        margin: 0;
+        padding-left: 1.55rem;
+        padding-right: 1.55rem;
+      }
     }
+    // .featherlight-content {
+      // background: rgba(255,255,255, 1);
+      // display: flex;
+      // height: 100%;
+      // justify-content: flex-start;
+      // margin-left: 0;
+      // margin-right: 0;
+      // overflow: auto;
+      // padding: 0;
+      // position: relative;
+      // text-align: inherit;
+      // vertical-align: inherit;
+      // white-space: inherit;
+      // width: 100%;
+    // }
 
     .featherlight-close-icon {
       cursor: pointer;
       @include font-size(1.3);
-      padding: 10px 0;
       position: absolute;
       right: 1.45rem;
       top: -5px;
@@ -234,8 +275,19 @@ $menu-top: 75px;
       @include one-column();
     }
 
-    .custom--content__text.featherlight-inner + .custom--content__text.featherlight-inner { display: none;}
+    .custom--content__text.featherlight-inner + .custom--content__text.featherlight-inner { display: none; }
+
     .custom--content__text {
+      margin-top: 1.55rem;
+
+      @include media('screen', '>=tablet') {
+        margin-top: 0;
+      }
+
+      @include media('screen', '>=tablet', 'portrait') {
+        padding-left: 0.5rem;
+      }
+
       h6 {
         @include font-size(.9);
         margin-top: 0;
@@ -249,10 +301,16 @@ $menu-top: 75px;
       p {
         @include font-size(.9);
         margin-top: 0;
-        margin-bottom: 0.85rem;
+        margin-bottom: 0;
       }
     }
   }
+}
+
+.flickity-slider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @include media('screen', '>=767px') {
@@ -384,7 +442,6 @@ $menu-top: 75px;
 		right: 0;
 	}
 }
-
 
 .slide img {
   transition: opacity 0.4s;

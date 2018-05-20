@@ -81,6 +81,10 @@
     margin-top: 0;
   }
 
+  @include media('screen', '>desktop') {
+    margin-top: 1rem;
+  }
+
   &__text {
     margin-top: .8rem;
 
@@ -161,5 +165,19 @@
 
   @include media('screen', '>tablet') {
     padding: 0;
+  }
+}
+
+.custom-content__edtromp {
+  align-items: center;
+}
+
+.custom-content__edtromp--text {
+  padding-left: 1.55rem;
+  padding-right: 1.55rem;
+
+  @include media('screen', '>tablet') {
+    padding-left: 0;
+    padding-right: 0;
   }
 }

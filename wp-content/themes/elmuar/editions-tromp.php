@@ -11,28 +11,34 @@
 get_header(); ?>
 
 	<div id="primary" class="content-area">
-		<?php
-		$columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns';
-		?>
-		<main id="main" class="site-main <?php echo $columnStyle; ?>" role="main">
-			
-			<?php
-
-			while ( have_posts() ) : the_post();
-			?>
-				<article id="post-<?php the_ID(); ?>" <?php post_class(array('type-edtromp__header')); ?>>
-					<?php the_content(); ?>
+		<div class="site-main two-columns custom-content__edtromp">
+			<?php if (get_field('column_one', $post->ID)) { ?>
+				<article class="image__type--gallery edtromp type-edtromp hentry custom-content__edtromp--image">
+					<?php
+						 if ( has_post_gallery() ) {
+							build_gallery('full', $post->post_content, true);
+						} else if ( has_post_thumbnail() ) {
+							the_post_thumbnail('full', array('class' => 'img-responsive'));
+						} else {
+							echo_first_image($post->ID);
+						} 
+					?>
 				</article>
+			<?php } ?>
+			<?php if (get_field('column_two', $post->ID)) { ?>
+				<article class="image__type--gallery edtromp type-edtromp hentry custom-content__edtromp--text">
+					<?php echo get_field('column_two', $post->ID); ?>
+				</article>
+			<?php } ?>
+		</div>
+		<?php $columnStyle = (get_field('number_columns')) ? get_field('number_columns') : 'two-columns'; ?>
+		<main id="main" class="site-main <?php echo $columnStyle; ?>" role="main">
 			<?php
-			endwhile;
-			
-			wp_reset_postdata();
-
 			$args = array(
-				'post_type'					=>		'edtromp',
-				'order'							=> 		'DESC',
-				'orderby'						=>		'date',
-				'posts_per_page'		=>		-1
+				'post_type' => 'edtromp',
+				'order' => 'DESC',
+				'orderby' => 'date',
+				'posts_per_page' => -1
 			);
 			$loop = new WP_Query($args);
 			while ( $loop->have_posts() ) : $loop->the_post();

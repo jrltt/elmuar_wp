@@ -38,10 +38,10 @@
 					$content .= '</div>';
 				}
 				if (get_field('custom_content', $post->ID)) {
-					$projectTitle = lcfirst(str_replace(' ', '', $post->post_title));
+					$projectTitle = lcfirst(str_replace(' ', '', str_replace('\'', '',$post->post_title)));
 					$content .= '<div class="custom--content-box table__projects--child">';
 					$content .= '<a class="custom--content__link-main">';
-					$content .= '<p class="custom--content__excerpt">' . get_field('excerpt_custom_content', $post->ID) . '<a class="custom--content__link" href="#" data-featherlight="#'. $projectTitle .'">'. __( 'Leer más', 'elmuar' ) . '</a></p>';
+					$content .= get_field('excerpt_custom_content', $post->ID) . '<a class="custom--content__link" href="#" data-featherlight="#'. $projectTitle .'">'. __( 'Leer más', 'elmuar' ) . '</a>';
 					$content .= '</a>';
 					$content .= '<div id="'. $projectTitle .'" class="custom--content__text">'. get_field('custom_content', $post->ID) . '</div>';
 					$content .= '</div>';

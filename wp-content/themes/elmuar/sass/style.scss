@@ -160,7 +160,7 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
   
   .one-column & {
     @include media('screen', '>tablet') {
-      min-height: 579px;
+      min-height: 513px;
     }
 
     .single & {
@@ -199,7 +199,7 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
     
     .one-column & {
       @include media('screen', '>=tablet') {
-        max-height: 579px;
+        max-height: 513px;
       }
 
       .single & {

@@ -12,8 +12,7 @@
  * created date of category
  * @return String 
  */
-function build_category_year() 
-{
+function build_category_year() {
 	$object_data = get_the_date('Y');
 	$cat = get_the_category(); 
 	foreach ($cat as $key => $value) {
@@ -22,24 +21,13 @@ function build_category_year()
 	return $object_data;
 }
 
-function getEdTromCatId () 
-{
+function getEdTromCatId () {
 	$catEdTromp = get_term_by('slug', 'editions-trompeloeil', 'category');
-	// $args = array(
-	// 	'category'         => $catEdTromp->term_id,
-	// 	'post_type'        => 'publication',
-	// 	'post_status'      => 'publish'
-	// );
-	// $posts_array = get_posts( $args );
-	// $edTrompIds = array();
-	// foreach ($posts_array as $key => $value) {
-	// 	array_push($edTrompIds, $value->ID);
-	// }
+
 	return $catEdTromp->term_id;
 }
 
-function defaultImages () 
-{
+function defaultImages () {
 	$images = array();
 	for ($i=0; $i < 4 ; $i++) { 
 		$image = get_template_directory_uri() . '/images/defaultImage'. $i .'.png';
@@ -49,8 +37,7 @@ function defaultImages ()
 	return $imageHtml;
 }
 
-function has_post_gallery()
-{
+function has_post_gallery() {
 	global $post;
 	if( ! has_shortcode( $post->post_content, 'gallery' ) )
 		return false;
@@ -61,9 +48,9 @@ function has_post_gallery()
 function get_match( $regex, $content ) {
 	preg_match($regex, $content, $matches);
 	return $matches[1];
-} 
-function build_gallery($size = 'default', $post_content = null, $autoplay = false)
-{
+}
+
+function build_gallery($size = 'default', $post_content = null, $autoplay = false) {
 	// https://wordpress.stackexchange.com/questions/80408/how-to-get-page-post-gallery-attachment-images-in-order-they-are-set-in-backend
 	// Extract the shortcode arguments from the $page or $post
 	$shortcode_args = shortcode_parse_atts(get_match('/\[gallery\s(.*)\]/isU', $post_content));

@@ -67,7 +67,6 @@ function cptui_register_my_cpts() {
 		"menu_position" => 6,"menu_icon" => "dashicons-admin-page",		
 		"supports" => array( "title", "editor", "thumbnail", "custom-fields", "page-attributes", "post-formats" ),		
 		"taxonomies" => array( "category" ),
-		"publicly_queryable" => false		
 	);
 	register_post_type( "project", $args );
 
@@ -324,16 +323,12 @@ add_action( 'widgets_init', 'elmuar_widgets_init' );
 function elmuar_scripts() {
 	wp_enqueue_style( 'elmuar-style', get_stylesheet_uri() );
 
-	// wp_enqueue_style( 'featherlight', get_template_directory_uri() . '/stylesheets/featherlight.min.css' );
-
 	wp_enqueue_script( 'classie', get_template_directory_uri() . '/js/classie.js', array(), '20151215', true );
 
 	wp_enqueue_script( 'elmuar-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
 
 	wp_enqueue_script( 'elmuar-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
 	
-	// wp_enqueue_script( 'unveil', get_template_directory_uri() . '/js/jquery.unveil.js', array(), '20162510', true );
-
 	wp_enqueue_script( 'lazy-load', get_template_directory_uri() . '/js/imagesloaded.pkgd.js', array(), '20162510', true );
 
 	wp_enqueue_script( 'elmuar-flickity', get_template_directory_uri() . '/js/flickity.pkgd.min.js', array(), '20160110', true );

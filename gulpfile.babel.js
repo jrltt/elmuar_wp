@@ -2,8 +2,9 @@ var gulp = require("gulp");
 var gulpLoadPlugins = require("gulp-load-plugins");
 var browserSync = require("browser-sync").create();
 var $ = gulpLoadPlugins();
-
+var del = require("del");
 var themeFolder = "wp-content/themes/elmuar/";
+
 // catch errors and display them in the console
 var onError = (err) => console.log(`Error -> ${err}`);
 
@@ -93,7 +94,10 @@ exports.images = images;
 //   }).pipe(gulp.dest('dist'));
 // });
 
-// gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
+// Clean assets
+function clean() {
+  return del([".tmp", "dist"]);
+}
 
 function watchFiles() {
   gulp.watch(themeFolder + "sass/**/*.scss", styles);
@@ -121,6 +125,7 @@ function serve(done) {
   });
   done();
 }
+
 const watch = gulp.parallel(watchFiles, serve);
 exports.watch = watch;
 
@@ -138,8 +143,7 @@ exports.watch = watch;
 //   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 // });
 
-// gulp.task('default', ['clean'], () => {
-//   gulp.start('build');
-// });
+const build = gulp.series(clean, gulp.parallel(styles, images, js, html));
+exports.build = build;
 
 exports.default = gulp.parallel([styles, scripts, lint]);

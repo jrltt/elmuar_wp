@@ -7,19 +7,18 @@
  * @package Elisa_Murcia_Artengo
  */
 get_header(); ?>
-	<h1>PROJECTS</h1>
 	<div id="primary" class="content-area">
 		<main id="main" class="site-main one-column" role="main">
 			<nav class="navigation back-to">
 				<?php
-					// printf( __( '<a class="back-to__link" href="%1$s"><div class="cross-container"><span class="cross"></span></div></a>', 'elmuar' ),
-				    //     esc_url( jrltt_back_to() )
-				    // );
+					printf( __( '<a class="back-to__link" href="%1$s"><div class="cross-container"><span class="cross"></span></div></a>', 'elmuar' ),
+				        esc_url( jrltt_back_to() )
+				    );
 				?>
 			</nav>
 			<?php
-			while ( have_posts() ) : the_post();
-				get_template_part( 'template-parts/content', get_post_format() );
+			while (have_posts()) : the_post();
+				get_template_part('template-parts/content-project-single');
 			endwhile; // End of the loop.
 			?>
 		</main>

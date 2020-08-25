@@ -50,14 +50,14 @@ function get_match( $regex, $content ) {
 	return $matches[1];
 }
 
-function build_gallery($size = 'default', $post_content = null, $autoplay = false) {
+function get_gallery_posts($post_content) {
 	// https://wordpress.stackexchange.com/questions/80408/how-to-get-page-post-gallery-attachment-images-in-order-they-are-set-in-backend
 	// Extract the shortcode arguments from the $page or $post
 	$shortcode_args = shortcode_parse_atts(get_match('/\[gallery\s(.*)\]/isU', $post_content));
 	// get the ids specified in the shortcode call
 	$ids = $shortcode_args['ids'];
 	// get the attachments specified in the "ids" shortcode argument
-	$gallery = get_posts(
+	return get_posts(
 		array(
 			'include' => $ids, 
 			'post_status' => 'inherit', 
@@ -67,7 +67,28 @@ function build_gallery($size = 'default', $post_content = null, $autoplay = fals
 			'orderby' => 'post__in', //required to order results based on order specified the "include" param
 		)
 	);
-	$flckty = ($autoplay) ? '{"adaptiveHeight": true, "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": 2, "autoPlay": 2500, "wrapAround": true, "pauseAutoPlayOnHover": false}' : '{"adaptiveHeight": true, "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}';
+}
+
+function build_single_gallery_project($post_content = null) {
+	$gallery = get_gallery_posts($post_content);
+	$flckty_options = '{"resize": true, "prevNextButtons": true, "pageDots": false, "imagesLoaded": false, "lazyLoad": false,"adaptiveHeight": true}';
+	?>
+	<div class="slider" data-flickity='{ "resize": true }'>
+		<?php foreach( $gallery as $key => $value ) { ?>
+			<div class="slide">
+				<img class="carousel-cell-image" src="<?php echo $value->guid; ?>" alt="<?php echo $value->post_title ."\n". $value->post_excerpt; ?>">
+			</div>
+		<?php } ?>
+	</div>
+	<?php
+}
+
+function build_gallery($size = 'default', $post_content = null, $autoplay = false, $caption = true) {
+	$gallery = get_gallery_posts($post_content);
+	$base_flckty_options = '{"adaptiveHeight": true, "imagesLoaded": true,"prevNextButtons": true, "pageDots":false, "lazyLoad": true}';
+	$flckty_autoplay_options = '{"adaptiveHeight": true, "imagesLoaded": true,"prevNextButtons": false, "pageDots":false, "lazyLoad": 2, "autoPlay": 2500, "wrapAround": true, "pauseAutoPlayOnHover": false}';
+
+	$flckty = ($autoplay) ? $flckty_autoplay_options : $base_flckty_options;
 	?>
 
 	<div class="carousel" data-flickity='<?= $flckty ?>'>
@@ -79,7 +100,7 @@ function build_gallery($size = 'default', $post_content = null, $autoplay = fals
 			</div>
 		<?php } ?>
 	</div>
-	<?php if (is_single()): ?>
+	<?php if (is_single() && $caption): ?>
 		<div class="caption">&nbsp;</div>
 	<?php endif; ?>
 	<?php
@@ -193,7 +214,7 @@ function jrltt_back_to()
 		} else if (is_singular('edtromp')) {
 			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/editions-trompeloeil' : '/editions-trompeloeil';
 		} else if (is_singular('project')) {
-			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/projects' : '/proyectos';
+			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr' : '/';
 		} else {
 			$url =  (ICL_LANGUAGE_CODE == fr) ? '/fr/nouvelles' : '/novedades';
 		}

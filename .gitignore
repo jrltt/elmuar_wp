@@ -21,6 +21,11 @@ wp-content/themes/elmuar/style.css
 *.map
 wp-content/plugins/wpml-*
 wp-content/plugins/sitepress-multilingual-cms
+wp-content/plugins/wp-super-cache
+wp-content/plugins/wordpress-seo
+wp-content/plugins/wordpress-importer
 wp-snapshots/*
 .eslintrc.json
 wp-content/languages
+dist/*
+.vscode/*
